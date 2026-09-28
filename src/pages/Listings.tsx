@@ -7,9 +7,9 @@ import EnquiryForm from '../components/EnquiryForm';
 import Icon from '../components/Icon';
 import { CtaBand, FormSection, PageHero } from '../components/sections';
 import { LISTINGS_LINKS } from '../data/nav';
-import mountGambier from '../assets/photos/mount-gambier-hillside-street.jpg';
-import interior from '../assets/photos/interior-corner-windows.jpg';
-import soldSign from '../assets/photos/sold-sign-ridley.jpg';
+import mountGambier from '../assets/photos/mount-gambier-hillside-street.jpg?photo';
+import interior from '../assets/photos/interior-corner-windows.jpg?photo';
+import soldSign from '../assets/photos/sold-sign-ridley.jpg?photo';
 
 interface ListingsPanelProps {
   link: { href: string; label: string };

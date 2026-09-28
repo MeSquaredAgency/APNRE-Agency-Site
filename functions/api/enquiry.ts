@@ -11,6 +11,27 @@
 
 interface Env {
   SHEETS_WEBHOOK_URL: string;
+  /** Cloudflare Turnstile secret key. When set, every submission needs a
+   *  valid token, so only set it together with VITE_TURNSTILE_SITE_KEY
+   *  (otherwise the forms can't produce one and every enquiry fails). */
+  TURNSTILE_SECRET?: string;
+}
+
+/** Checks a Turnstile token with Cloudflare. */
+async function turnstileOk(secret: string, token: string, ip: string | null): Promise<boolean> {
+  if (!token) return false;
+  const body = new FormData();
+  body.set('secret', secret);
+  body.set('response', token);
+  if (ip) body.set('remoteip', ip);
+  try {
+    const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', { method: 'POST', body });
+    const result = (await res.json()) as { success?: boolean };
+    return result.success === true;
+  } catch (err) {
+    console.error('Turnstile verification failed:', err);
+    return false;
+  }
 }
 
 interface EnquiryType {
@@ -99,6 +120,15 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   // Honeypot: hidden from real visitors. If it's filled, pretend success
   // so the bot doesn't retry, and don't write a row.
   if (get('hp_confirm')) return json({ ok: true });
+
+  if (env.TURNSTILE_SECRET) {
+    const ok = await turnstileOk(
+      env.TURNSTILE_SECRET,
+      get('cf-turnstile-response', 4096),
+      request.headers.get('CF-Connecting-IP'),
+    );
+    if (!ok) return json({ ok: false, error: 'Spam check failed. Please try again.' }, 403);
+  }
 
   const typeKey = get('type');
   const type = TYPES[typeKey];

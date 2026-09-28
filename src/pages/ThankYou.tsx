@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import Icon from '../components/Icon';
 import { PageHero } from '../components/sections';
@@ -13,7 +14,10 @@ const MESSAGES: Record<string, string> = {
 };
 
 export default function ThankYou() {
-  const type = new URLSearchParams(window.location.search).get('type') ?? '';
+  // Pre-rendered with the generic message; the form-specific one comes
+  // from ?type= after hydration.
+  const [type, setType] = useState('');
+  useEffect(() => setType(new URLSearchParams(window.location.search).get('type') ?? ''), []);
   return (
     <Layout>
       <PageHero

@@ -2,7 +2,7 @@ import Layout from '../components/Layout';
 import EnquiryForm from '../components/EnquiryForm';
 import Icon from '../components/Icon';
 import { CtaBand, Faq, FormSection, PageHero, Process, Reasons, Team } from '../components/sections';
-import soldSign from '../assets/photos/sold-sign-fenden-rd.jpg';
+import soldSign from '../assets/photos/sold-sign-fenden-rd.jpg?photo';
 
 // Keep every claim here to something APN can stand behind: no sales
 // figures, days-on-market or rankings unless they're verified and dated.

@@ -1,12 +1,14 @@
 // Building blocks the pages are assembled from. Each takes its copy as
 // props, so the words live with the page that uses them.
 
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { OFFICE_LIST } from '../data/offices';
 import { TEAM, type TeamGroup, type TeamMember } from '../data/team';
 import { PHONE_DISPLAY, PHONE_TEL } from '../data/business';
 import { trackCallClick } from '../lib/analytics';
 import Icon from './Icon';
+import Picture from './Picture';
+import type { Photo } from '../lib/photo';
 
 /* ---------- Page hero: full-bleed photo under a dark scrim ---------- */
 
@@ -15,7 +17,7 @@ interface PageHeroProps {
   title: ReactNode;
   lede?: ReactNode;
   /** Leave unset for a plain dark hero. */
-  photo?: string;
+  photo?: Photo;
   photoAlt?: string;
   focalPoint?: string;
   children?: ReactNode;
@@ -25,11 +27,13 @@ export function PageHero({ eyebrow, title, lede, photo, photoAlt = '', focalPoin
   return (
     <section className={`page-hero${photo ? ' page-hero--photo' : ''}`}>
       {photo && (
-        <img
-          className="page-hero__img"
-          src={photo}
+        // The hero is the page's main image, so it loads straight away.
+        <Picture
+          photo={photo}
           alt={photoAlt}
+          className="page-hero__img"
           style={focalPoint ? { objectPosition: focalPoint } : undefined}
+          priority
         />
       )}
       <div className="page-hero__scrim" />
@@ -69,7 +73,7 @@ export function Pillars({ items }: { items: Pillar[] }) {
 
 export interface ImageCard {
   href: string;
-  image: string;
+  image: Photo;
   alt: string;
   kicker: string;
   title: string;
@@ -86,7 +90,11 @@ export function ImageCards({ items }: { items: ImageCard[] }) {
           key={c.title}
           {...(c.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
         >
-          <img src={c.image} alt={c.alt} loading="lazy" />
+          <Picture
+            photo={c.image}
+            alt={c.alt}
+            sizes={items.length === 3 ? '(max-width: 900px) 100vw, 33vw' : '(max-width: 900px) 100vw, 50vw'}
+          />
           <span className="image-card__scrim" />
           <span className="image-card__text">
             <span className="image-card__kicker">{c.kicker}</span>
@@ -231,7 +239,12 @@ export function Offices({ title = 'Two offices, one team.' }: { title?: ReactNod
         <div className="offices">
           {OFFICE_LIST.map((office) => (
             <article className="office-card" key={office.id} id={office.id}>
-              <img src={office.photo} alt={office.photoAlt} className="office-card__photo" loading="lazy" />
+              <Picture
+                photo={office.photo}
+                alt={office.photoAlt}
+                className="office-card__photo"
+                sizes="(max-width: 900px) 100vw, 50vw"
+              />
               <div className="office-card__body">
                 <h3 className="h-2">{office.name}</h3>
                 <p className="office-card__address">
@@ -274,11 +287,11 @@ function TeamCard({ member }: { member: TeamMember }) {
   return (
     <article className="team-card">
       <div className="team-card__photo">
-        <img
-          src={member.photo}
+        <Picture
+          photo={member.photo}
           alt={`${member.name}, ${member.role}`}
-          loading="lazy"
           style={member.focalPoint ? { objectPosition: member.focalPoint } : undefined}
+          sizes="(max-width: 560px) 50vw, 25vw"
         />
       </div>
       <h3 className="team-card__name">{member.name}</h3>
@@ -311,17 +324,19 @@ interface TeamProps {
 const FILTERS = ['all', 'sales', 'property-management', 'leadership'] as const;
 type Filter = (typeof FILTERS)[number];
 
-function filterFromUrl(): Filter {
-  const value = new URLSearchParams(window.location.search).get('filter');
-  return (FILTERS as readonly string[]).includes(value ?? '') ? (value as Filter) : 'all';
-}
-
 export function Team({ group, filterable = false, limit, eyebrow = 'Our people', title, headless = false }: TeamProps) {
-  const [filter, setFilter] = useState<Filter>(() => (filterable ? filterFromUrl() : 'all'));
-  // ?q= comes from the home hero's "Find an agent" search.
-  const [query, setQuery] = useState(() =>
-    filterable ? (new URLSearchParams(window.location.search).get('q') ?? '') : '',
-  );
+  const [filter, setFilter] = useState<Filter>('all');
+  const [query, setQuery] = useState('');
+  // Pre-rendered showing everyone; ?filter= (from menu links like "Sales
+  // Team") and ?q= (from the home hero's "Find an agent" search) are
+  // applied after hydration.
+  useEffect(() => {
+    if (!filterable) return;
+    const params = new URLSearchParams(window.location.search);
+    const value = params.get('filter') ?? '';
+    if ((FILTERS as readonly string[]).includes(value)) setFilter(value as Filter);
+    setQuery(params.get('q') ?? '');
+  }, [filterable]);
   const active = group ?? filter;
   const q = query.trim().toLowerCase();
   const members = TEAM.filter(

@@ -7,6 +7,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { buildOgImages, OG_DEFAULT, OG_PHOTOS } from './og-images.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SITE = 'https://apnre.com.au';
@@ -61,6 +62,13 @@ function html(route) {
     route.page === 'home' || route.page === 'contact'
       ? `    <script type="application/ld+json">${JSON.stringify(JSON_LD)}</script>\n`
       : '';
+  const og = OG_PHOTOS[route.page] ?? OG_DEFAULT;
+  const ogImage = `${SITE}/og/${route.page}.jpg`;
+  // The home hero's poster is its largest image, so fetch it straight away.
+  const preload =
+    route.page === 'home'
+      ? `    <link rel="preload" as="image" href="/video/adelaide-aerial-poster.jpg" fetchpriority="high" />\n`
+      : '';
   return `<!doctype html>
 <html lang="en-AU">
   <head>
@@ -75,15 +83,20 @@ function html(route) {
     <meta property="og:site_name" content="APN Real Estate" />
     <meta property="og:title" content="${title}" />
     <meta property="og:description" content="${description}" />
-    <meta property="og:image" content="${SITE}/og-cover.jpg" />
+    <meta property="og:image" content="${ogImage}" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="${esc(og.alt)}" />
     <meta property="og:url" content="${url}" />
     <meta property="og:locale" content="en_AU" />
     <meta name="twitter:card" content="summary_large_image" />
-${jsonLd}    <script type="module" src="/src/main.tsx"></script>
+    <meta name="twitter:image" content="${ogImage}" />
+    <meta name="twitter:image:alt" content="${esc(og.alt)}" />
+${preload}${jsonLd}    <script type="module" src="/src/main.tsx"></script>
   </head>
   <body>
     <!-- shared-body -->
-    <div id="root" data-page="${route.page}"></div>
+    <div id="root" data-page="${route.page}"><!-- app --></div>
   </body>
 </html>
 `;
@@ -104,4 +117,6 @@ writeFileSync(
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`,
 );
 
-console.log(`Generated ${routes.length} pages and public/sitemap.xml`);
+await buildOgImages(routes.map((r) => r.page));
+
+console.log(`Generated ${routes.length} pages, their link-preview images and public/sitemap.xml`);

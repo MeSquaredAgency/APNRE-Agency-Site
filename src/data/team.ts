@@ -1,9 +1,10 @@
-import patrickPhoto from '../assets/team/patrick-nhim.jpg';
-import brettPhoto from '../assets/team/brett-david.jpg';
-import jennyPhoto from '../assets/team/jenny-saffin.jpg';
-import lukePhoto from '../assets/team/luke-whittaker.jpg';
-import marissaPhoto from '../assets/team/marissa-bowell.jpg';
-import breePhoto from '../assets/team/bree.jpg';
+import type { Photo } from '../lib/photo';
+import patrickPhoto from '../assets/team/patrick-nhim.jpg?photo';
+import brettPhoto from '../assets/team/brett-david.jpg?photo';
+import jennyPhoto from '../assets/team/jenny-saffin.jpg?photo';
+import lukePhoto from '../assets/team/luke-whittaker.jpg?photo';
+import marissaPhoto from '../assets/team/marissa-bowell.jpg?photo';
+import breePhoto from '../assets/team/bree.jpg?photo';
 import type { OfficeId } from './offices';
 
 /** The team filters on /our-people/. Someone can be in more than one,
@@ -14,7 +15,7 @@ export interface TeamMember {
   name: string;
   role: string;
   initials: string;
-  photo: string;
+  photo: Photo;
   groups: TeamGroup[];
   /** Which office they work from. */
   office: OfficeId;

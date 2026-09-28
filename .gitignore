@@ -12,3 +12,5 @@ dist-ssr
 /index.html
 /*/index.html
 public/sitemap.xml
+public/og/
+dist-ssr/

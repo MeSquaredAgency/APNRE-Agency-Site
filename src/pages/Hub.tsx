@@ -46,7 +46,7 @@ export default function Hub() {
         eyebrow="Client hub"
         title="For our landlords and tenants."
         lede="Get in touch with your property manager, find a rental, or let us know something needs fixing."
-        photo={STOCK.keysHand.src}
+        photo={STOCK.keysHand.photo}
         photoAlt={STOCK.keysHand.alt}
       />
 

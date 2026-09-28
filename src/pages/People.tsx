@@ -9,7 +9,7 @@ export default function People() {
         eyebrow="Our people"
         title="Meet the team."
         lede="Sales, leasing and property management across our Adelaide and Mount Gambier offices."
-        photo={STOCK.suburbAerial.src}
+        photo={STOCK.suburbAerial.photo}
         photoAlt={STOCK.suburbAerial.alt}
       />
       <Team filterable headless />

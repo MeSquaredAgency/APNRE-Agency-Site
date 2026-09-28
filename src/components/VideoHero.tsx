@@ -11,11 +11,24 @@ const MODES: { id: Mode; label: string; placeholder: string; submit: string }[] 
   { id: 'agent', label: 'Find an agent', placeholder: 'Search by agent name or role', submit: 'Search' },
 ];
 
-/** Full-bleed looping video with the headline and search over it. The
- *  video is muted, has a pause button (it runs longer than 5 seconds),
- *  and stays on the poster image for anyone who prefers reduced motion. */
+/** Whether the browser has asked sites to use less data (Chrome's
+ *  "Lite mode", some Android data savers). Not in TS's DOM types yet. */
+function saveData(): boolean {
+  const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+  return connection?.saveData === true;
+}
+
+/** Full-bleed looping video with the headline and search over it.
+ *
+ *  The pre-rendered HTML carries only the poster image, so it shows
+ *  straight away. The video file is chosen after the page loads (720p on
+ *  narrow screens, 1080p otherwise) and skipped entirely for anyone who
+ *  prefers reduced motion or has asked to save data, who keep the
+ *  poster. The video is muted and has a pause button, since it runs
+ *  longer than 5 seconds. */
 export default function VideoHero() {
   const video = useRef<HTMLVideoElement>(null);
+  const [src, setSrc] = useState<string>();
   const [playing, setPlaying] = useState(false);
   const [mode, setMode] = useState<Mode>('sell');
   const [value, setValue] = useState('');
@@ -23,12 +36,15 @@ export default function VideoHero() {
 
   useEffect(() => {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const apply = () => {
+    if (!reduce.matches && !saveData()) {
+      setSrc(window.matchMedia('(max-width: 900px)').matches ? HERO_VIDEO.srcSmall : HERO_VIDEO.src);
+    }
+    // Turning reduced motion on mid-visit pauses it.
+    const onChange = () => {
       if (reduce.matches) video.current?.pause();
     };
-    apply();
-    reduce.addEventListener('change', apply);
-    return () => reduce.removeEventListener('change', apply);
+    reduce.addEventListener('change', onChange);
+    return () => reduce.removeEventListener('change', onChange);
   }, []);
 
   // The button's state follows the video's own play/pause events (see
@@ -58,19 +74,17 @@ export default function VideoHero() {
       <video
         ref={video}
         className="video-hero__video"
+        src={src}
         autoPlay
         muted
         loop
         playsInline
-        preload="metadata"
+        preload="auto"
         poster={HERO_VIDEO.poster}
         aria-hidden="true"
         onPlay={() => setPlaying(true)}
         onPause={() => setPlaying(false)}
-      >
-        <source src={HERO_VIDEO.srcSmall} type="video/mp4" media="(max-width: 900px)" />
-        <source src={HERO_VIDEO.src} type="video/mp4" />
-      </video>
+      />
       <div className="video-hero__scrim" />
 
       <div className="wrap video-hero__content">
@@ -135,14 +149,18 @@ export default function VideoHero() {
         </div>
       </div>
 
-      <button
-        type="button"
-        className="video-hero__toggle"
-        onClick={togglePlay}
-        aria-label={playing ? 'Pause background video' : 'Play background video'}
-      >
-        <Icon name={playing ? 'pause' : 'play'} size={16} />
-      </button>
+      {/* Only once a video is loaded: with just the poster there's
+          nothing to pause. */}
+      {src && (
+        <button
+          type="button"
+          className="video-hero__toggle"
+          onClick={togglePlay}
+          aria-label={playing ? 'Pause background video' : 'Play background video'}
+        >
+          <Icon name={playing ? 'pause' : 'play'} size={16} />
+        </button>
+      )}
     </section>
   );
 }

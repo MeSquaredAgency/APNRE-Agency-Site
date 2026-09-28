@@ -1,7 +1,7 @@
 import Layout from '../components/Layout';
 import Icon from '../components/Icon';
 import { CtaBand, Offices, PageHero, SectionHead, Team } from '../components/sections';
-import soldSticker from '../assets/photos/agent-placing-sold-sticker.jpg';
+import soldSticker from '../assets/photos/agent-placing-sold-sticker.jpg?photo';
 
 // Facts only: who founded it, the name change, the offices and what the
 // business does. Add dates, milestones or awards here only once APN has

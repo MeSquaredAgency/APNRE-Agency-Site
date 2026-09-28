@@ -1,5 +1,6 @@
-import { useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { trackFormSubmit } from '../lib/analytics';
+import { loadTurnstile, TURNSTILE_SITE_KEY } from '../lib/turnstile';
 import { PHONE_DISPLAY, PHONE_TEL } from '../data/business';
 
 // Posts to functions/api/enquiry.ts, which forwards to the Google Sheet.
@@ -30,6 +31,32 @@ export default function EnquiryForm({ kind, submitLabel, defaultAddress, before 
   const [status, setStatus] = useState<Status>('idle');
   const [managed, setManaged] = useState('');
 
+  // Turnstile spam check, when a site key is configured. The widget adds
+  // a hidden cf-turnstile-response field to this form, which
+  // functions/api/enquiry.ts verifies. Usually invisible; it only asks
+  // for a click when Cloudflare isn't sure the visitor is human.
+  const turnstileBox = useRef<HTMLDivElement>(null);
+  const turnstileId = useRef<string>();
+  useEffect(() => {
+    if (!TURNSTILE_SITE_KEY || !turnstileBox.current) return;
+    let cancelled = false;
+    loadTurnstile()
+      .then((ts) => {
+        if (cancelled || !turnstileBox.current) return;
+        turnstileId.current = ts.render(turnstileBox.current, {
+          sitekey: TURNSTILE_SITE_KEY,
+          action: kind,
+          appearance: 'interaction-only',
+        });
+      })
+      .catch((err) => console.warn(err));
+    return () => {
+      cancelled = true;
+      if (turnstileId.current) window.turnstile?.remove(turnstileId.current);
+      turnstileId.current = undefined;
+    };
+  }, [kind]);
+
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
@@ -47,6 +74,8 @@ export default function EnquiryForm({ kind, submitLabel, defaultAddress, before 
       });
     } catch (err) {
       console.error('Enquiry form submission failed:', err);
+      // Turnstile tokens are single-use, so get a fresh one for the retry.
+      if (turnstileId.current) window.turnstile?.reset(turnstileId.current);
       setStatus('error');
     }
   }
@@ -260,6 +289,8 @@ export default function EnquiryForm({ kind, submitLabel, defaultAddress, before 
         </span>
         <textarea name="message" rows={4} required={kind === 'maintenance'} />
       </label>
+
+      {TURNSTILE_SITE_KEY && <div ref={turnstileBox} className="form__turnstile" />}
 
       {status === 'error' && (
         <p className="form__error" role="alert">

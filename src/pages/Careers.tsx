@@ -13,7 +13,7 @@ export default function Careers() {
         eyebrow="Careers"
         title="Work with APN."
         lede="We’re a local team across sales, leasing and property management in Adelaide and Mount Gambier."
-        photo={STOCK.openPlan.src}
+        photo={STOCK.openPlan.photo}
         photoAlt={STOCK.openPlan.alt}
       />
       <FormSection

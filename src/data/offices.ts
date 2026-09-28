@@ -1,5 +1,6 @@
-import balconyView from '../assets/photos/balcony-view-hills.jpg';
-import mountGambierStreet from '../assets/photos/mount-gambier-hillside-street.jpg';
+import type { Photo } from '../lib/photo';
+import balconyView from '../assets/photos/balcony-view-hills.jpg?photo';
+import mountGambierStreet from '../assets/photos/mount-gambier-hillside-street.jpg?photo';
 import adelaideLogo from '../assets/logo/adelaide-property-network-logo.png';
 import mountGambierLogo from '../assets/logo/mount-gambier-property-network-logo.png';
 
@@ -19,7 +20,7 @@ export interface Office {
   mapsQuery: string;
   phone: string;
   /** Must be a real photo from this area. */
-  photo: string;
+  photo: Photo;
   photoAlt: string;
   /** Facts APN has confirmed: who works there, where it is, what it does. */
   about: string;

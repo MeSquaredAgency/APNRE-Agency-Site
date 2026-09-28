@@ -24,13 +24,18 @@ const COPY: Record<AppraisalType, { title: string; copy: string; steps: string[]
 };
 
 export default function Appraisal() {
-  const [type, setType] = useState<AppraisalType>(() =>
-    new URLSearchParams(window.location.search).get('type') === 'rental' ? 'rental' : 'sales',
-  );
-  // The address typed into the home hero, if any. Cleared once read, so
-  // a later visit to this page starts empty.
-  const [address] = useState(readAppraisalAddress);
-  useEffect(clearAppraisalAddress, []);
+  // The page is pre-rendered as a sales appraisal with no address. After
+  // hydration, ?type= and the address typed into the home hero (if any)
+  // are read here, never during render, so the server's HTML and the
+  // browser's first render match. The address is cleared once read, so a
+  // later visit starts empty.
+  const [type, setType] = useState<AppraisalType>('sales');
+  const [address, setAddress] = useState('');
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('type') === 'rental') setType('rental');
+    setAddress(readAppraisalAddress());
+    clearAppraisalAddress();
+  }, []);
   const copy = COPY[type];
 
   function choose(next: AppraisalType) {
@@ -46,8 +51,9 @@ export default function Appraisal() {
         <FormSection titleAs="h1" eyebrow="Free appraisal" title={copy.title} copy={copy.copy} steps={copy.steps}>
           <EnquiryForm
             // Remount on switch so the fields for the other type reset,
-            // but keep what they typed as the address.
-            key={type}
+            // and once the hero's address arrives (the address field is
+            // uncontrolled, so it only reads defaultAddress on mount).
+            key={`${type}|${address}`}
             kind={type === 'sales' ? 'sales-appraisal' : 'rental-appraisal'}
             submitLabel={copy.submit}
             defaultAddress={address}

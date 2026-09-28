@@ -14,8 +14,17 @@
   <noscript> iframe: src/partials/body-shared.html, injected immediately
   after <body> on every page.
 -->
+<!--
+  Analytics and the Meta Pixel only run on the live site, so dev-server
+  visits, Cloudflare preview deployments (*.pages.dev) and test
+  submissions don't land in APN's real analytics or ad data. Add a
+  hostname here if the site ever moves.
+-->
 <script>
-  if ('%VITE_GTM_ID%') {
+  window.__APN_LIVE = /^(www\.)?apnre\.com\.au$/.test(location.hostname);
+</script>
+<script>
+  if ('%VITE_GTM_ID%' && window.__APN_LIVE) {
     (function (w, d, s, l, i) {
       w[l] = w[l] || [];
       w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
@@ -38,9 +47,8 @@
   href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Figtree:wght@400;500;600;700&display=swap"
   rel="stylesheet"
 />
-<!-- Stock photos and the hero video come from Pexels' CDN (src/data/media.ts). -->
+<!-- Stock photos come from Pexels' CDN (src/data/media.ts). -->
 <link rel="preconnect" href="https://images.pexels.com" />
-<link rel="preconnect" href="https://videos.pexels.com" />
 <!--
   Meta Pixel. ID comes from a Cloudflare Pages build environment
   variable so no account ID lives in source: Pages project → Settings →
@@ -51,7 +59,7 @@
   before launch.
 -->
 <script>
-  if ('%VITE_META_PIXEL_ID%') {
+  if ('%VITE_META_PIXEL_ID%' && window.__APN_LIVE) {
     !function (f, b, e, v, n, t, s) {
       if (f.fbq) return; n = f.fbq = function () {
         n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);

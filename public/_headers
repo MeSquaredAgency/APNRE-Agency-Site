@@ -1,0 +1,29 @@
+# Cloudflare Pages response headers. See
+# https://developers.cloudflare.com/pages/configuration/headers/
+#
+# No full Content-Security-Policy yet: GTM loads whatever tags are set up
+# in the container, so a strict script policy would silently break
+# analytics whenever a tag is added there. frame-ancestors on its own is
+# safe and stops other sites framing these pages (clickjacking).
+
+/*
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()
+  Content-Security-Policy: frame-ancestors 'none'
+  X-Frame-Options: DENY
+
+# Built JS, CSS and images have a content hash in their file name, so a
+# changed file always gets a new URL: safe to cache for a year.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# The hero video and poster keep fixed names, so cache for a day and let
+# the browser revalidate after that. Rename the files when replacing
+# them to update everyone straight away.
+/video/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/og/*
+  Cache-Control: public, max-age=86400

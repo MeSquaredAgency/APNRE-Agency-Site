@@ -1,70 +1,82 @@
-// Stock photos and video from Pexels (free for commercial use, no
-// attribution required, credited here anyway). They're served from
-// Pexels' CDN; to self-host, download the same files into
-// src/assets/stock/ and import them instead.
+// Stock photos from Pexels (free for commercial use, no attribution
+// required, credited here anyway). Photos are served from Pexels' CDN,
+// resized there: WebP where supported, 800px for phones and 1600px for
+// bigger screens, in the same Photo shape as a local `?photo` import so
+// src/components/Picture.tsx handles both. The hero video is hosted on
+// the site itself (public/video/); see docs/media.md.
 //
 // Stock imagery is illustrative only. Keep alt text and captions neutral,
 // and never caption a stock shot as an APN listing, sale or managed
 // property. Real APN photography lives in src/assets/photos/.
 
+import type { Photo } from '../lib/photo';
+
 export interface StockImage {
-  src: string;
+  photo: Photo;
   alt: string;
   credit: string;
 }
 
-const pexelsPhoto = (id: number, w = 1800) =>
-  `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=${w}`;
+/** A Pexels photo as a Photo. w/h are the photo's size at 1600px wide
+ *  (measured once; the aspect ratio is what matters). */
+function pexels(id: number, w: number, h: number): Photo {
+  const base = `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb`;
+  const set = (fm: string) => `${base}&w=800${fm} 800w, ${base}&w=1600${fm} 1600w`;
+  return {
+    sources: { webp: set('&fm=webp'), jpeg: set('') },
+    img: { src: `${base}&w=1600`, w, h },
+  };
+}
 
 export const HERO_VIDEO = {
-  // "Aerial view of Adelaide skyline and Torrens River", by David on Pexels.
-  src: 'https://videos.pexels.com/video-files/36761129/15579273_1920_1080_60fps.mp4',
-  // Smaller file for phones.
-  srcSmall: 'https://videos.pexels.com/video-files/36761129/15579272_1280_720_60fps.mp4',
-  poster: 'https://images.pexels.com/videos/36761129/pexels-photo-36761129.jpeg?auto=compress&cs=tinysrgb&w=1920',
+  // "Aerial view of Adelaide skyline and Torrens River", by David on
+  // Pexels, re-encoded as a short, lighter loop (see docs/media.md).
+  src: '/video/adelaide-aerial-1080.mp4',
+  srcSmall: '/video/adelaide-aerial-720.mp4',
+  poster: '/video/adelaide-aerial-poster.jpg',
   credit: 'David / Pexels',
   page: 'https://www.pexels.com/video/aerial-view-of-adelaide-skyline-and-torrens-river-36761129/',
 };
 
 export const STOCK = {
   houseExterior: {
-    src: pexelsPhoto(7031581),
+    photo: pexels(7031581, 1600, 1068),
     alt: 'A contemporary house with a green lawn under a blue sky',
     credit: 'Max / Pexels',
   },
   townhouses: {
-    src: pexelsPhoto(10628470),
+    photo: pexels(10628470, 1600, 1067),
     alt: 'A row of modern townhouses with driveways',
     credit: 'Curtis / Pexels',
   },
   livingRoom: {
-    src: pexelsPhoto(29012619),
+    photo: pexels(29012619, 1600, 1573),
     alt: 'A bright living room with white sofas',
     credit: 'Beyza / Pexels',
   },
   openPlan: {
-    src: pexelsPhoto(8089172),
+    photo: pexels(8089172, 1600, 1068),
     alt: 'An open-plan living room and kitchen',
     credit: 'Max / Pexels',
   },
   kitchen: {
-    src: pexelsPhoto(7045356),
+    photo: pexels(7045356, 1600, 1067),
     alt: 'A modern kitchen with timber cabinets',
     credit: 'Max / Pexels',
   },
   keysCouple: {
-    src: pexelsPhoto(8730048),
+    photo: pexels(8730048, 1600, 1068),
     alt: 'A couple being handed a set of house keys',
     credit: 'Kampus / Pexels',
   },
   keysHand: {
-    src: pexelsPhoto(31651009),
+    photo: pexels(31651009, 1600, 1067),
     alt: 'A hand holding a set of house keys',
     credit: 'Jakub / Pexels',
   },
   suburbAerial: {
     // Shot in Melbourne, so the alt text doesn't say Adelaide.
-    src: pexelsPhoto(14650435),
+    photo: pexels(14650435, 1600, 1200),
     alt: 'An aerial view of a leafy suburb',
     credit: 'Nenyasha / Pexels',
   },

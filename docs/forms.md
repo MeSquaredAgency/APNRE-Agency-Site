@@ -42,3 +42,32 @@ write arbitrary text into them.
 locally. To test end to end, deploy a preview, point its
 `SHEETS_WEBHOOK_URL` at a test sheet, submit each form once with a name
 like "TEST — ignore", and check the rows.
+
+## Emailing new leads to the right team
+
+See `docs/lead-notifications.md`: a drop-in replacement for the sheet's
+Apps Script that keeps writing rows exactly as before and also emails
+each enquiry to the right inbox.
+
+## Spam protection (Cloudflare Turnstile)
+
+Every form has a honeypot field. Turnstile adds Cloudflare's spam check,
+which is invisible to most visitors and only asks for a click when it
+isn't sure. It's off until both keys are set:
+
+1. Cloudflare dashboard → **Turnstile** → **Add widget**. Add the
+   hostnames `apnre.com.au`, `www.apnre.com.au` and your
+   `<project>.pages.dev` preview domain. Widget mode: **Managed**.
+2. In the Pages project → **Settings → Environment variables**, add both
+   (Production, and Preview if you want previews checked too):
+   - `VITE_TURNSTILE_SITE_KEY` = the site key (public; used at build time)
+   - `TURNSTILE_SECRET` = the secret key (keep it secret; used by
+     `functions/api/enquiry.ts`)
+3. Redeploy.
+
+Set **both or neither**. With only the secret set, the forms can't
+produce a token and every enquiry is rejected. With only the site key
+set, the widget shows but nothing checks it.
+
+The landlord landing page's form (`/api/lead` in that repo) isn't
+covered; it still relies on its honeypot.

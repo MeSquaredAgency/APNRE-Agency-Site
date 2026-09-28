@@ -1,11 +1,12 @@
 import Layout from '../components/Layout';
 import Icon from '../components/Icon';
 import VideoHero from '../components/VideoHero';
+import Picture from '../components/Picture';
 import { CtaBand, ImageCards, Offices, Pillars, SectionHead, Team } from '../components/sections';
 import { LISTINGS_LINKS, REVIEWS_URL } from '../data/nav';
 import { STOCK } from '../data/media';
-import soldSticker from '../assets/photos/agent-placing-sold-sticker.jpg';
-import soldSign from '../assets/photos/sold-sign-ridley.jpg';
+import soldSticker from '../assets/photos/agent-placing-sold-sticker.jpg?photo';
+import soldSign from '../assets/photos/sold-sign-ridley.jpg?photo';
 
 // Pillars are facts APN can stand behind today. Swap in figures (years
 // in business, sales volumes, review scores) only once they're verified
@@ -31,7 +32,7 @@ export default function Home() {
               {
                 href: LISTINGS_LINKS.buy.href,
                 external: true,
-                image: STOCK.houseExterior.src,
+                image: STOCK.houseExterior.photo,
                 alt: STOCK.houseExterior.alt,
                 kicker: 'Buy',
                 title: 'Properties for sale',
@@ -39,7 +40,7 @@ export default function Home() {
               {
                 href: LISTINGS_LINKS.rent.href,
                 external: true,
-                image: STOCK.livingRoom.src,
+                image: STOCK.livingRoom.photo,
                 alt: STOCK.livingRoom.alt,
                 kicker: 'Rent',
                 title: 'Properties for rent',
@@ -58,7 +59,11 @@ export default function Home() {
 
       <section className="split-feature">
         <div className="split-feature__media">
-          <img src={STOCK.keysCouple.src} alt={STOCK.keysCouple.alt} loading="lazy" />
+          <Picture
+            photo={STOCK.keysCouple.photo}
+            alt={STOCK.keysCouple.alt}
+            sizes="(max-width: 900px) 100vw, 50vw"
+          />
         </div>
         <div className="split-feature__copy">
           <span className="eyebrow">Selling or leasing?</span>
@@ -101,10 +106,10 @@ export default function Home() {
             </div>
           </div>
           <div className="story__media">
-            <img
-              src={soldSticker}
+            <Picture
+              photo={soldSticker}
               alt="A SOLD sticker going up on an Adelaide Property Network auction sign"
-              loading="lazy"
+              sizes="(max-width: 900px) 100vw, 50vw"
             />
           </div>
         </div>
@@ -117,14 +122,14 @@ export default function Home() {
             items={[
               {
                 href: '/client-hub/#landlords',
-                image: STOCK.openPlan.src,
+                image: STOCK.openPlan.photo,
                 alt: STOCK.openPlan.alt,
                 kicker: 'Landlords',
                 title: 'Landlord hub',
               },
               {
                 href: '/client-hub/#tenants',
-                image: STOCK.keysHand.src,
+                image: STOCK.keysHand.photo,
                 alt: STOCK.keysHand.alt,
                 kicker: 'Tenants',
                 title: 'Tenant hub',

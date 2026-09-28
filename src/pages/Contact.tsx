@@ -13,7 +13,7 @@ export default function Contact() {
         eyebrow="Contact us"
         title="Get in touch."
         lede="Call either office on one number, or send us an enquiry and the right person will get back to you."
-        photo={STOCK.townhouses.src}
+        photo={STOCK.townhouses.photo}
         photoAlt={STOCK.townhouses.alt}
       >
         <div className="page-hero__actions">
