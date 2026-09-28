@@ -1,13 +1,14 @@
 # APN Real Estate — agency website
 
-The full APN Real Estate site: sales, leasing, property management, team,
-offices and enquiries, across Adelaide and Mount Gambier. React +
-TypeScript + Vite, static output, hosted on Cloudflare Pages.
+The full APN Real Estate site at `apnre.com.au`: sales, leasing,
+property management, team, offices, blog and enquiries, across Adelaide
+and Mount Gambier. React + TypeScript + Vite, pre-rendered static output,
+hosted on Cloudflare Pages.
 
-This is separate from the landlord campaign landing page
-(`APNRE-Website`), which is a single-goal page for paid ads. Brand
-tokens, team data, photos, analytics snippets and the approved leasing
-copy were carried over from it.
+It also carries the landlord campaign page for paid ads at
+`/landlords/`, which was the separate `APNRE-Website` repo until
+28 Sep 2026 (see "Landlord campaign pages" below). That repo's blog and
+office content moved here too, so this is now the only codebase.
 
 The design follows a premium full-service agency pattern: a near-black
 header, a full-bleed looping video hero with a search bar, serif
@@ -31,9 +32,10 @@ statistics or programmes from other agencies' sites.
 
 All routes are listed in `src/data/routes.json` (path, page title, meta
 description). `npm run dev` and `npm run build` first run
-`scripts/build-pages.mjs`, which writes one `index.html` per route plus
-`public/sitemap.xml`. The generated files are gitignored, so edit
-`routes.json` rather than the HTML.
+`scripts/build-pages.mjs`, which writes one `index.html` per route and
+the blog template. The generated files are gitignored, so edit
+`routes.json` rather than the HTML. The sitemap is written at the end of
+the build, once the blog posts are known.
 
 | Path | What it is |
 | --- | --- |
@@ -47,11 +49,38 @@ description). `npm run dev` and `npm run build` first run
 | `/contact/` | Both offices and a general enquiry form |
 | `/careers/` | Expression of interest form |
 | `/client-hub/` | Landlord hub, tenant hub, and how to report repairs (see below) |
+| `/blog/`, `/blog/<post>/` | Guides, written as Markdown in `content/blog/`; see `docs/blog.md` |
 | `/privacy/`, `/thank-you/` | Privacy policy; post-submit page (noindex) |
+| `/landlords/`, `/landlords/thank-you/` | The landlord campaign page for paid ads, and its thank-you page (both noindex) |
 
 To add a page: add it to `routes.json`, create `src/pages/<Name>.tsx`,
-register it in `PAGES` in `src/main.tsx`, and link it from
+register it in `PAGE_LOADERS` in `src/pages/index.ts`, and link it from
 `src/data/nav.ts`.
+
+Old URLs that moved are redirected in `public/_redirects` (e.g. the
+landing page's `/adelaide/` and `/mount-gambier/` office pages go to the
+offices on `/contact/`). Add a line there whenever a published page moves.
+
+## Landlord campaign pages (`/landlords/`)
+
+The paid-ads landing page, moved in from the `APNRE-Website` repo. It's
+deliberately kept as it was, so ad performance and tracking carry on
+unchanged:
+
+- Its own code in `src/landlords/` (page, components, office data,
+  analytics) and its own browser entry, `src/landlords/main.tsx`. Its
+  stylesheet (`src/landlords/index.css`) and self-hosted fonts
+  (`public/fonts/`, `src/partials/fonts-landlords.html`) load only on
+  these two pages; the main site's styles never load there, and its
+  styles never reach the main site.
+- Its own form endpoint, `functions/api/lead.ts` (same Google Sheet;
+  Source column `apnre-website / appraisal form`), and its own analytics
+  events (`docs/gtm-events.md`).
+- Shared with the main site: team data (`src/data/team.ts`), business
+  details (`src/data/business.ts`), photos and `Picture`.
+- `noindex` and not in the sitemap or the main menu: it's for ad
+  traffic, and `/leasing/` is the page for search. Its "office" links go
+  to `/contact/`, and its privacy link to the main `/privacy/`.
 
 ## Where content lives
 
@@ -67,15 +96,17 @@ scores or testimonials unless they're real, current and approved.
 
 ## Forms
 
-Every form posts to `/api/enquiry` (`functions/api/enquiry.ts`), which
-forwards it to the same Google Sheet webhook the landing page uses (same
-columns). Set `SHEETS_WEBHOOK_URL` in the Cloudflare Pages project's
-environment variables. The sheet's Source column says which form it came
-from, e.g. `apnre agency site / Sales appraisal`. See `docs/forms.md`.
+Every main-site form posts to `/api/enquiry` (`functions/api/enquiry.ts`);
+the landlord page's form posts to `/api/lead`. Both forward to the same
+Google Sheet webhook (same columns). Set `SHEETS_WEBHOOK_URL` in the
+Cloudflare Pages project's environment variables. The sheet's Source
+column says which form it came from, e.g. `apnre agency site / Sales
+appraisal`. See `docs/forms.md`.
 
-On success the browser pushes `enquiry_form_submit` (with `form_name`)
-to GTM, fires a Meta Pixel `Lead` for appraisals or `Contact` for other
-forms, then goes to `/thank-you/`.
+On success the browser pushes `generate_lead` to GTM (the same event the
+landlord page sends, told apart by `event_category`; see
+`docs/gtm-events.md`), fires a Meta Pixel `Lead` for appraisals or
+`Contact` for other forms, then goes to `/thank-you/`.
 
 ## Before launch
 
@@ -86,13 +117,22 @@ forms, then goes to `/thank-you/`.
   `/client-hub/#repairs` tells tenants to call. Only switch it on once someone
   checks those sheet rows every business day. (If APN's property
   management software has a tenant portal, link that instead.)
-- [ ] **GTM.** Add a trigger for the custom event `enquiry_form_submit`.
-  The landing page's trigger listens for `appraisal_form_submit`, which
-  this site doesn't send.
-- [ ] **Domain.** This site takes `https://apnre.com.au` (decided
-  28 Sep 2026). The landlord landing page, which is there today, moves
-  under it before this goes live, and paid ads need their URLs updated
-  to match.
+- [ ] **GTM.** Set up the `generate_lead` and `click_to_call` triggers
+  and GA4 tags in `docs/gtm-events.md`, if they aren't already. One of
+  each covers the whole site.
+- [ ] **Switch-over.** This site replaces the `APNRE-Website` deployment
+  at `apnre.com.au`. On the day:
+  1. In Cloudflare, move the `apnre.com.au` and `www` custom domains
+     from the old Pages project to this one, and give this one the same
+     environment variables (`SHEETS_WEBHOOK_URL` at least).
+  2. Change the landing page URL in Google Ads and Meta ads from
+     `https://apnre.com.au/` to `https://apnre.com.au/landlords/`.
+  3. If any ad conversion is "visited `/thank-you/`", change it to
+     `/landlords/thank-you/` (see the end of `docs/gtm-events.md`).
+  4. Submit a test on `/landlords/` and on one main-site form, and check
+     both rows reach the sheet.
+  5. Archive the `APNRE-Website` repo on GitHub, so nobody keeps editing
+     the old copy.
 - [ ] **Lead emails.** Put the team inboxes into the Apps Script in
   `docs/lead-notifications.md` and redeploy it.
 - [ ] **Spam check.** Create the Turnstile keys and set

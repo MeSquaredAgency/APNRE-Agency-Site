@@ -73,6 +73,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/our-people/', label: 'Our People' },
       { href: '/contact/', label: 'Contact Us' },
       { href: '/careers/', label: 'Work With Us' },
+      { href: '/blog/', label: 'Blog' },
     ],
   },
 ];

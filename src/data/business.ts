@@ -6,6 +6,8 @@ export const BUSINESS_NAME = 'APN Real Estate';
 /** Main line, used for every "Call" button. Both offices share it. */
 export const PHONE_DISPLAY = '1300 123 276';
 export const PHONE_TEL = 'tel:1300123276';
+/** The same number for structured data. */
+export const PHONE_SCHEMA = '+61-1300-123-276';
 
 /** Legal entity details for the compliance line in the footer. Each one
  *  is only shown once it's filled in, so nothing half-finished goes live.

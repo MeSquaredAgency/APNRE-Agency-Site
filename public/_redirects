@@ -1,0 +1,15 @@
+# Cloudflare Pages redirects: <from> <to> <status>. Add one whenever a
+# published page moves, so old links and search results still work.
+# https://developers.cloudflare.com/pages/configuration/redirects/
+
+# The landing page's office pages, from when it was the site at
+# apnre.com.au. The offices now live on the contact page.
+/adelaide /contact/#adelaide 301
+/adelaide/ /contact/#adelaide 301
+/mount-gambier /contact/#mount-gambier 301
+/mount-gambier/ /contact/#mount-gambier 301
+
+# Blog post retargeted to "what does a property manager do", 2026-09-28
+# (carried over from the landing page repo).
+/blog/property-management-adelaide-landlords /blog/what-does-a-property-manager-do/ 301
+/blog/property-management-adelaide-landlords/ /blog/what-does-a-property-manager-do/ 301

@@ -16,6 +16,9 @@ export interface TeamMember {
   role: string;
   initials: string;
   photo: Photo;
+  /** Alt text for the photo: name and role, so it still says who this
+   *  is when the image doesn't load or is read out. */
+  photoAlt: string;
   groups: TeamGroup[];
   /** Which office they work from. */
   office: OfficeId;
@@ -41,6 +44,7 @@ export const TEAM: TeamMember[] = [
     role: 'Property Manager, Mount Gambier',
     initials: 'LW',
     photo: lukePhoto,
+    photoAlt: 'Luke Whittaker, Property Manager and Sales Agent, Mount Gambier',
     groups: ['property-management'],
     office: 'mount-gambier',
     bio: 'Luke is a Property Manager based in Mount Gambier, with 14 months at APN — all of it in property management. He handles complex tenancies and insurance claims, and also works across commercial sales and leasing and assists with residential sales. Outside work, he’s a family man who spends weekends watching F1, AFL, soccer or cricket.',
@@ -50,6 +54,8 @@ export const TEAM: TeamMember[] = [
     role: 'Property Manager / Sales Representative',
     initials: 'MB',
     photo: marissaPhoto,
+    // TODO(elliot): confirm office before adding it to the alt text.
+    photoAlt: 'Marissa Bowell, Property Manager',
     groups: ['property-management', 'sales'],
     office: 'adelaide',
     bio: 'Marissa is a Property Manager and Sales Representative at APN, with four years of property management experience — covering tenant screening, lease management and maintenance for landlords, as well as sales. Outside work, she’s the team manager for her son’s local footy team, alongside her husband, who coaches — and otherwise usually active or spending time with family and friends.',
@@ -59,6 +65,8 @@ export const TEAM: TeamMember[] = [
     role: 'Property Manager',
     initials: 'JS',
     photo: jennyPhoto,
+    // TODO(elliot): confirm office before adding it to the alt text.
+    photoAlt: 'Jenny Saffin, Property Manager',
     groups: ['property-management'],
     office: 'mount-gambier',
     bio: 'Jenny is a Property Manager at APN, working with landlords and tenants for more than two years. She owns an investment property herself, so she manages other people’s properties the way she’d want her own managed. Outside work, she’s usually at the gym, spending time with family and friends, or travelling.',
@@ -68,6 +76,8 @@ export const TEAM: TeamMember[] = [
     role: 'Property Management Trainee',
     initials: 'BA',
     photo: breePhoto,
+    // TODO(elliot): confirm office before adding it to the alt text.
+    photoAlt: 'Breeanna Arney, Property Management Trainee',
     groups: ['property-management'],
     office: 'mount-gambier',
     bio: 'Breeanna joined APN about a month ago as a Property Management Trainee. She’s learning every part of the job, with a focus on clear communication, maintenance coordination and inspections, and on being helpful to landlords and tenants alike. Outside work, she runs her own cleaning business and is a mum of three, so she’s used to staying organised and on top of the detail through busy days.',
@@ -77,6 +87,7 @@ export const TEAM: TeamMember[] = [
     role: 'Director',
     initials: 'PN',
     photo: patrickPhoto,
+    photoAlt: 'Patrick Nhim, Director',
     groups: ['leadership', 'sales'],
     office: 'adelaide',
     bio: 'Patrick founded the business — originally Adelaide Property Network, now APN Real Estate — and leads its sales team today. Property management sits alongside that sales work rather than apart from it, so Patrick has direct oversight of how the two sides operate together, and a day-to-day view of the Adelaide and Mount Gambier markets that informs decisions made on the property management side for owners.',
@@ -86,6 +97,7 @@ export const TEAM: TeamMember[] = [
     role: 'Regional Manager / Head of Leasing & Accounts',
     initials: 'BD',
     photo: brettPhoto,
+    photoAlt: 'Brett David, Regional Manager',
     groups: ['leadership', 'property-management'],
     office: 'adelaide',
     bio: 'Brett is APN’s Regional Manager and Head of Leasing & Accounts, and a licensed sales agent. He’s worked in property management for more than six years, managing rental properties for APN landlords and looking after the accounts side of the business. Outside work, he’s usually found fishing in local club tournaments.',

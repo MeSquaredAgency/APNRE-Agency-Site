@@ -8,7 +8,9 @@ which appends a row to a sheet.
 It sends exactly the payload the landlord landing page's `/api/lead`
 sends (`name, email, phone, address, message, source, submittedAt`), so
 you can use the **same sheet and the same Apps Script**. The setup steps
-are in the landing page repo: `APNRE-Website/docs/google-sheet-lead-webhook.md`.
+are in `docs/google-sheet-lead-webhook.md` (it describes the landlord
+page's `/api/lead`; this site's `/api/enquiry` uses the same sheet and
+script).
 Then set `SHEETS_WEBHOOK_URL` in this site's Cloudflare Pages project
 too.
 

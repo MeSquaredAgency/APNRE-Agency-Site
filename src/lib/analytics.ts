@@ -16,9 +16,11 @@ declare global {
  *  back (blocked, slow, or no matching trigger). `onDone` runs exactly
  *  once either way.
  *
- *  The GTM event is `enquiry_form_submit` with `form_name` set to the
- *  enquiry type (e.g. 'sales-appraisal'), so one GTM trigger covers every
- *  form and the GA4 tag can split them by form_name. */
+ *  The GTM event is `generate_lead`, the same event the landlord page
+ *  (src/landlords/lib/analytics.ts) sends, so one GTM trigger and GA4 tag
+ *  cover every form on the site. `event_category` tells the two apart
+ *  ('enquiry_form' here, 'appraisal_form' there) and `form_name` is the
+ *  enquiry type, e.g. 'sales-appraisal'. See docs/gtm-events.md. */
 export function trackFormSubmit(formName: string, onDone: () => void) {
   let done = false;
   const finish = () => {
@@ -38,7 +40,8 @@ export function trackFormSubmit(formName: string, onDone: () => void) {
   try {
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({
-      event: 'enquiry_form_submit',
+      event: 'generate_lead',
+      event_category: 'enquiry_form',
       form_name: formName,
       eventCallback: finish,
       eventTimeout: 1500,

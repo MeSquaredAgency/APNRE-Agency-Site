@@ -289,7 +289,7 @@ function TeamCard({ member }: { member: TeamMember }) {
       <div className="team-card__photo">
         <Picture
           photo={member.photo}
-          alt={`${member.name}, ${member.role}`}
+          alt={member.photoAlt}
           style={member.focalPoint ? { objectPosition: member.focalPoint } : undefined}
           sizes="(max-width: 560px) 50vw, 25vw"
         />
