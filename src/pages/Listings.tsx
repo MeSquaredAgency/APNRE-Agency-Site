@@ -93,7 +93,7 @@ export function Rent() {
       <CtaBand
         title="Already renting with APN?"
         copy="Report a repair or maintenance issue with your rental property."
-        href="/client-hub/#repairs"
+        href="/client-hub/tenants/#repairs"
         label="Report Maintenance"
       />
     </Layout>

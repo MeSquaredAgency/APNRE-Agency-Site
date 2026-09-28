@@ -117,23 +117,21 @@ export default function Home() {
 
       <section className="section section-paper">
         <div className="wrap">
-          <SectionHead eyebrow="Client hub" title="Already with APN?" />
+          <SectionHead
+            eyebrow="Client hub"
+            title="Everything for your situation, in one place."
+            action={
+              <a href="/client-hub/" className="btn btn-outline-dark">
+                All hubs <Icon name="arrow" />
+              </a>
+            }
+          />
           <ImageCards
             items={[
-              {
-                href: '/client-hub/#landlords',
-                image: STOCK.openPlan.photo,
-                alt: STOCK.openPlan.alt,
-                kicker: 'Landlords',
-                title: 'Landlord hub',
-              },
-              {
-                href: '/client-hub/#tenants',
-                image: STOCK.keysHand.photo,
-                alt: STOCK.keysHand.alt,
-                kicker: 'Tenants',
-                title: 'Tenant hub',
-              },
+              { href: '/client-hub/landlords/', image: STOCK.openPlan.photo, alt: STOCK.openPlan.alt, kicker: 'I own a rental', title: 'Landlord hub' },
+              { href: '/client-hub/tenants/', image: STOCK.keysHand.photo, alt: STOCK.keysHand.alt, kicker: 'I’m renting', title: 'Tenant hub' },
+              { href: '/client-hub/sellers/', image: soldSign, alt: 'An Adelaide Property Network SOLD sign outside a brick home', kicker: 'I’m selling', title: 'Seller hub' },
+              { href: '/client-hub/buyers/', image: STOCK.houseExterior.photo, alt: STOCK.houseExterior.alt, kicker: 'I’m buying', title: 'Buyer hub' },
             ]}
           />
         </div>

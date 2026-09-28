@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { MAIN_LOGO_ALT } from '../data/offices';
 import logoReversed from '../assets/logo/adelaide-property-network-logo-reversed.png';
 import { PHONE_DISPLAY, PHONE_TEL } from '../data/business';
@@ -24,11 +24,39 @@ export default function Header({ current, overlay = false }: HeaderProps) {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Lock page scroll behind the open menu, and close it on Escape.
+  const menuButton = useRef<HTMLButtonElement>(null);
+  const menu = useRef<HTMLDivElement>(null);
+  const wasOpen = useRef(false);
+
+  // While the menu is open: lock page scroll behind it, close it on
+  // Escape, move focus into it, and keep Tab cycling between the menu and
+  // its close button, so keyboard users can't tab into the page hidden
+  // behind it. When it closes, focus goes back to the menu button.
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      if (wasOpen.current) menuButton.current?.focus();
+      wasOpen.current = false;
+      return;
+    }
+    wasOpen.current = true;
     document.body.style.overflow = 'hidden';
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
+    const focusables = () => [
+      menuButton.current!,
+      ...Array.from(menu.current?.querySelectorAll<HTMLElement>('a[href], button') ?? []),
+    ];
+    focusables()[1]?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setOpen(false);
+        return;
+      }
+      if (e.key !== 'Tab') return;
+      const items = focusables();
+      const i = items.indexOf(document.activeElement as HTMLElement);
+      const next = e.shiftKey ? (i <= 0 ? items.length - 1 : i - 1) : i === items.length - 1 ? 0 : i + 1;
+      e.preventDefault();
+      items[next].focus();
+    };
     window.addEventListener('keydown', onKey);
     return () => {
       document.body.style.overflow = '';
@@ -59,6 +87,7 @@ export default function Header({ current, overlay = false }: HeaderProps) {
           </a>
           <button
             type="button"
+            ref={menuButton}
             className="site-header__menu-btn"
             aria-expanded={open}
             aria-controls="site-menu"
@@ -70,7 +99,7 @@ export default function Header({ current, overlay = false }: HeaderProps) {
         </div>
       </div>
 
-      <div id="site-menu" className="site-menu" hidden={!open}>
+      <div id="site-menu" ref={menu} className="site-menu" hidden={!open}>
         <div className="wrap site-menu__inner">
           <div className="site-menu__groups">
             {NAV_GROUPS.map((group) => (

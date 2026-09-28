@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import Icon from './Icon';
+import AddressInput from './AddressInput';
 import { HERO_VIDEO } from '../data/media';
 import { saveAppraisalAddress } from '../lib/appraisal-handoff';
 
@@ -57,6 +58,11 @@ export default function VideoHero() {
     else v.pause();
   }
 
+  function choose(next: Mode) {
+    setMode(next);
+    setValue('');
+  }
+
   function submit(e: FormEvent) {
     e.preventDefault();
     const text = value.trim();
@@ -96,7 +102,26 @@ export default function VideoHero() {
         <p className="video-hero__sub">Sales, leasing and property management from a local team.</p>
 
         <div className="hero-search">
-          <div className="hero-search__modes" role="tablist" aria-label="What would you like to do?">
+          {/* ARIA tabs: only the selected tab is in the Tab order, and
+              Left/Right/Home/End move between them. */}
+          <div
+            className="hero-search__modes"
+            role="tablist"
+            aria-label="What would you like to do?"
+            onKeyDown={(e) => {
+              const i = MODES.findIndex((m) => m.id === mode);
+              const next =
+                e.key === 'ArrowRight' ? (i + 1) % MODES.length
+                : e.key === 'ArrowLeft' ? (i - 1 + MODES.length) % MODES.length
+                : e.key === 'Home' ? 0
+                : e.key === 'End' ? MODES.length - 1
+                : -1;
+              if (next < 0) return;
+              e.preventDefault();
+              choose(MODES[next].id);
+              document.getElementById(`hero-tab-${MODES[next].id}`)?.focus();
+            }}
+          >
             {MODES.map((m) => (
               <button
                 key={m.id}
@@ -105,10 +130,8 @@ export default function VideoHero() {
                 id={`hero-tab-${m.id}`}
                 aria-selected={mode === m.id}
                 aria-controls="hero-search-panel"
-                onClick={() => {
-                  setMode(m.id);
-                  setValue('');
-                }}
+                tabIndex={mode === m.id ? 0 : -1}
+                onClick={() => choose(m.id)}
               >
                 {m.label}
               </button>
@@ -125,14 +148,27 @@ export default function VideoHero() {
             <label htmlFor="hero-search-input" className="visually-hidden">
               {current.placeholder}
             </label>
-            <input
-              id="hero-search-input"
-              type={mode === 'agent' ? 'search' : 'text'}
-              autoComplete={mode === 'agent' ? 'off' : 'street-address'}
-              placeholder={current.placeholder}
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-            />
+            {mode === 'agent' ? (
+              <input
+                id="hero-search-input"
+                type="search"
+                autoComplete="off"
+                placeholder={current.placeholder}
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+              />
+            ) : (
+              // Google address suggestions when a Maps key is set. Keyed
+              // by tab so switching between Sell and Lease starts empty.
+              <AddressInput
+                key={mode}
+                id="hero-search-input"
+                autoComplete="street-address"
+                placeholder={current.placeholder}
+                onChange={setValue}
+                tone="dark"
+              />
+            )}
             <button type="submit" className="btn btn-light">
               {current.submit}
             </button>

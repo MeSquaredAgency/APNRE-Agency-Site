@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { trackFormSubmit } from '../lib/analytics';
 import { loadTurnstile, TURNSTILE_SITE_KEY } from '../lib/turnstile';
+import AddressInput from './AddressInput';
 import { PHONE_DISPLAY, PHONE_TEL } from '../data/business';
 
 // Posts to functions/api/enquiry.ts, which forwards to the Google Sheet.
@@ -23,11 +24,13 @@ interface EnquiryFormProps {
   defaultAddress?: string;
   /** Rendered above the fields, e.g. the sales/rental switch. */
   before?: ReactNode;
+  /** Preselects "What's it about?" on the general form, e.g. on a hub page. */
+  defaultTopic?: string;
 }
 
 type Status = 'idle' | 'submitting' | 'error';
 
-export default function EnquiryForm({ kind, submitLabel, defaultAddress, before }: EnquiryFormProps) {
+export default function EnquiryForm({ kind, submitLabel, defaultAddress, before, defaultTopic = '' }: EnquiryFormProps) {
   const [status, setStatus] = useState<Status>('idle');
   const [managed, setManaged] = useState('');
 
@@ -109,20 +112,26 @@ export default function EnquiryForm({ kind, submitLabel, defaultAddress, before 
         </label>
         <label className="form__field">
           <span>Phone*</span>
-          <input type="tel" name="phone" required autoComplete="tel" />
+          {/* 8 to 20 characters of digits, spaces, brackets, + and dashes;
+              functions/api/enquiry.ts also counts the digits. Browsers
+              compile `pattern` in strict "v" mode, where ( ) and - inside
+              [...] must be escaped, or the whole pattern is ignored. */}
+          <input
+            type="tel"
+            name="phone"
+            required
+            autoComplete="tel"
+            inputMode="tel"
+            pattern="\+?[0-9 \(\)\-]{8,20}"
+            title="A phone number with at least 8 digits, e.g. 0412 345 678"
+          />
         </label>
       </div>
 
       {needsAddress && (
         <label className="form__field">
           <span>{kind === 'maintenance' ? 'Rental property address*' : 'Property address*'}</span>
-          <input
-            type="text"
-            name="address"
-            required
-            autoComplete="street-address"
-            defaultValue={defaultAddress}
-          />
+          <AddressInput name="address" required autoComplete="street-address" defaultValue={defaultAddress} />
         </label>
       )}
 
@@ -228,7 +237,7 @@ export default function EnquiryForm({ kind, submitLabel, defaultAddress, before 
           {kind === 'general' ? (
             <label className="form__field">
               <span>What’s it about?</span>
-              <select name="topic" defaultValue="">
+              <select name="topic" defaultValue={defaultTopic}>
                 <option value="">Choose one (optional)</option>
                 <option>Selling</option>
                 <option>Buying</option>

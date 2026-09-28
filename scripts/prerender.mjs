@@ -56,7 +56,11 @@ const PAGE_FILES = {
   story: 'src/pages/Story.tsx',
   contact: 'src/pages/Contact.tsx',
   careers: 'src/pages/Careers.tsx',
-  hub: 'src/pages/Hub.tsx',
+  hub: 'src/pages/Hubs.tsx',
+  'hub-landlords': 'src/pages/Hubs.tsx',
+  'hub-tenants': 'src/pages/Hubs.tsx',
+  'hub-sellers': 'src/pages/Hubs.tsx',
+  'hub-buyers': 'src/pages/Hubs.tsx',
   privacy: 'src/pages/Privacy.tsx',
 };
 function lastCommitDate(paths) {

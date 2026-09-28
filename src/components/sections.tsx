@@ -93,7 +93,13 @@ export function ImageCards({ items }: { items: ImageCard[] }) {
           <Picture
             photo={c.image}
             alt={c.alt}
-            sizes={items.length === 3 ? '(max-width: 900px) 100vw, 33vw' : '(max-width: 900px) 100vw, 50vw'}
+            sizes={
+              items.length >= 4
+                ? '(max-width: 900px) 100vw, (max-width: 1100px) 50vw, 25vw'
+                : items.length === 3
+                  ? '(max-width: 900px) 100vw, 33vw'
+                  : '(max-width: 900px) 100vw, 50vw'
+            }
           />
           <span className="image-card__scrim" />
           <span className="image-card__text">
@@ -450,6 +456,35 @@ export function FormSection({ id, eyebrow, title, copy, steps, titleAs: Title = 
           </p>
         </div>
         <div className="form-section__card">{children}</div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- Photo gallery: one large photo and up to four smaller ---------- */
+
+export interface GalleryPhoto {
+  photo: Photo;
+  alt: string;
+}
+
+export function Gallery({ eyebrow, title, copy, photos }: { eyebrow: string; title: ReactNode; copy?: ReactNode; photos: GalleryPhoto[] }) {
+  const [first, ...rest] = photos;
+  return (
+    <section className="section section-paper">
+      <div className="wrap">
+        <SectionHead eyebrow={eyebrow} title={title} />
+        {copy && <p className="lede gallery__copy">{copy}</p>}
+        <div className={`gallery gallery--${Math.min(rest.length, 4)}`}>
+          <div className="gallery__main">
+            <Picture photo={first.photo} alt={first.alt} sizes="(max-width: 900px) 100vw, 60vw" />
+          </div>
+          {rest.slice(0, 4).map((p) => (
+            <div className="gallery__item" key={p.alt}>
+              <Picture photo={p.photo} alt={p.alt} sizes="(max-width: 900px) 50vw, 20vw" />
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

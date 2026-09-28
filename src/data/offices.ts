@@ -1,6 +1,14 @@
 import type { Photo } from '../lib/photo';
-import balconyView from '../assets/photos/balcony-view-hills.jpg?photo';
 import mountGambierStreet from '../assets/photos/mount-gambier-hillside-street.jpg?photo';
+// The Blair Athol office, from APN's own listing of its spare office space
+// (Mount Gambier Property Network, commercialrealestate.com.au listing
+// 17603774). They carry the Adelaide Property Network watermark.
+import blairAtholFrontage from '../assets/photos/office/blair-athol-frontage.jpg?photo';
+import blairAtholReception from '../assets/photos/office/blair-athol-reception.jpg?photo';
+import blairAtholMeetingRoom from '../assets/photos/office/blair-athol-meeting-room.jpg?photo';
+import blairAtholBoardroom from '../assets/photos/office/blair-athol-boardroom.jpg?photo';
+import blairAtholLounge from '../assets/photos/office/blair-athol-lounge.jpg?photo';
+import blairAtholHallway from '../assets/photos/office/blair-athol-hallway.jpg?photo';
 import adelaideLogo from '../assets/logo/adelaide-property-network-logo.png';
 import mountGambierLogo from '../assets/logo/mount-gambier-property-network-logo.png';
 
@@ -35,8 +43,8 @@ export const OFFICES: Record<OfficeId, Office> = {
     addressLines: ['Level 1 / 420B, Cnr Main North Road', 'and Barton Street, Blair Athol SA 5084'],
     mapsQuery: '420B Main North Road, Blair Athol SA 5084',
     phone: '1300 123 276',
-    photo: balconyView,
-    photoAlt: 'View across the Adelaide hills from one of the properties APN manages',
+    photo: blairAtholFrontage,
+    photoAlt: 'The Adelaide Property Network office at 420 Main North Road, Blair Athol, with its signage out the front',
     about:
       'Our Blair Athol office, on the corner of Main North Road and Barton Street, is home to the sales team, leasing and accounts, and Adelaide property management.',
   },
@@ -58,3 +66,13 @@ export const OFFICES: Record<OfficeId, Office> = {
 };
 
 export const OFFICE_LIST: Office[] = [OFFICES.adelaide, OFFICES['mount-gambier']];
+
+/** Inside the Blair Athol office: the contact page hero and the gallery
+ *  on /our-story/. */
+export const BLAIR_ATHOL_PHOTOS = {
+  reception: { photo: blairAtholReception, alt: 'Reception at APN’s Blair Athol office, with the Adelaide Property Network logo on the wall' },
+  meetingRoom: { photo: blairAtholMeetingRoom, alt: 'A glass-walled meeting room at the Blair Athol office' },
+  boardroom: { photo: blairAtholBoardroom, alt: 'The boardroom at the Blair Athol office' },
+  lounge: { photo: blairAtholLounge, alt: 'A meeting table looking out over the Blair Athol office' },
+  hallway: { photo: blairAtholHallway, alt: 'A hallway in the Blair Athol office with the Adelaide Property Network logo' },
+};

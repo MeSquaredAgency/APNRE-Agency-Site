@@ -33,6 +33,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/buy/', label: 'For Sale' },
       { href: '/sold/', label: 'Recently Sold' },
       { href: '/buy/#register', label: 'Join Our Buyer List' },
+      { href: '/client-hub/buyers/', label: 'Buyer Hub' },
       { href: '/our-people/?filter=sales', label: 'Sales Team' },
     ],
   },
@@ -43,6 +44,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/selling/', label: 'Selling With APN' },
       { href: '/appraisal/?type=sales', label: 'Sales Appraisal' },
       { href: '/sold/', label: 'Recent Sales' },
+      { href: '/client-hub/sellers/', label: 'Seller Hub' },
     ],
   },
   {
@@ -51,8 +53,8 @@ export const NAV_GROUPS: NavGroup[] = [
     links: [
       { href: '/rent/', label: 'For Rent' },
       { href: '/rent/#register', label: 'Rental Alerts' },
-      { href: '/client-hub/#tenants', label: 'Tenant Hub' },
-      { href: '/client-hub/#repairs', label: 'Report Maintenance' },
+      { href: '/client-hub/tenants/', label: 'Tenant Hub' },
+      { href: '/client-hub/tenants/#repairs', label: 'Report Maintenance' },
     ],
   },
   {
@@ -61,7 +63,7 @@ export const NAV_GROUPS: NavGroup[] = [
     links: [
       { href: '/leasing/', label: 'Property Management' },
       { href: '/appraisal/?type=rental', label: 'Rental Appraisal' },
-      { href: '/client-hub/#landlords', label: 'Landlord Hub' },
+      { href: '/client-hub/landlords/', label: 'Landlord Hub' },
       { href: '/our-people/?filter=property-management', label: 'Property Managers' },
     ],
   },
@@ -72,6 +74,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/our-story/', label: 'Our Story' },
       { href: '/our-people/', label: 'Our People' },
       { href: '/contact/', label: 'Contact Us' },
+      { href: '/client-hub/', label: 'Client Hub' },
       { href: '/careers/', label: 'Work With Us' },
       { href: '/blog/', label: 'Blog' },
     ],

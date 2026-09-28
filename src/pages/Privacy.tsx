@@ -1,6 +1,8 @@
 import Layout from '../components/Layout';
 import { OFFICE_LIST } from '../data/offices';
 import { BUSINESS_NAME, PHONE_DISPLAY, PHONE_TEL, PRIVACY_EMAIL } from '../data/business';
+import { MAPS_API_KEY } from '../lib/places';
+import { TURNSTILE_SITE_KEY } from '../lib/turnstile';
 
 // Adapted from the landlord landing page's policy, and written from what
 // this site actually collects and where it goes: the forms
@@ -71,6 +73,25 @@ export default function Privacy() {
             <li><strong>Google</strong>, where enquiries are stored (Google Sheets) and which provides website analytics (Google Analytics and Google Tag Manager)</li>
             <li><strong>Meta</strong> (Facebook and Instagram), which measures the performance of our ads through the Meta Pixel</li>
           </ul>
+          {/* Only described when switched on for this build (see
+              src/lib/places.ts and src/lib/turnstile.ts). */}
+          {MAPS_API_KEY && (
+            <p>
+              When you type an address into an address field, what you type
+              is sent to <strong>Google</strong> (Google Maps Platform) to
+              suggest matching addresses. Google receives the text you type
+              and technical details about your browser, but not the other
+              details you enter in the form.
+            </p>
+          )}
+          {TURNSTILE_SITE_KEY && (
+            <p>
+              To stop spam, our forms use <strong>Cloudflare Turnstile</strong>,
+              which checks technical details about your browser and device to
+              tell people from automated programs. It doesn’t receive the
+              details you type into the form.
+            </p>
+          )}
           <p>
             These providers may store or process information outside
             Australia, including in the United States. We may also disclose

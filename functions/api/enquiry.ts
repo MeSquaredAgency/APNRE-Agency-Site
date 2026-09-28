@@ -149,6 +149,14 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     return json({ ok: false, error: `Missing required field(s): ${missing.join(', ')}` }, 400);
   }
 
+  // Same rule as the form: 8 to 15 digits once spaces, brackets, + and
+  // dashes are ignored. Catches typos and junk without rejecting real
+  // numbers in any common format (0412 345 678, +61 412 345 678, 08 8123 4567).
+  const digits = payload.phone.replace(/\D/g, '').length;
+  if (digits < 8 || digits > 15 || /[^0-9 ()+\-]/.test(payload.phone)) {
+    return json({ ok: false, error: 'Please enter a valid phone number.' }, 400);
+  }
+
   const extras = Object.entries(type.extras)
     .map(([key, label]) => {
       if (MULTI.has(key)) {

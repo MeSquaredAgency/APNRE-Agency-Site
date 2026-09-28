@@ -15,7 +15,11 @@ export const PAGE_LOADERS: Record<string, () => Promise<ComponentType>> = {
   story: () => import('./Story').then((m) => m.default),
   contact: () => import('./Contact').then((m) => m.default),
   careers: () => import('./Careers').then((m) => m.default),
-  hub: () => import('./Hub').then((m) => m.default),
+  hub: () => import('./Hubs').then((m) => m.HubOverview),
+  'hub-landlords': () => import('./Hubs').then((m) => m.LandlordHub),
+  'hub-tenants': () => import('./Hubs').then((m) => m.TenantHub),
+  'hub-sellers': () => import('./Hubs').then((m) => m.SellerHub),
+  'hub-buyers': () => import('./Hubs').then((m) => m.BuyerHub),
   privacy: () => import('./Privacy').then((m) => m.default),
   'thank-you': () => import('./ThankYou').then((m) => m.default),
 };

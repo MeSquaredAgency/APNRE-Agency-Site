@@ -48,7 +48,7 @@ the build, once the blog posts are known.
 | `/our-story/` | Where APN started, what it does, leadership, offices |
 | `/contact/` | Both offices and a general enquiry form |
 | `/careers/` | Expression of interest form |
-| `/client-hub/` | Landlord hub, tenant hub, and how to report repairs (see below) |
+| `/client-hub/` | Client hub overview, plus a hub each for `landlords/`, `tenants/` (with repairs), `sellers/` and `buyers/`: quick actions, their team, FAQs and the right form (`src/pages/Hubs.tsx`) |
 | `/blog/`, `/blog/<post>/` | Guides, written as Markdown in `content/blog/`; see `docs/blog.md` |
 | `/privacy/`, `/thank-you/` | Privacy policy; post-submit page (noindex) |
 | `/landlords/`, `/landlords/thank-you/` | The landlord campaign page for paid ads, and its thank-you page (both noindex) |
@@ -114,7 +114,7 @@ landlord page sends, told apart by `event_category`; see
   agency profile. When the CRM's feed or API is available, replace
   `LISTINGS_LINKS` in `src/data/nav.ts` with real listing pages.
 - [ ] **Repairs form.** `MAINTENANCE_FORM_ENABLED` is `false`, so
-  `/client-hub/#repairs` tells tenants to call. Only switch it on once someone
+  `/client-hub/tenants/#repairs` tells tenants to call. Only switch it on once someone
   checks those sheet rows every business day. (If APN's property
   management software has a tenant portal, link that instead.)
 - [ ] **GTM.** Set up the `generate_lead` and `click_to_call` triggers
@@ -135,6 +135,9 @@ landlord page sends, told apart by `event_category`; see
      the old copy.
 - [ ] **Lead emails.** Put the team inboxes into the Apps Script in
   `docs/lead-notifications.md` and redeploy it.
+- [ ] **Address suggestions.** Create a restricted Google Maps key and
+  set `VITE_GOOGLE_MAPS_API_KEY` (`docs/google-maps.md`). Until then the
+  address fields are plain text boxes.
 - [ ] **Spam check.** Create the Turnstile keys and set
   `VITE_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET` together
   (`docs/forms.md`).

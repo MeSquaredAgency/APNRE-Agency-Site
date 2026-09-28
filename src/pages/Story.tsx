@@ -1,6 +1,7 @@
 import Layout from '../components/Layout';
 import Icon from '../components/Icon';
-import { CtaBand, Offices, PageHero, SectionHead, Team } from '../components/sections';
+import { CtaBand, Gallery, Offices, PageHero, SectionHead, Team } from '../components/sections';
+import { BLAIR_ATHOL_PHOTOS } from '../data/offices';
 import soldSticker from '../assets/photos/agent-placing-sold-sticker.jpg?photo';
 
 // Facts only: who founded it, the name change, the offices and what the
@@ -76,6 +77,19 @@ export default function Story() {
           </div>
         </div>
       </section>
+
+      <Gallery
+        eyebrow="Our Adelaide office"
+        title="Come and see us in Blair Athol."
+        copy="On the corner of Main North Road and Barton Street, home to our sales team, leasing and accounts, and Adelaide property management."
+        photos={[
+          BLAIR_ATHOL_PHOTOS.reception,
+          BLAIR_ATHOL_PHOTOS.meetingRoom,
+          BLAIR_ATHOL_PHOTOS.boardroom,
+          BLAIR_ATHOL_PHOTOS.lounge,
+          BLAIR_ATHOL_PHOTOS.hallway,
+        ]}
+      />
 
       <Team group="leadership" eyebrow="Leadership" title="Who runs APN." />
       <Offices />

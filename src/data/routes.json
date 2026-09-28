@@ -68,8 +68,32 @@
   {
     "page": "hub",
     "path": "/client-hub/",
-    "title": "Client Hub for Landlords & Tenants | APN Real Estate",
-    "description": "For APN Real Estate landlords and tenants: contact your property manager, find rentals and report repairs or maintenance."
+    "title": "Client Hub | APN Real Estate",
+    "description": "Landlords, tenants, sellers and buyers: find the people, forms and answers you need at APN Real Estate in Adelaide and Mount Gambier."
+  },
+  {
+    "page": "hub-landlords",
+    "path": "/client-hub/landlords/",
+    "title": "Landlord Hub | APN Real Estate",
+    "description": "For APN landlords: contact your property manager, get a rental appraisal, or talk to us about changing property managers."
+  },
+  {
+    "page": "hub-tenants",
+    "path": "/client-hub/tenants/",
+    "title": "Tenant Hub: Repairs & Rentals | APN Real Estate",
+    "description": "For APN tenants: how to report urgent and non-urgent repairs, find a rental, and contact your property manager."
+  },
+  {
+    "page": "hub-sellers",
+    "path": "/client-hub/sellers/",
+    "title": "Seller Hub | APN Real Estate",
+    "description": "Thinking of selling in Adelaide or Mount Gambier? Get a free sales appraisal, see recent sales and talk to the APN sales team."
+  },
+  {
+    "page": "hub-buyers",
+    "path": "/client-hub/buyers/",
+    "title": "Buyer Hub | APN Real Estate",
+    "description": "Buying in Adelaide or Mount Gambier? See properties for sale, join the APN buyer list and talk to the sales team."
   },
   {
     "page": "privacy",
