@@ -132,6 +132,13 @@ input, select, textarea {
   background: var(--ink);
   color: var(--white);
 }
+/* Two sections in the same colour read as one band, so the second
+   doesn't add its own top padding on top of the first one's bottom. */
+.section-white + .section-white,
+.section-paper + .section-paper,
+.section-dark + .section-dark {
+  padding-top: 0;
+}
 
 .visually-hidden {
   position: absolute;
@@ -603,6 +610,13 @@ input, select, textarea {
   inset: 0;
   background: linear-gradient(0deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.35) 55%, rgba(0, 0, 0, 0.45) 100%);
 }
+/* On phones the text covers most of the photo, often over signage or a
+   busy room, so darken it more evenly behind the words. */
+@media (max-width: 760px) {
+  .page-hero--photo .page-hero__scrim {
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.82) 0%, rgba(0, 0, 0, 0.6) 60%, rgba(0, 0, 0, 0.5) 100%);
+  }
+}
 .page-hero:not(.page-hero--photo) .page-hero__scrim {
   background: radial-gradient(90% 120% at 0% 100%, rgba(141, 198, 0, 0.12), transparent 60%);
 }
@@ -762,7 +776,9 @@ input, select, textarea {
 .image-card__scrim {
   position: absolute;
   inset: 0;
-  background: linear-gradient(0deg, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0) 55%);
+  /* Dark enough behind the kicker as well as the title, so the small
+     lime label stays readable over bright photos (lawns, white rooms). */
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.82) 0%, rgba(0, 0, 0, 0.55) 40%, rgba(0, 0, 0, 0) 75%);
 }
 .image-card__text {
   position: absolute;
@@ -777,6 +793,7 @@ input, select, textarea {
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--lime);
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
 }
 .image-card__title {
   font-family: var(--font-serif);
@@ -1127,8 +1144,16 @@ input, select, textarea {
   text-transform: uppercase;
   color: var(--grey-500);
 }
+/* Cards in a row stretch to the same height; pushing the "About" link
+   to the bottom keeps the links level even when one person's role wraps
+   onto more lines than their neighbour's. */
+.team-card {
+  display: flex;
+  flex-direction: column;
+}
 .team-card__bio {
-  margin-top: 12px;
+  margin-top: auto;
+  padding-top: 12px;
 }
 .team-card__bio summary {
   display: inline-flex;
@@ -1638,6 +1663,12 @@ input, select, textarea {
   .site-footer__nav {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+  /* Small enough that "Property Management" fits its column on one line
+     (down to 360px screens), so the two columns in each row line up. */
+  .site-footer__title {
+    font-size: 0.92rem;
+    white-space: nowrap;
+  }
 }
 
 /* ---------- Blog (src/blog/) ---------- */
@@ -1891,6 +1922,9 @@ input, select, textarea {
 @media (max-width: 900px) {
   .gallery {
     grid-template-columns: 1fr 1fr;
+    /* Rows fit their content: the desktop rule makes every row as tall
+       as the tallest, which left big gaps between the thumbnails. */
+    grid-auto-rows: auto;
     aspect-ratio: auto;
   }
   .gallery__main {

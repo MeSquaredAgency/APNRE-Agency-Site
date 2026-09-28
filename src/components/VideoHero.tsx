@@ -95,7 +95,9 @@ export default function VideoHero() {
 
       <div className="wrap video-hero__content">
         <h1 className="h-display">
-          Adelaide &amp; Mount Gambier
+          {/* The space matters: phones hide the <br> (index.css), and
+              without it the words would run together. */}
+          Adelaide &amp; Mount Gambier{' '}
           <br />
           real estate, done properly.
         </h1>

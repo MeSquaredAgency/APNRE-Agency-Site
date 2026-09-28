@@ -2405,3 +2405,34 @@ p.hero__headline {
 .post-more__heading {
   margin-bottom: 28px;
 }
+/* ============================================================
+   Phone fixes (from a mobile review, 28 Sep 2026)
+   ============================================================ */
+
+@media (max-width: 760px) {
+  /* The desktop rule that pads the 2nd/3rd column (.problem__card:not(:first-child))
+     is more specific than the stacked-layout reset above, so on phones those
+     two cards kept a 28px indent the first one didn't. Match its weight. */
+  .problem__card,
+  .problem__card:not(:first-child) {
+    padding-left: 0;
+  }
+}
+
+@media (max-width: 560px) {
+  /* Two columns left the bios about 150px wide: long, thin strips of text.
+     On phones each person gets a full row: photo on the left, words beside it. */
+  .team__grid {
+    grid-template-columns: 1fr;
+  }
+  .team__card {
+    display: grid;
+    grid-template-columns: 104px minmax(0, 1fr);
+    column-gap: 18px;
+    align-items: start;
+  }
+  .team__card .team__portrait {
+    grid-row: 1 / span 5;
+    margin-bottom: 0;
+  }
+}
