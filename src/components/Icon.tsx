@@ -11,6 +11,9 @@ const PATHS = {
   menu: 'M4 7h16M4 12h16M4 17h16',
   close: 'M6 6l12 12M18 6L6 18',
   plus: 'M12 5v14M5 12h14',
+  pause: 'M9 5v14M15 5v14',
+  play: 'M8 5l11 7-11 7z',
+  chevron: 'M6 9l6 6 6-6',
 } as const;
 
 export type IconName = keyof typeof PATHS;

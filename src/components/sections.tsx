@@ -8,12 +8,13 @@ import { PHONE_DISPLAY, PHONE_TEL } from '../data/business';
 import { trackCallClick } from '../lib/analytics';
 import Icon from './Icon';
 
-/* ---------- Page hero: split panel + photo, or panel only ---------- */
+/* ---------- Page hero: full-bleed photo under a dark scrim ---------- */
 
 interface PageHeroProps {
   eyebrow: string;
   title: ReactNode;
   lede?: ReactNode;
+  /** Leave unset for a plain dark hero. */
   photo?: string;
   photoAlt?: string;
   focalPoint?: string;
@@ -23,39 +24,80 @@ interface PageHeroProps {
 export function PageHero({ eyebrow, title, lede, photo, photoAlt = '', focalPoint, children }: PageHeroProps) {
   return (
     <section className={`page-hero${photo ? ' page-hero--photo' : ''}`}>
-      <div className="page-hero__panel">
-        <div className="page-hero__content">
-          <span className="eyebrow">{eyebrow}</span>
-          <h1 className="h-display">{title}</h1>
-          {lede && <p className="lede">{lede}</p>}
-          {children}
-        </div>
-      </div>
       {photo && (
-        <div className="page-hero__media">
-          <img src={photo} alt={photoAlt} style={focalPoint ? { objectPosition: focalPoint } : undefined} />
-        </div>
+        <img
+          className="page-hero__img"
+          src={photo}
+          alt={photoAlt}
+          style={focalPoint ? { objectPosition: focalPoint } : undefined}
+        />
       )}
+      <div className="page-hero__scrim" />
+      <div className="wrap page-hero__content">
+        <span className="eyebrow">{eyebrow}</span>
+        <h1 className="h-display">{title}</h1>
+        {lede && <p className="lede">{lede}</p>}
+        {children}
+      </div>
     </section>
   );
 }
 
-/* ---------- Scrolling strip of short facts ---------- */
+/* ---------- Row of short, verifiable points under the home hero ---------- */
 
-export function Marquee({ items }: { items: string[] }) {
-  // The list is rendered twice so the loop is seamless; the copy is
-  // hidden from screen readers.
+export interface Pillar {
+  title: string;
+  copy: string;
+}
+
+export function Pillars({ items }: { items: Pillar[] }) {
   return (
-    <div className="marquee">
-      <div className="marquee__track">
-        {[0, 1].map((copy) => (
-          <ul key={copy} aria-hidden={copy === 1 || undefined}>
-            {items.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
+    <section className="pillars" aria-label="About APN">
+      <ul className="wrap pillars__list">
+        {items.map((p) => (
+          <li key={p.title}>
+            <h2 className="pillars__title">{p.title}</h2>
+            <p>{p.copy}</p>
+          </li>
         ))}
-      </div>
+      </ul>
+    </section>
+  );
+}
+
+/* ---------- Large image link cards ---------- */
+
+export interface ImageCard {
+  href: string;
+  image: string;
+  alt: string;
+  kicker: string;
+  title: string;
+  external?: boolean;
+}
+
+export function ImageCards({ items }: { items: ImageCard[] }) {
+  return (
+    <div className={`image-cards image-cards--${items.length}`}>
+      {items.map((c) => (
+        <a
+          href={c.href}
+          className="image-card"
+          key={c.title}
+          {...(c.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+        >
+          <img src={c.image} alt={c.alt} loading="lazy" />
+          <span className="image-card__scrim" />
+          <span className="image-card__text">
+            <span className="image-card__kicker">{c.kicker}</span>
+            <span className="image-card__title">{c.title}</span>
+            <span className="image-card__cta">
+              {c.external ? 'View on realestate.com.au' : 'Discover more'}{' '}
+              <Icon name={c.external ? 'external' : 'arrow'} size={16} />
+            </span>
+          </span>
+        </a>
+      ))}
     </div>
   );
 }
@@ -255,42 +297,100 @@ function TeamCard({ member }: { member: TeamMember }) {
 interface TeamProps {
   /** Show only one group, with no filter. */
   group?: TeamGroup;
-  /** Show the All / Sales / Property Management / Leadership filter. */
+  /** Show the group filter and name search. The starting filter comes
+   *  from ?filter= in the URL, so menu links like "Sales Team" land
+   *  pre-filtered. */
   filterable?: boolean;
+  /** Show at most this many, with a link to the full team page. */
+  limit?: number;
   eyebrow?: string;
   title?: ReactNode;
   headless?: boolean;
 }
 
-export function Team({ group, filterable = false, eyebrow = 'Our people', title, headless = false }: TeamProps) {
-  const [filter, setFilter] = useState<TeamGroup | 'all'>('all');
+const FILTERS = ['all', 'sales', 'property-management', 'leadership'] as const;
+type Filter = (typeof FILTERS)[number];
+
+function filterFromUrl(): Filter {
+  const value = new URLSearchParams(window.location.search).get('filter');
+  return (FILTERS as readonly string[]).includes(value ?? '') ? (value as Filter) : 'all';
+}
+
+export function Team({ group, filterable = false, limit, eyebrow = 'Our people', title, headless = false }: TeamProps) {
+  const [filter, setFilter] = useState<Filter>(() => (filterable ? filterFromUrl() : 'all'));
+  // ?q= comes from the home hero's "Find an agent" search.
+  const [query, setQuery] = useState(() =>
+    filterable ? (new URLSearchParams(window.location.search).get('q') ?? '') : '',
+  );
   const active = group ?? filter;
-  const members = active === 'all' ? TEAM : TEAM.filter((m) => m.groups.includes(active));
+  const q = query.trim().toLowerCase();
+  const members = TEAM.filter(
+    (m) =>
+      (active === 'all' || m.groups.includes(active)) &&
+      (!q || m.name.toLowerCase().includes(q) || m.role.toLowerCase().includes(q)),
+  );
+  const shown = limit ? members.slice(0, limit) : members;
+
+  function choose(next: Filter) {
+    setFilter(next);
+    const url = new URL(window.location.href);
+    if (next === 'all') url.searchParams.delete('filter');
+    else url.searchParams.set('filter', next);
+    window.history.replaceState(null, '', url);
+  }
 
   return (
     <section className="section section-white" id="team">
       <div className="wrap">
-        {!headless && <SectionHead eyebrow={eyebrow} title={title ?? 'The people you’ll deal with.'} />}
+        {!headless && (
+          <SectionHead
+            eyebrow={eyebrow}
+            title={title ?? 'The people you’ll deal with.'}
+            action={
+              limit ? (
+                <a href="/our-people/" className="btn btn-outline-dark">
+                  Meet the Whole Team <Icon name="arrow" />
+                </a>
+              ) : undefined
+            }
+          />
+        )}
         {filterable && (
-          <div className="chips" role="group" aria-label="Filter team">
-            {(['all', 'sales', 'property-management', 'leadership'] as const).map((key) => (
-              <button
-                type="button"
-                key={key}
-                className="chip"
-                aria-pressed={filter === key}
-                onClick={() => setFilter(key)}
-              >
-                {key === 'all' ? 'Everyone' : GROUP_LABELS[key]}
-              </button>
-            ))}
+          <div className="team-tools">
+            <div className="chips" role="group" aria-label="Filter team">
+              {FILTERS.map((key) => (
+                <button
+                  type="button"
+                  key={key}
+                  className="chip"
+                  aria-pressed={filter === key}
+                  onClick={() => choose(key)}
+                >
+                  {key === 'all' ? 'Everyone' : GROUP_LABELS[key]}
+                </button>
+              ))}
+            </div>
+            <label className="team-search">
+              <Icon name="search" />
+              <span className="visually-hidden">Search by name or role</span>
+              <input
+                type="search"
+                placeholder="Search by name or role"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </label>
           </div>
         )}
-        <div className="team-grid">
-          {members.map((m) => (
-            <TeamCard key={m.name} member={m} />
-          ))}
-        </div>
+        {shown.length > 0 ? (
+          <div className="team-grid">
+            {shown.map((m) => (
+              <TeamCard key={m.name} member={m} />
+            ))}
+          </div>
+        ) : (
+          <p className="team-empty">No one matches that search.</p>
+        )}
       </div>
     </section>
   );

@@ -112,6 +112,26 @@ export default function EnquiryForm({ kind, submitLabel, defaultAddress, before 
 
       {kind === 'rental-appraisal' && (
         <fieldset className="form__choice">
+          <legend>How can we help? (choose any)</legend>
+          <div className="form__checks">
+            {/* Values must match HELP_OPTIONS in functions/api/enquiry.ts. */}
+            {[
+              ['appraisal', 'A rental appraisal'],
+              ['switching', 'Changing property managers'],
+              ['new-investment', 'Leasing a new investment'],
+              ['advice', 'General advice'],
+            ].map(([value, label]) => (
+              <label key={value}>
+                <input type="checkbox" name="help" value={value} />
+                <span>{label}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      )}
+
+      {kind === 'rental-appraisal' && (
+        <fieldset className="form__choice">
           <legend>Is the property currently managed?</legend>
           <div className="form__choice-options">
             {[

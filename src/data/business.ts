@@ -27,7 +27,7 @@ export const PRIVACY_EMAIL = '';
 export const REA_PROFILE_URL =
   'https://www.realestate.com.au/agency/adelaide-property-network-blair-athol-JIASZF';
 
-/** The tenant repairs form on /maintenance/. Leave this false until
+/** The tenant repairs form on /client-hub/. Leave this false until
  *  someone at APN is confirmed to check those submissions every business
  *  day. A repair request that sits unread in a sheet is worse than no
  *  form, so while it's false the page tells tenants to call instead. */

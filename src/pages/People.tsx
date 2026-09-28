@@ -1,5 +1,6 @@
 import Layout from '../components/Layout';
 import { CtaBand, PageHero, Team } from '../components/sections';
+import { STOCK } from '../data/media';
 
 export default function People() {
   return (
@@ -8,6 +9,8 @@ export default function People() {
         eyebrow="Our people"
         title="Meet the team."
         lede="Sales, leasing and property management across our Adelaide and Mount Gambier offices."
+        photo={STOCK.suburbAerial.src}
+        photoAlt={STOCK.suburbAerial.alt}
       />
       <Team filterable headless />
       <CtaBand

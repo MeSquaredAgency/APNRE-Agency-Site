@@ -6,11 +6,12 @@ import { REA_PROFILE_URL } from './business';
 export interface NavLink {
   href: string;
   label: string;
-  external?: boolean;
 }
 
 export interface NavGroup {
   title: string;
+  /** Where the group heading itself links in the menu. */
+  href: string;
   links: NavLink[];
 }
 
@@ -18,44 +19,60 @@ export interface NavGroup {
 export const PRIMARY_NAV: NavLink[] = [
   { href: '/buy/', label: 'Buy' },
   { href: '/selling/', label: 'Sell' },
-  { href: '/leasing/', label: 'Lease' },
-  { href: '/our-people/', label: 'Our People' },
-  { href: '/contact/', label: 'Contact' },
+  { href: '/rent/', label: 'Rent' },
+  { href: '/leasing/', label: 'Property Management' },
+  { href: '/our-story/', label: 'About Us' },
 ];
 
 /** The full menu, grouped. */
 export const NAV_GROUPS: NavGroup[] = [
   {
     title: 'Buy',
+    href: '/buy/',
     links: [
       { href: '/buy/', label: 'For Sale' },
       { href: '/sold/', label: 'Recently Sold' },
       { href: '/buy/#register', label: 'Join Our Buyer List' },
+      { href: '/our-people/?filter=sales', label: 'Sales Team' },
     ],
   },
   {
     title: 'Sell',
+    href: '/selling/',
     links: [
       { href: '/selling/', label: 'Selling With APN' },
       { href: '/appraisal/?type=sales', label: 'Sales Appraisal' },
+      { href: '/sold/', label: 'Recent Sales' },
     ],
   },
   {
-    title: 'Lease',
+    title: 'Rent',
+    href: '/rent/',
     links: [
-      { href: '/leasing/', label: 'Leasing & Property Management' },
       { href: '/rent/', label: 'For Rent' },
-      { href: '/appraisal/?type=rental', label: 'Rental Appraisal' },
-      { href: '/maintenance/', label: 'Repairs & Maintenance' },
+      { href: '/rent/#register', label: 'Rental Alerts' },
+      { href: '/client-hub/#tenants', label: 'Tenant Hub' },
+      { href: '/client-hub/#repairs', label: 'Report Maintenance' },
     ],
   },
   {
-    title: 'About',
+    title: 'Property Management',
+    href: '/leasing/',
+    links: [
+      { href: '/leasing/', label: 'Property Management' },
+      { href: '/appraisal/?type=rental', label: 'Rental Appraisal' },
+      { href: '/client-hub/#landlords', label: 'Landlord Hub' },
+      { href: '/our-people/?filter=property-management', label: 'Property Managers' },
+    ],
+  },
+  {
+    title: 'About Us',
+    href: '/our-story/',
     links: [
       { href: '/our-story/', label: 'Our Story' },
       { href: '/our-people/', label: 'Our People' },
       { href: '/contact/', label: 'Contact Us' },
-      { href: '/careers/', label: 'Careers' },
+      { href: '/careers/', label: 'Work With Us' },
     ],
   },
 ];
@@ -66,3 +83,6 @@ export const LISTINGS_LINKS = {
   rent: { href: REA_PROFILE_URL, label: 'For rent on realestate.com.au' },
   sold: { href: REA_PROFILE_URL, label: 'Sold on realestate.com.au' },
 };
+
+/** APN's agency profile, where client reviews are published. */
+export const REVIEWS_URL = REA_PROFILE_URL;

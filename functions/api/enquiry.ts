@@ -32,7 +32,7 @@ const TYPES: Record<string, EnquiryType> = {
   'rental-appraisal': {
     label: 'Rental appraisal',
     required: ['address'],
-    extras: { managed: 'Currently managed' },
+    extras: { help: 'Wants help with', managed: 'Currently managed' },
   },
   'buyer-register': {
     label: 'Buyer register',
@@ -71,7 +71,17 @@ const CHOICES: Record<string, Record<string, string>> = {
     'not-rented': 'Not rented yet',
   },
   office: { adelaide: 'Adelaide', 'mount-gambier': 'Mount Gambier' },
+  // Checkboxes: several can be ticked (see MULTI below).
+  help: {
+    appraisal: 'Rental appraisal',
+    switching: 'Changing property managers',
+    'new-investment': 'Leasing a new investment',
+    advice: 'General advice',
+  },
 };
+
+/** Choice fields sent as several values (checkboxes). */
+const MULTI = new Set(['help']);
 
 const MAX_FIELD = 500;
 const MAX_MESSAGE = 3000;
@@ -111,6 +121,13 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
   const extras = Object.entries(type.extras)
     .map(([key, label]) => {
+      if (MULTI.has(key)) {
+        const values = form
+          .getAll(key)
+          .map((v) => CHOICES[key][String(v)])
+          .filter(Boolean);
+        return values.length ? `${label}: ${[...new Set(values)].join(', ')}` : '';
+      }
       const raw = get(key);
       if (!raw) return '';
       const value = CHOICES[key] ? CHOICES[key][raw] : raw;

@@ -1,6 +1,7 @@
 import Layout from '../components/Layout';
 import EnquiryForm from '../components/EnquiryForm';
 import { FormSection, PageHero } from '../components/sections';
+import { STOCK } from '../data/media';
 
 // No job listings are shown, and no claims about openings either way.
 // If APN starts advertising roles, list them here with a link to each ad.
@@ -12,6 +13,8 @@ export default function Careers() {
         eyebrow="Careers"
         title="Work with APN."
         lede="We’re a local team across sales, leasing and property management in Adelaide and Mount Gambier."
+        photo={STOCK.openPlan.src}
+        photoAlt={STOCK.openPlan.alt}
       />
       <FormSection
         id="interest"

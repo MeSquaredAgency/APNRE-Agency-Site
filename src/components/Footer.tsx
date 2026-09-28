@@ -64,6 +64,7 @@ export default function Footer() {
           {registration.length > 0 && <> · {registration.join(' · ')}</>}. Formerly Adelaide
           Property Network.
         </p>
+        <p>Some photography and video is stock imagery from Pexels.</p>
         <a href="/privacy/">Privacy Policy</a>
       </div>
     </footer>

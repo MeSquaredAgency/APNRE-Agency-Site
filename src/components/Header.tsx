@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { MAIN_LOGO, MAIN_LOGO_ALT } from '../data/offices';
+import { MAIN_LOGO_ALT } from '../data/offices';
 import logoReversed from '../assets/logo/adelaide-property-network-logo-reversed.png';
 import { PHONE_DISPLAY, PHONE_TEL } from '../data/business';
 import { NAV_GROUPS, PRIMARY_NAV } from '../data/nav';
@@ -9,7 +9,7 @@ import Icon from './Icon';
 interface HeaderProps {
   /** Path of the current page, to mark its nav link. */
   current: string;
-  /** Home starts transparent over the hero photo panel. */
+  /** Home starts transparent over the hero video. */
   overlay?: boolean;
 }
 
@@ -18,7 +18,7 @@ export default function Header({ current, overlay = false }: HeaderProps) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
+    const onScroll = () => setScrolled(window.scrollY > 24);
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
@@ -39,39 +39,33 @@ export default function Header({ current, overlay = false }: HeaderProps) {
   const solid = !overlay || scrolled || open;
 
   return (
-    <header className={`site-header${solid ? ' is-solid' : ''}${open ? ' is-open' : ''}`}>
+    <header className={`site-header${solid ? ' is-solid' : ''}`}>
       <div className="wrap site-header__row">
         <a href="/" className="site-header__brand" aria-label="APN Real Estate — home">
-          {/* Over the dark home hero the header is transparent, so it uses
-              the reversed logo until it turns solid. */}
-          <img src={solid ? MAIN_LOGO : logoReversed} alt={MAIN_LOGO_ALT} className="site-header__logo" />
+          <img src={logoReversed} alt={MAIN_LOGO_ALT} className="site-header__logo" />
         </a>
 
         <nav className="site-header__nav" aria-label="Primary">
           {PRIMARY_NAV.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              aria-current={current === link.href ? 'page' : undefined}
-            >
+            <a key={link.href} href={link.href} aria-current={current === link.href ? 'page' : undefined}>
               {link.label}
             </a>
           ))}
         </nav>
 
         <div className="site-header__actions">
-          <a href="/appraisal/" className="btn btn-primary btn-sm site-header__cta">
-            Book an Appraisal
+          <a href="/appraisal/" className="btn btn-light btn-sm site-header__cta">
+            Free Appraisal
           </a>
           <button
             type="button"
             className="site-header__menu-btn"
             aria-expanded={open}
             aria-controls="site-menu"
+            aria-label={open ? 'Close menu' : 'Open menu'}
             onClick={() => setOpen((o) => !o)}
           >
-            <Icon name={open ? 'close' : 'menu'} size={22} />
-            <span className="site-header__menu-label">{open ? 'Close' : 'Menu'}</span>
+            <Icon name={open ? 'close' : 'menu'} size={26} />
           </button>
         </div>
       </div>
@@ -81,10 +75,12 @@ export default function Header({ current, overlay = false }: HeaderProps) {
           <div className="site-menu__groups">
             {NAV_GROUPS.map((group) => (
               <div className="site-menu__group" key={group.title}>
-                <h2 className="site-menu__title">{group.title}</h2>
+                <a href={group.href} className="site-menu__title" onClick={() => setOpen(false)}>
+                  {group.title}
+                </a>
                 <ul>
                   {group.links.map((link) => (
-                    <li key={link.href}>
+                    <li key={link.href + link.label}>
                       <a
                         href={link.href}
                         aria-current={current === link.href ? 'page' : undefined}
@@ -102,7 +98,7 @@ export default function Header({ current, overlay = false }: HeaderProps) {
             <a href={PHONE_TEL} className="site-menu__phone" onClick={() => trackCallClick('menu')}>
               <Icon name="phone" /> {PHONE_DISPLAY}
             </a>
-            <a href="/appraisal/" className="btn btn-primary">
+            <a href="/appraisal/" className="btn btn-light">
               Book a Free Appraisal <Icon name="arrow" />
             </a>
           </div>

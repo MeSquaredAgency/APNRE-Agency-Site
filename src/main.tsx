@@ -17,7 +17,7 @@ const PAGES = {
   story: lazy(() => import('./pages/Story')),
   contact: lazy(() => import('./pages/Contact')),
   careers: lazy(() => import('./pages/Careers')),
-  maintenance: lazy(() => import('./pages/Maintenance')),
+  hub: lazy(() => import('./pages/Hub')),
   privacy: lazy(() => import('./pages/Privacy')),
   'thank-you': lazy(() => import('./pages/ThankYou')),
 };

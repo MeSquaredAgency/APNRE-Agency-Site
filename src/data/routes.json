@@ -66,10 +66,10 @@
     "description": "Interested in working in real estate with APN in Adelaide or Mount Gambier? Send us an expression of interest."
   },
   {
-    "page": "maintenance",
-    "path": "/maintenance/",
-    "title": "Rental Repairs & Maintenance | APN Real Estate",
-    "description": "APN Real Estate tenants: how to report a repair or maintenance issue with your rental property."
+    "page": "hub",
+    "path": "/client-hub/",
+    "title": "Client Hub for Landlords & Tenants | APN Real Estate",
+    "description": "For APN Real Estate landlords and tenants: contact your property manager, find rentals and report repairs or maintenance."
   },
   {
     "page": "privacy",

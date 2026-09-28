@@ -9,12 +9,23 @@ This is separate from the landlord campaign landing page
 tokens, team data, photos, analytics snippets and the approved leasing
 copy were carried over from it.
 
-The page structure (split hero with an address search, service tiles,
-listings, story, team, offices, a closing call to action; separate
-selling, leasing, people, story, contact, careers and repairs pages) is
-modelled on a typical full-service agency site. Every word, photo and
-claim is APN's own. Don't copy wording, imagery, awards or programmes
-from other agencies' sites.
+The design follows a premium full-service agency pattern: a near-black
+header, a full-bleed looping video hero with a search bar, serif
+headings, large image cards and a client hub for landlords and tenants.
+Every word and claim is APN's own. Don't copy wording, imagery, awards,
+statistics or programmes from other agencies' sites.
+
+## Photos and video
+
+- Real APN photography (sold signs, managed properties, team headshots)
+  is in `src/assets/`.
+- Stock photos and the hero video come from Pexels (free for commercial
+  use) and are listed, with credits, in `src/data/media.ts`. They're
+  served from Pexels' CDN; to self-host, download the same files into
+  `src/assets/stock/` and import them there instead.
+- Stock imagery is illustrative only. Never caption a stock shot as an
+  APN listing, sale or managed property. The footer notes that some
+  imagery is stock.
 
 ## Pages
 
@@ -26,16 +37,16 @@ description). `npm run dev` and `npm run build` first run
 
 | Path | What it is |
 | --- | --- |
-| `/` | Home: hero (Sell / Lease / Buy tabs with address search), services, listings, story, team, offices |
+| `/` | Home: video hero with Sell / Lease / Find an agent search, key points, listings cards, appraisal feature, team, story, client hub, offices |
 | `/selling/` | Selling with APN: reasons, process, sales team, FAQ, sales appraisal form |
 | `/leasing/` | Leasing & property management: reasons, process, switching, PM team, FAQ, rental appraisal form |
 | `/buy/`, `/rent/`, `/sold/` | Links out to APN's realestate.com.au profile, plus buyer/tenant register forms |
 | `/appraisal/` | Sales or rental appraisal form (`?type=sales` or `?type=rental`) |
-| `/our-people/` | Team with Sales / Property Management / Leadership filters |
+| `/our-people/` | Team with Sales / Property Management / Leadership filters (`?filter=sales`) and name search (`?q=`) |
 | `/our-story/` | Where APN started, what it does, leadership, offices |
 | `/contact/` | Both offices and a general enquiry form |
 | `/careers/` | Expression of interest form |
-| `/maintenance/` | How tenants report repairs (see below) |
+| `/client-hub/` | Landlord hub, tenant hub, and how to report repairs (see below) |
 | `/privacy/`, `/thank-you/` | Privacy policy; post-submit page (noindex) |
 
 To add a page: add it to `routes.json`, create `src/pages/<Name>.tsx`,
@@ -72,7 +83,7 @@ forms, then goes to `/thank-you/`.
   agency profile. When the CRM's feed or API is available, replace
   `LISTINGS_LINKS` in `src/data/nav.ts` with real listing pages.
 - [ ] **Repairs form.** `MAINTENANCE_FORM_ENABLED` is `false`, so
-  `/maintenance/` tells tenants to call. Only switch it on once someone
+  `/client-hub/#repairs` tells tenants to call. Only switch it on once someone
   checks those sheet rows every business day. (If APN's property
   management software has a tenant portal, link that instead.)
 - [ ] **GTM.** Add a trigger for the custom event `enquiry_form_submit`.
