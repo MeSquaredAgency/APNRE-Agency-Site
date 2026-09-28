@@ -332,6 +332,14 @@ interface TeamProps {
   headless?: boolean;
 }
 
+/** Columns on wide screens, so a team never leaves one person alone on
+ *  a row: 5 across for five, 3 × 2 for six, otherwise up to 4. */
+function teamColumns(count: number): number {
+  if (count === 5) return 5;
+  if (count > 4 && count % 3 === 0) return 3;
+  return Math.min(count, 4);
+}
+
 const FILTERS = ['all', 'sales', 'property-management', 'leadership'] as const;
 type Filter = (typeof FILTERS)[number];
 
@@ -409,7 +417,7 @@ export function Team({ group, filterable = false, limit, eyebrow = 'Our people',
           </div>
         )}
         {shown.length > 0 ? (
-          <div className="team-grid">
+          <div className="team-grid" style={{ ['--team-cols' as string]: teamColumns(shown.length) }}>
             {shown.map((m) => (
               <TeamCard key={m.name} member={m} />
             ))}

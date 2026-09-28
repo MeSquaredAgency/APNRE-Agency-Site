@@ -56,6 +56,11 @@ body {
 img,
 video {
   max-width: 100%;
+  /* Images carry width/height attributes (so the page doesn't jump while
+     they load); without height: auto the browser would use that height
+     literally and ignore any aspect-ratio in the CSS. Rules that make an
+     image fill its box set their own height and win over this. */
+  height: auto;
   display: block;
 }
 
@@ -76,6 +81,8 @@ h1, h2, h3, h4 {
   line-height: 1.08;
   letter-spacing: -0.01em;
   overflow-wrap: break-word;
+  /* Even line lengths, so a heading never ends on one stranded word. */
+  text-wrap: balance;
 }
 
 p {
@@ -290,7 +297,7 @@ input, select, textarea {
   flex: none;
 }
 .site-header__logo {
-  height: 50px;
+  height: 58px;
   width: auto;
 }
 .site-header__nav {
@@ -418,7 +425,7 @@ input, select, textarea {
     --header-h: 68px;
   }
   .site-header__logo {
-    height: 42px;
+    height: 46px;
   }
   .site-header__cta {
     display: none;
@@ -466,8 +473,14 @@ input, select, textarea {
   padding-bottom: 80px;
 }
 .video-hero .h-display {
-  max-width: 16ch;
   margin-bottom: 18px;
+}
+/* On phones the forced line break after "Mount Gambier" makes a ragged
+   four-line heading; let it wrap (balanced) instead. */
+@media (max-width: 600px) {
+  .video-hero .h-display br {
+    display: none;
+  }
 }
 .video-hero__sub {
   font-size: 1.1rem;
@@ -1072,6 +1085,15 @@ input, select, textarea {
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 40px 20px;
 }
+/* Wide screens: the column count comes from the number of people
+   (teamColumns() in sections.tsx), with cards capped at 300px so a
+   two-person team doesn't get huge photos. */
+@media (min-width: 1000px) {
+  .team-grid {
+    grid-template-columns: repeat(var(--team-cols, 4), minmax(0, 1fr));
+    max-width: calc(var(--team-cols, 4) * 300px + (var(--team-cols, 4) - 1) * 20px);
+  }
+}
 .team-card__photo {
   aspect-ratio: 4 / 5;
   overflow: hidden;
@@ -1445,6 +1467,11 @@ input, select, textarea {
   display: grid;
   grid-template-columns: minmax(0, 0.4fr) minmax(0, 1fr);
   gap: 32px;
+  /* The label sits level with the first line of the text beside it. */
+  align-items: start;
+}
+.prose-grid > .eyebrow {
+  margin-top: 8px;
 }
 .prose {
   display: grid;
@@ -1527,7 +1554,7 @@ input, select, textarea {
 }
 .site-footer__top {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 2.2fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
   gap: 56px;
   padding-bottom: 56px;
 }
@@ -1554,14 +1581,23 @@ input, select, textarea {
 }
 .site-footer__nav {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  /* The fourth column, "Property Management", is wider so its heading
+     stays on one line level with the others. */
+  grid-template-columns: 1fr 1fr 1fr 1.5fr 1fr;
   gap: 28px;
 }
 .site-footer__title {
   margin-bottom: 16px;
   font-family: var(--font-serif);
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   color: var(--white);
+}
+/* One line only where the footer has its five columns side by side; in
+   the narrower layouts a heading may wrap. */
+@media (min-width: 1001px) {
+  .site-footer__title {
+    white-space: nowrap;
+  }
 }
 .site-footer__nav ul {
   list-style: none;
@@ -1999,7 +2035,8 @@ input, select, textarea {
 }
 .hub-action__title {
   display: flex;
-  align-items: center;
+  /* When a title wraps, the arrow stays level with its first line. */
+  align-items: flex-start;
   justify-content: space-between;
   gap: 10px;
   font-family: var(--font-serif);
@@ -2036,6 +2073,12 @@ input, select, textarea {
     padding-bottom: env(safe-area-inset-bottom);
     background: var(--ink);
     box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.2);
+    /* Off screen until the hero has scrolled away (StickyActions.tsx). */
+    transform: translateY(110%);
+    transition: transform 0.25s ease;
+  }
+  .sticky-actions.is-visible {
+    transform: none;
   }
   .sticky-actions a {
     display: flex;
@@ -2058,10 +2101,6 @@ input, select, textarea {
   .site-footer {
     padding-bottom: calc(56px + env(safe-area-inset-bottom));
   }
-  /* The video's pause button sits above the bar. */
-  .video-hero__toggle {
-    bottom: 76px;
-  }
 }
 
 /* ---------- Opening hours ---------- */
@@ -2080,4 +2119,8 @@ input, select, textarea {
   margin: -12px 0 24px;
   font-size: 0.92rem;
   color: rgba(255, 255, 255, 0.78);
+}
+.hub-action__title svg {
+  flex: none;
+  margin-top: 0.3em;
 }

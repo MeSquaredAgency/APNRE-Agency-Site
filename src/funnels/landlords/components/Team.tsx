@@ -87,8 +87,14 @@ export default function Team({
   heading = 'Know who’s looking after your property.',
   lede = 'A named property manager you can reach directly.',
 }: TeamProps) {
-  const propertyManagers = members.filter((m) => m.groups.includes('property-management'));
+  // Someone can be in more than one group in the shared team data (Brett
+  // is leadership and property management). This page shows each person
+  // once: leaders in the leadership line, everyone else as property
+  // managers.
   const leadership = members.filter((m) => m.groups.includes('leadership'));
+  const propertyManagers = members.filter(
+    (m) => m.groups.includes('property-management') && !m.groups.includes('leadership'),
+  );
 
   return (
     <section id="team" className="section section-paper team">

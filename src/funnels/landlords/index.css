@@ -1341,6 +1341,13 @@ input, select, textarea {
     background: rgba(246, 244, 238, 0.96);
     backdrop-filter: blur(8px);
     border-top: 1px solid var(--line-light);
+    /* Off screen until the hero has scrolled away (StickyMobileCta.tsx). */
+    transform: translateY(110%);
+    transition: transform 0.25s ease;
+  }
+
+  .mobile-cta.is-visible {
+    transform: none;
   }
 
   .site-footer__legal {
