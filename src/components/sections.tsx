@@ -4,7 +4,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { OFFICE_LIST } from '../data/offices';
 import { TEAM, type TeamGroup, type TeamMember } from '../data/team';
-import { PHONE_DISPLAY, PHONE_TEL } from '../data/business';
+import { OPENING_HOURS, PHONE_DISPLAY, PHONE_TEL } from '../data/business';
 import { trackCallClick } from '../lib/analytics';
 import Icon from './Icon';
 import Picture from './Picture';
@@ -257,6 +257,11 @@ export function Offices({ title = 'Two offices, one team.' }: { title?: ReactNod
                   {office.addressLines[0]}
                   <br />
                   {office.addressLines[1]}
+                </p>
+                <p className="office-card__hours">
+                  <Icon name="clock" />
+                  <span aria-hidden="true">{OPENING_HOURS.display}</span>
+                  <span className="visually-hidden">{OPENING_HOURS.spoken}</span>
                 </p>
                 <p>{office.about}</p>
                 <div className="office-card__links">

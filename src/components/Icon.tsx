@@ -23,6 +23,7 @@ const PATHS = {
   mail: 'M4 6h16v12H4zM4 7l8 6 8-6',
   chart: 'M4 20V4M4 20h16M8 16v-4M12 16V8M16 16v-6',
   swap: 'M7 7h13l-3-3M17 17H4l3 3',
+  clock: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v5l3 2',
 } as const;
 
 export type IconName = keyof typeof PATHS;

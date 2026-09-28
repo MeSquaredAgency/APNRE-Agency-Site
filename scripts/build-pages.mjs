@@ -25,6 +25,17 @@ const esc = (s) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g
 // offices.ts): the two office addresses and the phone number. No ratings
 // or review counts. The @id is what blog posts point at as their
 // publisher (src/structured-data.ts).
+// Both offices: Monday to Saturday, 8:30am to 5:00pm (OPENING_HOURS in
+// src/data/business.ts).
+const HOURS = [
+  {
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+    opens: '08:30',
+    closes: '17:00',
+  },
+];
+
 const JSON_LD = {
   '@context': 'https://schema.org',
   '@type': 'RealEstateAgent',
@@ -35,9 +46,11 @@ const JSON_LD = {
   logo: `${SITE}/apple-touch-icon.png`,
   telephone: '+61-1300-123-276',
   areaServed: ['Adelaide SA', 'Mount Gambier SA'],
+  openingHoursSpecification: HOURS,
   location: [
     {
       '@type': 'Place',
+      openingHoursSpecification: HOURS,
       name: 'APN Real Estate — Adelaide',
       address: {
         '@type': 'PostalAddress',
@@ -50,6 +63,7 @@ const JSON_LD = {
     },
     {
       '@type': 'Place',
+      openingHoursSpecification: HOURS,
       name: 'APN Real Estate — Mount Gambier',
       address: {
         '@type': 'PostalAddress',

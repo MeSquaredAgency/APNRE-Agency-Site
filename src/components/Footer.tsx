@@ -6,6 +6,7 @@ import {
   ACN,
   BUSINESS_NAME,
   LEGAL_ENTITY_NAME,
+  OPENING_HOURS,
   PHONE_DISPLAY,
   PHONE_TEL,
   RLA_NUMBER,
@@ -31,6 +32,10 @@ export default function Footer() {
           <a href={PHONE_TEL} className="site-footer__phone" onClick={() => trackCallClick('footer')}>
             {PHONE_DISPLAY}
           </a>
+          <p className="site-footer__hours">
+            <span aria-hidden="true">Both offices: {OPENING_HOURS.display}</span>
+            <span className="visually-hidden">Both offices are {OPENING_HOURS.spoken.toLowerCase()}</span>
+          </p>
           <div className="site-footer__offices">
             {OFFICE_LIST.map((office) => (
               <p key={office.id}>

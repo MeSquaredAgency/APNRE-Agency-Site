@@ -2063,3 +2063,21 @@ input, select, textarea {
     bottom: 76px;
   }
 }
+
+/* ---------- Opening hours ---------- */
+
+.office-card__hours {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+.office-card__hours svg {
+  color: var(--grey-500);
+}
+.site-footer__hours {
+  margin: -12px 0 24px;
+  font-size: 0.92rem;
+  color: rgba(255, 255, 255, 0.78);
+}

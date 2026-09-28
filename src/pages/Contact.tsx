@@ -12,7 +12,7 @@ export default function Contact() {
       <PageHero
         eyebrow="Contact us"
         title="Get in touch."
-        lede="Call either office on one number, or send us an enquiry and the right person will get back to you."
+        lede="Call either office on one number, Monday to Saturday from 8:30am to 5:00pm, or send us an enquiry and the right person will get back to you."
         photo={BLAIR_ATHOL_PHOTOS.reception.photo}
         photoAlt={BLAIR_ATHOL_PHOTOS.reception.alt}
       >

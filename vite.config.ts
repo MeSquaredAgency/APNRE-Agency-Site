@@ -88,7 +88,8 @@ export default defineConfig({
     // Favicons, GTM and the Meta Pixel.
     partial('shared-head', 'head-shared.html'),
     // Each page has one of these two markers (scripts/build-pages.mjs):
-    // Google Fonts for the main site, self-hosted fonts for /landlords/.
+    // Both self-hosted from public/fonts/: Playfair Display and Figtree
+    // for the main site, Archivo and Public Sans for /landlords/.
     partial('fonts-agency', 'fonts-agency.html'),
     partial('fonts-landlords', 'fonts-landlords.html'),
     // GTM / Meta Pixel <noscript> fallbacks.

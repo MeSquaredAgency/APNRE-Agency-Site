@@ -9,6 +9,16 @@ export const PHONE_TEL = 'tel:1300123276';
 /** The same number for structured data. */
 export const PHONE_SCHEMA = '+61-1300-123-276';
 
+/** Both offices keep the same hours (confirmed 28 Sep 2026). If they
+ *  change, update JSON_LD's openingHoursSpecification in
+ *  scripts/build-pages.mjs and public/llms.txt too. */
+export const OPENING_HOURS = {
+  /** For the page, e.g. office cards and the footer. */
+  display: 'Mon–Sat, 8:30am–5:00pm',
+  /** For screen readers, which don't read "Mon–Sat" well. */
+  spoken: 'Open Monday to Saturday, 8:30am to 5:00pm',
+};
+
 /** Legal entity details for the compliance line in the footer. Each one
  *  is only shown once it's filled in, so nothing half-finished goes live.
  *  Take these from the actual registration records rather than old
