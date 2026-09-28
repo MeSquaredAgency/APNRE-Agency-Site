@@ -1,4 +1,4 @@
-import { PHONE_TEL } from '../../data/business';
+import { PHONE_TEL } from '../../../data/business';
 import { trackCallClick } from '../lib/analytics';
 
 // Two actions: landlords ready to switch often want to talk to a person

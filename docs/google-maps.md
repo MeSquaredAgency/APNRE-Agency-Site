@@ -34,6 +34,7 @@ key is), so the restrictions are what protect it. On the key's page:
 - **Application restrictions → Websites**, and add:
   - `https://apnre.com.au/*`
   - `https://www.apnre.com.au/*`
+  - `https://go.apnre.com.au/*` (campaign funnels, `docs/funnels.md`)
   - `https://*.<your-pages-project>.pages.dev/*` (preview deployments)
   - `http://localhost:5180/*` (only if you want it on the dev server)
 - **API restrictions → Restrict key**, and tick only **Maps JavaScript

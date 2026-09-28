@@ -2,7 +2,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import StickyMobileCta from './components/StickyMobileCta';
 import { OFFICE_LIST } from './data/offices';
-import { PHONE_DISPLAY, PHONE_TEL } from '../data/business';
+import { PHONE_DISPLAY, PHONE_TEL } from '../../data/business';
 
 // The homepage's form, since this page has none of its own (same pattern
 // as PrivacyPage.tsx).

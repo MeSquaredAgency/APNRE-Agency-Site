@@ -17,11 +17,12 @@
 <!--
   Analytics and the Meta Pixel only run on the live site, so dev-server
   visits, Cloudflare preview deployments (*.pages.dev) and test
-  submissions don't land in APN's real analytics or ad data. Add a
-  hostname here if the site ever moves.
+  submissions don't land in APN's real analytics or ad data. That's
+  apnre.com.au, www. and go. (the campaign funnels, docs/funnels.md). Add
+  a hostname here if the site ever moves.
 -->
 <script>
-  window.__APN_LIVE = /^(www\.)?apnre\.com\.au$/.test(location.hostname);
+  window.__APN_LIVE = /^(www\.|go\.)?apnre\.com\.au$/.test(location.hostname);
 </script>
 <script>
   if ('%VITE_GTM_ID%' && window.__APN_LIVE) {

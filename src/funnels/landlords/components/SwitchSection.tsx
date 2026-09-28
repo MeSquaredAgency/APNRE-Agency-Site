@@ -1,7 +1,7 @@
-import balconyWide from '../../assets/photos/balcony-view-wide.jpg?photo';
-import Picture from '../../components/Picture';
+import balconyWide from '../../../assets/photos/balcony-view-wide.jpg?photo';
+import Picture from '../../../components/Picture';
 import { SWITCHING_EVENT } from './AppraisalForm';
-import { PHONE_DISPLAY, PHONE_TEL } from '../../data/business';
+import { PHONE_DISPLAY, PHONE_TEL } from '../../../data/business';
 import { trackCallClick } from '../lib/analytics';
 
 export default function SwitchSection() {

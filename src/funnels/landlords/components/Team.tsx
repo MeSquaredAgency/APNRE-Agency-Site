@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
-import { TEAM, type TeamMember } from '../../data/team';
-import Picture from '../../components/Picture';
+import { TEAM, type TeamMember } from '../../../data/team';
+import Picture from '../../../components/Picture';
 
 function ContactLines({ member }: { member: TeamMember }) {
   if (!member.phone && !member.email) return null;

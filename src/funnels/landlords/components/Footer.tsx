@@ -1,4 +1,4 @@
-import logoReversed from '../../assets/logo/adelaide-property-network-logo-reversed.png';
+import logoReversed from '../../../assets/logo/adelaide-property-network-logo-reversed.png';
 import { OFFICE_LIST } from '../data/offices';
 import {
   ABN,
@@ -8,7 +8,7 @@ import {
   PHONE_DISPLAY,
   PHONE_TEL,
   RLA_NUMBER,
-} from '../../data/business';
+} from '../../../data/business';
 
 interface FooterProps {
   /** Where the footer CTA points. See Header's ctaHref. */

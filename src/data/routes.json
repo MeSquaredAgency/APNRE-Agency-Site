@@ -114,7 +114,7 @@
     "title": "Property Management Adelaide & Mount Gambier | APN Real Estate",
     "description": "Property management for landlords across Adelaide and Mount Gambier — a named property manager you can reach directly. Free rental appraisals.",
     "noindex": true,
-    "site": "landlords"
+    "funnel": "landlords"
   },
   {
     "page": "landlords-thank-you",
@@ -122,6 +122,6 @@
     "title": "Thanks for your enquiry | APN Real Estate",
     "description": "Your free rental appraisal request has been received. An APN property manager will be in touch directly.",
     "noindex": true,
-    "site": "landlords"
+    "funnel": "landlords"
   }
 ]

@@ -1,8 +1,8 @@
-import balconyView from '../../assets/photos/balcony-view-hills.jpg?photo';
-import mountGambierStreet from '../../assets/photos/mount-gambier-hillside-street.jpg?photo';
-import adelaideLogo from '../../assets/logo/adelaide-property-network-logo.png';
-import mountGambierLogo from '../../assets/logo/mount-gambier-property-network-logo.png';
-import type { Photo } from '../../lib/photo';
+import balconyView from '../../../assets/photos/balcony-view-hills.jpg?photo';
+import mountGambierStreet from '../../../assets/photos/mount-gambier-hillside-street.jpg?photo';
+import adelaideLogo from '../../../assets/logo/adelaide-property-network-logo.png';
+import mountGambierLogo from '../../../assets/logo/mount-gambier-property-network-logo.png';
+import type { Photo } from '../../../lib/photo';
 
 /** A logo file and its size in pixels. Update the size if the file is
  *  replaced, so the browser reserves the right space for it. */

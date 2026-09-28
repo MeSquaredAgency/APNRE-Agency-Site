@@ -7,9 +7,10 @@
 // (or the templates below), never the output. The sitemap is written
 // after the build by scripts/prerender.mjs, once the blog posts are known.
 //
-// A route with "site": "landlords" is part of the landlord campaign
-// (src/landlords/): it gets that entry script, its self-hosted fonts and
-// its own link-preview image. Everything else is the main site.
+// A route with "funnel": "<id>" is a campaign funnel page, served at
+// go.apnre.com.au (src/data/funnels.json, docs/funnels.md): it gets that
+// funnel's entry script, fonts and link-preview image, and a go.
+// canonical URL. Everything else is the main site.
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -18,6 +19,8 @@ import { buildOgImages, OG_DEFAULT, OG_PHOTOS } from './og-images.mjs';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SITE = 'https://apnre.com.au';
 const routes = JSON.parse(readFileSync(join(ROOT, 'src/data/routes.json'), 'utf8'));
+const { origin: FUNNEL_ORIGIN, funnels } = JSON.parse(readFileSync(join(ROOT, 'src/data/funnels.json'), 'utf8'));
+const FUNNELS = Object.fromEntries(funnels.map((f) => [f.id, f]));
 
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 
@@ -77,14 +80,7 @@ const JSON_LD = {
   ],
 };
 
-// The landlord campaign keeps the preview image it had as the landing
-// page: its own headline, made for ads and shares.
-const LANDLORDS_OG = {
-  image: `${SITE}/landlords-og.jpg`,
-  alt: 'APN Real Estate: your property is an asset, we manage it like one. Property management for landlords across Adelaide and Mount Gambier.',
-};
-
-const ENTRIES = { main: '/src/main.tsx', landlords: '/src/landlords/main.tsx', blog: '/src/blog-main.tsx' };
+const ENTRIES = { main: '/src/main.tsx', blog: '/src/blog-main.tsx' };
 
 /** Everything after the shared head: fonts marker, then per-page tags. */
 function shell({ entry, fonts, headTags, rootAttrs = '' }) {
@@ -106,11 +102,16 @@ ${headTags}    <script type="module" src="${entry}"></script>
 }
 
 function html(route) {
-  const url = SITE + route.path;
+  const funnel = route.funnel ? FUNNELS[route.funnel] : undefined;
+  if (route.funnel && !funnel) throw new Error(`${route.path}: no funnel "${route.funnel}" in src/data/funnels.json`);
+  const url = (funnel ? FUNNEL_ORIGIN : SITE) + route.path;
   const title = esc(route.title);
   const description = esc(route.description);
-  const landlords = route.site === 'landlords';
-  const og = landlords ? LANDLORDS_OG : { image: `${SITE}/og/${route.page}.jpg`, alt: (OG_PHOTOS[route.page] ?? OG_DEFAULT).alt };
+  // Each funnel has its own share image, made for ads; main-site pages
+  // get theirs from scripts/og-images.mjs.
+  const og = funnel
+    ? { image: FUNNEL_ORIGIN + funnel.og.image, alt: funnel.og.alt }
+    : { image: `${SITE}/og/${route.page}.jpg`, alt: (OG_PHOTOS[route.page] ?? OG_DEFAULT).alt };
   const jsonLd =
     route.page === 'home' || route.page === 'contact'
       ? `    <script type="application/ld+json">${JSON.stringify(JSON_LD)}</script>\n`
@@ -139,8 +140,8 @@ function html(route) {
     <meta name="twitter:image:alt" content="${esc(og.alt)}" />
 ${preload}${jsonLd}`;
   return shell({
-    entry: landlords ? ENTRIES.landlords : ENTRIES.main,
-    fonts: landlords ? 'landlords' : 'agency',
+    entry: funnel ? funnel.entry : ENTRIES.main,
+    fonts: funnel ? funnel.fonts : 'agency',
     headTags,
     rootAttrs: ` data-page="${route.page}"`,
   });
@@ -162,6 +163,6 @@ writeFileSync(
   shell({ entry: ENTRIES.blog, fonts: 'agency', headTags: '    <!-- blog-head -->\n' }),
 );
 
-await buildOgImages(routes.filter((r) => r.site !== 'landlords').map((r) => r.page));
+await buildOgImages(routes.filter((r) => !r.funnel).map((r) => r.page));
 
 console.log(`Generated ${routes.length} pages, the blog template and their link-preview images`);

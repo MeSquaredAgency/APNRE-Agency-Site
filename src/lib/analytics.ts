@@ -17,7 +17,7 @@ declare global {
  *  once either way.
  *
  *  The GTM event is `generate_lead`, the same event the landlord page
- *  (src/landlords/lib/analytics.ts) sends, so one GTM trigger and GA4 tag
+ *  (src/funnels/landlords/lib/analytics.ts) sends, so one GTM trigger and GA4 tag
  *  cover every form on the site. `event_category` tells the two apart
  *  ('enquiry_form' here, 'appraisal_form' there) and `form_name` is the
  *  enquiry type, e.g. 'sales-appraisal'. See docs/gtm-events.md. */

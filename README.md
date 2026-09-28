@@ -51,7 +51,7 @@ the build, once the blog posts are known.
 | `/client-hub/` | Client hub overview, plus a hub each for `landlords/`, `tenants/` (with repairs), `sellers/` and `buyers/`: quick actions, their team, FAQs and the right form (`src/pages/Hubs.tsx`) |
 | `/blog/`, `/blog/<post>/` | Guides, written as Markdown in `content/blog/`; see `docs/blog.md` |
 | `/privacy/`, `/thank-you/` | Privacy policy; post-submit page (noindex) |
-| `/landlords/`, `/landlords/thank-you/` | The landlord campaign page for paid ads, and its thank-you page (both noindex) |
+| `go.apnre.com.au/landlords/` (+ `thank-you/`) | The landlord campaign funnel for paid ads, and its thank-you page (both noindex). Funnels are served on go.apnre.com.au; see `docs/funnels.md` |
 
 To add a page: add it to `routes.json`, create `src/pages/<Name>.tsx`,
 register it in `PAGE_LOADERS` in `src/pages/index.ts`, and link it from
@@ -61,15 +61,23 @@ Old URLs that moved are redirected in `public/_redirects` (e.g. the
 landing page's `/adelaide/` and `/mount-gambier/` office pages go to the
 offices on `/contact/`). Add a line there whenever a published page moves.
 
-## Landlord campaign pages (`/landlords/`)
+## Campaign funnels (go.apnre.com.au)
+
+Paid-ad landing pages live on `go.apnre.com.au`, one path per funnel,
+listed in `src/data/funnels.json`. `functions/_middleware.ts` serves
+them there and redirects everything else between the hosts; the full
+guide, including a brief template for the marketing exec and UTM
+conventions, is `docs/funnels.md`.
+
+### The landlord funnel (`go.apnre.com.au/landlords/`)
 
 The paid-ads landing page, moved in from the `APNRE-Website` repo. It's
 deliberately kept as it was, so ad performance and tracking carry on
 unchanged:
 
-- Its own code in `src/landlords/` (page, components, office data,
-  analytics) and its own browser entry, `src/landlords/main.tsx`. Its
-  stylesheet (`src/landlords/index.css`) and self-hosted fonts
+- Its own code in `src/funnels/landlords/` (page, components, office data,
+  analytics) and its own browser entry, `src/funnels/landlords/main.tsx`. Its
+  stylesheet (`src/funnels/landlords/index.css`) and self-hosted fonts
   (`public/fonts/`, `src/partials/fonts-landlords.html`) load only on
   these two pages; the main site's styles never load there, and its
   styles never reach the main site.

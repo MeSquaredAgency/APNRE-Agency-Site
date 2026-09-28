@@ -2,7 +2,7 @@
 // scripts/prerender.mjs uses it to write each page's finished markup into
 // its HTML file, so search engines and link previews read the content
 // without running JavaScript. The browser then hydrates it (src/main.tsx
-// for the main site, src/landlords/main.tsx for the landlord campaign).
+// for the main site, and each funnel's own entry under src/funnels/).
 
 import type { ComponentType } from 'react';
 import { renderToString } from 'react-dom/server';
@@ -11,16 +11,17 @@ import { PathContext } from './lib/route';
 
 export { renderBlogPages } from './blog-server';
 
-// The landlord campaign pages have their own browser entry, so they're
-// listed here rather than in PAGE_LOADERS (which the main site's browser
-// code imports).
-const LANDLORD_LOADERS: Record<string, () => Promise<ComponentType>> = {
-  landlords: () => import('./landlords/App').then((m) => m.default),
-  'landlords-thank-you': () => import('./landlords/ThankYouPage').then((m) => m.default),
+// Funnel pages (src/funnels/, served at go.apnre.com.au) have their own
+// browser entries, so they're listed here rather than in PAGE_LOADERS
+// (which the main site's browser code imports). Keyed by the route's
+// page id in src/data/routes.json. See docs/funnels.md.
+const FUNNEL_LOADERS: Record<string, () => Promise<ComponentType>> = {
+  landlords: () => import('./funnels/landlords/App').then((m) => m.default),
+  'landlords-thank-you': () => import('./funnels/landlords/ThankYouPage').then((m) => m.default),
 };
 
 export async function renderPage(page: string, path: string): Promise<string> {
-  const load = PAGE_LOADERS[page] ?? LANDLORD_LOADERS[page];
+  const load = PAGE_LOADERS[page] ?? FUNNEL_LOADERS[page];
   if (!load) throw new Error(`Unknown page: ${page}`);
   const Page = await load();
   return renderToString(

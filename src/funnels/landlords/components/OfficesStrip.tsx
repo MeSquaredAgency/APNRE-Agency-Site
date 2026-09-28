@@ -1,5 +1,5 @@
 import { OFFICE_LIST, type OfficeId } from '../data/offices';
-import { TEAM } from '../../data/team';
+import { TEAM } from '../../../data/team';
 
 interface OfficesStripProps {
   /** On an office page, leave that office out and point to the other. */

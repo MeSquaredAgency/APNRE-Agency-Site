@@ -1,5 +1,5 @@
-import interiorPhoto from '../../assets/photos/interior-corner-windows.jpg?photo';
-import Picture from '../../components/Picture';
+import interiorPhoto from '../../../assets/photos/interior-corner-windows.jpg?photo';
+import Picture from '../../../components/Picture';
 
 const REASONS = [
   {

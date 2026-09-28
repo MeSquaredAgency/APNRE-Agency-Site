@@ -1,5 +1,5 @@
-import balconyView from '../../assets/photos/balcony-view-hills.jpg?photo';
-import Picture from '../../components/Picture';
+import balconyView from '../../../assets/photos/balcony-view-hills.jpg?photo';
+import Picture from '../../../components/Picture';
 
 export default function Hero() {
   return (
