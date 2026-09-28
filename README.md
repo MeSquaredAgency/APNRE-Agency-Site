@@ -120,7 +120,8 @@ landlord page sends, told apart by `event_category`; see
 - [ ] **GTM.** Set up the `generate_lead` and `click_to_call` triggers
   and GA4 tags in `docs/gtm-events.md`, if they aren't already. One of
   each covers the whole site.
-- [ ] **Switch-over.** This site replaces the `APNRE-Website` deployment
+- [ ] **Switch-over.** Full step-by-step guide: `docs/switch-over.md`.
+  This site replaces the `APNRE-Website` deployment
   at `apnre.com.au`. On the day:
   1. In Cloudflare, move the `apnre.com.au` and `www` custom domains
      from the old Pages project to this one, and give this one the same
