@@ -1,0 +1,33 @@
+<!--
+  GTM <noscript> fallback, injected immediately after <body> at the
+  "shared-body" marker by the sharedBody plugin in vite.config.ts.
+  Matching <script> snippet: src/partials/head-shared.html.
+
+  This has no way to check whether VITE_GTM_ID is set (it only runs when
+  JS is off, so the "if" trick the head snippet uses doesn't apply here)
+  — with it blank, the iframe just requests an empty container id, which
+  GTM ignores. Harmless, but fill in VITE_GTM_ID before relying on this.
+-->
+<noscript>
+  <iframe
+    src="https://www.googletagmanager.com/ns.html?id=%VITE_GTM_ID%"
+    height="0"
+    width="0"
+    style="display: none; visibility: hidden"
+  ></iframe>
+</noscript>
+<!--
+  Meta Pixel <noscript> fallback (PageView only, for visitors with JS
+  off). Lives here rather than next to the pixel script in
+  head-shared.html because an <img> isn't valid inside <head>. Same
+  caveat as the GTM iframe above if VITE_META_PIXEL_ID is ever blanked.
+-->
+<noscript>
+  <img
+    height="1"
+    width="1"
+    style="display: none"
+    alt=""
+    src="https://www.facebook.com/tr?id=%VITE_META_PIXEL_ID%&ev=PageView&noscript=1"
+  />
+</noscript>

@@ -1,0 +1,87 @@
+[
+  {
+    "page": "home",
+    "path": "/",
+    "title": "Real Estate Adelaide & Mount Gambier | APN Real Estate",
+    "description": "Sales, leasing and property management across Adelaide and Mount Gambier. Talk to a local APN agent or book a free appraisal."
+  },
+  {
+    "page": "selling",
+    "path": "/selling/",
+    "title": "Sell Your Property | APN Real Estate",
+    "description": "Selling in Adelaide or Mount Gambier? See how APN runs a sale, meet the sales team and book a free, no-obligation sales appraisal."
+  },
+  {
+    "page": "leasing",
+    "path": "/leasing/",
+    "title": "Leasing & Property Management | APN Real Estate",
+    "description": "Property management for landlords across Adelaide and Mount Gambier, with a named property manager you can reach directly. Free rental appraisals."
+  },
+  {
+    "page": "buy",
+    "path": "/buy/",
+    "title": "Properties For Sale | APN Real Estate",
+    "description": "Browse APN Real Estate's properties for sale in Adelaide and Mount Gambier, or join our buyer list to hear about new listings."
+  },
+  {
+    "page": "rent",
+    "path": "/rent/",
+    "title": "Properties For Rent | APN Real Estate",
+    "description": "Browse APN Real Estate's rental properties in Adelaide and Mount Gambier, or tell us what you're looking for."
+  },
+  {
+    "page": "sold",
+    "path": "/sold/",
+    "title": "Recently Sold | APN Real Estate",
+    "description": "See properties APN Real Estate has recently sold, and find out what your own property could be worth."
+  },
+  {
+    "page": "appraisal",
+    "path": "/appraisal/",
+    "title": "Free Property Appraisal | APN Real Estate",
+    "description": "Book a free, no-obligation sales or rental appraisal with a local APN Real Estate agent in Adelaide or Mount Gambier."
+  },
+  {
+    "page": "people",
+    "path": "/our-people/",
+    "title": "Our People | APN Real Estate",
+    "description": "Meet the APN Real Estate sales and property management team in Adelaide and Mount Gambier."
+  },
+  {
+    "page": "story",
+    "path": "/our-story/",
+    "title": "Our Story | APN Real Estate",
+    "description": "APN Real Estate began in Adelaide as Adelaide Property Network. Today it has offices in Blair Athol and Mount Gambier."
+  },
+  {
+    "page": "contact",
+    "path": "/contact/",
+    "title": "Contact Us | APN Real Estate",
+    "description": "Contact APN Real Estate's Adelaide (Blair Athol) and Mount Gambier offices on 1300 123 276, or send us an enquiry."
+  },
+  {
+    "page": "careers",
+    "path": "/careers/",
+    "title": "Careers | APN Real Estate",
+    "description": "Interested in working in real estate with APN in Adelaide or Mount Gambier? Send us an expression of interest."
+  },
+  {
+    "page": "maintenance",
+    "path": "/maintenance/",
+    "title": "Rental Repairs & Maintenance | APN Real Estate",
+    "description": "APN Real Estate tenants: how to report a repair or maintenance issue with your rental property."
+  },
+  {
+    "page": "privacy",
+    "path": "/privacy/",
+    "title": "Privacy Policy | APN Real Estate",
+    "description": "How APN Real Estate collects, uses and protects personal information submitted through this website."
+  },
+  {
+    "page": "thank-you",
+    "path": "/thank-you/",
+    "title": "Thank You | APN Real Estate",
+    "description": "Thanks for getting in touch with APN Real Estate.",
+    "noindex": true
+  }
+]
