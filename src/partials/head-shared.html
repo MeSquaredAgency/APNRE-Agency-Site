@@ -45,13 +45,19 @@
 <!-- Stock photos come from Pexels' CDN (src/data/media.ts). -->
 <link rel="preconnect" href="https://images.pexels.com" />
 <!--
-  Meta Pixel. ID comes from a Cloudflare Pages build environment
-  variable so no account ID lives in source: Pages project → Settings →
-  Environment variables → add VITE_META_PIXEL_ID, then redeploy.
+  Meta Pixel. The ID is VITE_META_PIXEL_ID in the repo's .env (it's a
+  public ID, visible in every page anyway); a Cloudflare Pages
+  environment variable of the same name overrides it.
 
   Leaving it unset is safe: the "if" below is false at build time and
   this script never runs. No placeholder ID to remember to swap out
   before launch.
+
+  On the main site, Meta's 110 KB script waits until the page has loaded
+  and the browser is idle, so it doesn't compete with the page itself.
+  fbq() calls before then are queued and sent once it arrives. The
+  campaign funnels on go. load it straight away as before, so ad
+  conversion tracking there is unchanged.
 -->
 <script>
   if ('%VITE_META_PIXEL_ID%' && window.__APN_LIVE) {
@@ -61,7 +67,15 @@
       };
       if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
       n.queue = []; t = b.createElement(e); t.async = !0; t.src = v;
-      s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s);
+      var load = function () {
+        s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s);
+      };
+      if (location.hostname.indexOf('go.') === 0) return load();
+      var idle = function () {
+        (f.requestIdleCallback || function (cb) { setTimeout(cb, 1); })(load, { timeout: 3000 });
+      };
+      if (b.readyState === 'complete') idle();
+      else f.addEventListener('load', idle);
     }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
     window.fbq('init', '%VITE_META_PIXEL_ID%');
     window.fbq('track', 'PageView');

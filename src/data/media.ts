@@ -1,7 +1,7 @@
 // Stock photos from Pexels (free for commercial use, no attribution
 // required, credited here anyway). Photos are served from Pexels' CDN,
-// resized there: WebP where supported, 800px for phones and 1600px for
-// bigger screens, in the same Photo shape as a local `?photo` import so
+// resized there: AVIF or WebP where supported, 800px for phones and 1200
+// or 1600px for bigger screens, in the same Photo shape as a local `?photo` import so
 // src/components/Picture.tsx handles both. The hero video is hosted on
 // the site itself (public/video/); see docs/media.md.
 //
@@ -21,9 +21,13 @@ export interface StockImage {
  *  (measured once; the aspect ratio is what matters). */
 function pexels(id: number, w: number, h: number): Photo {
   const base = `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb`;
-  const set = (fm: string) => `${base}&w=800${fm} 800w, ${base}&w=1600${fm} 1600w`;
+  const set = (fm: string) =>
+    [800, 1200, 1600].map((w) => `${base}&w=${w}${fm} ${w}w`).join(', ');
   return {
-    sources: { webp: set('&fm=webp'), jpeg: set('') },
+    // AVIF first: about 20% smaller than WebP from Pexels. A 1200px step
+    // means a third-width card on a high-density laptop doesn't jump
+    // straight to the 1600px copy.
+    sources: { avif: set('&fm=avif'), webp: set('&fm=webp'), jpeg: set('') },
     img: { src: `${base}&w=1600`, w, h },
   };
 }
@@ -34,6 +38,9 @@ export const HERO_VIDEO = {
   src: '/video/adelaide-aerial-1080.mp4',
   srcSmall: '/video/adelaide-aerial-720.mp4',
   poster: '/video/adelaide-aerial-poster.jpg',
+  /** Smaller WebP copies of the poster. scripts/build-pages.mjs preloads
+   *  the same set, so keep the two in step. */
+  posterSrcSet: '/video/adelaide-aerial-poster-800.webp 800w, /video/adelaide-aerial-poster-1600.webp 1600w',
   credit: 'David / Pexels',
   page: 'https://www.pexels.com/video/aerial-view-of-adelaide-skyline-and-torrens-river-36761129/',
 };

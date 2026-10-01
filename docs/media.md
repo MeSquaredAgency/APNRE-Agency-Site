@@ -26,7 +26,13 @@ the Pexels clip (credited in `src/data/media.ts`):
 | --- | --- | --- |
 | `adelaide-aerial-1080.mp4` | ~2.4 MB | wider than 900px |
 | `adelaide-aerial-720.mp4` | ~1.1 MB | 900px and narrower |
-| `adelaide-aerial-poster.jpg` | ~0.2 MB | shown first, and instead of the video for reduced motion or data saving |
+| `adelaide-aerial-poster-800.webp` | ~60 KB | the poster on phones |
+| `adelaide-aerial-poster-1600.webp` | ~180 KB | the poster on bigger screens |
+| `adelaide-aerial-poster.jpg` | ~0.2 MB | the poster in browsers without WebP |
+
+The poster is shown first, and instead of the video for reduced motion
+or data saving. It's an image under the video rather than the video's
+`poster` attribute, so phones can get the smaller copy.
 
 The pre-rendered page contains only the poster. The video is added once
 the page is running, and not at all for visitors who prefer reduced
@@ -47,8 +53,16 @@ ffmpeg -i source.mp4 -an -vf "fps=30,scale=1280:-2:flags=lanczos" -c:v libx264 -
 ffmpeg -ss 0.5 -i source.mp4 -frames:v 1 -vf "scale=1600:-2" -q:v 7 adelaide-aerial-poster.jpg
 ```
 
+Then make the WebP copies from it (sharp is already installed, through
+vite-imagetools):
+
+```bash
+node -e "const s=require('sharp');for(const w of [800,1600])s('public/video/adelaide-aerial-poster.jpg').resize(w).webp({quality:72}).toFile('public/video/adelaide-aerial-poster-'+w+'.webp')"
+```
+
 Aim for under 3 MB at 1080p; raise `-crf` to shrink it further. Give the
-new files new names (and update `HERO_VIDEO` in `src/data/media.ts`),
+new files new names (and update `HERO_VIDEO` in `src/data/media.ts` and
+the poster preload in `scripts/build-pages.mjs`),
 since `/video/*` is cached for a day (`public/_headers`).
 
 ## Link previews (og:image)
