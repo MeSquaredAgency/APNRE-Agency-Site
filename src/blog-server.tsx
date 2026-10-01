@@ -11,9 +11,9 @@ import BlogIndexPage from './blog/BlogIndexPage';
 import BlogPostPage from './blog/BlogPostPage';
 import { loadPosts } from './blog/load-posts';
 import { BLOG_DATA_ID, type BlogPageData, type Post, type PostMeta } from './blog/types';
-import { TEAM } from './data/team';
+import { TEAM, teamMemberId } from './data/team';
 import { PathContext } from './lib/route';
-import { ORGANIZATION_REF, SITE, scriptJson } from './structured-data';
+import { breadcrumbList, ORGANIZATION_REF, SITE, scriptJson, WEBSITE_ID } from './structured-data';
 
 // A post without its own image uses the home page's link preview
 // (scripts/og-images.mjs).
@@ -83,16 +83,7 @@ function head(o: HeadOptions): string {
 }
 
 function breadcrumbs(items: [name: string, path: string][]) {
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: items.map(([name, path], i) => ({
-      '@type': 'ListItem',
-      position: i + 1,
-      name,
-      item: `${SITE}${path}`,
-    })),
-  };
+  return breadcrumbList(items.map(([name, path]) => ({ name, path })));
 }
 
 function fill(template: string, headHtml: string, appHtml: string): string {
@@ -185,10 +176,22 @@ export function renderBlogPages(template: string, { includeDrafts = false } = {}
               dateModified: post.updated ?? post.date,
               image: post.image ? absolute(post.image) : DEFAULT_IMAGE,
               mainEntityOfPage: `${SITE}${path}`,
+              // The same @id as this person on /our-people/, so search
+              // engines connect the article to the team member.
               author: author
-                ? { '@type': 'Person', name: author.name, jobTitle: author.role, worksFor: ORGANIZATION_REF }
+                ? {
+                    '@type': 'Person',
+                    '@id': `${SITE}/our-people/#${teamMemberId(author.name)}`,
+                    name: author.name,
+                    jobTitle: author.role,
+                    url: `${SITE}/our-people/${teamMemberId(author.name)}/`,
+                    worksFor: ORGANIZATION_REF,
+                  }
                 : ORGANIZATION_REF,
               publisher: ORGANIZATION_REF,
+              url: `${SITE}${path}`,
+              inLanguage: 'en-AU',
+              isPartOf: { '@id': WEBSITE_ID },
             },
             breadcrumbs([
               ['Home', '/'],

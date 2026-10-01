@@ -5,7 +5,7 @@
 # never published. Full guide: docs/blog.md
 
 # Shown as the page heading and in Google results. Aim for under 60
-# characters, with the phrase a landlord would search for near the start.
+# characters, with the phrase the reader would search for near the start.
 title: "How much bond can a landlord charge in South Australia?"
 
 # Optional. A shorter title for Google results and social shares, when
@@ -46,7 +46,7 @@ Normal paragraphs are just text. Leave a blank line between them.
 
 **Bold** for emphasis, and [links like this](https://www.sa.gov.au/).
 Link to other pages on this site too, for example our
-[free rental appraisal](/#appraisal) or the
+[free rental appraisal](/appraisal/rental/) or the
 [Mount Gambier office](/contact/#mount-gambier).
 
 ### "###" for a smaller heading inside a section

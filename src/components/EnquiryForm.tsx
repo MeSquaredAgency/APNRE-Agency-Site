@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'rea
 import { trackFormSubmit } from '../lib/analytics';
 import { loadTurnstile, TURNSTILE_SITE_KEY } from '../lib/turnstile';
 import AddressInput from './AddressInput';
-import { PHONE_DISPLAY, PHONE_TEL } from '../data/business';
+import { OPENING_HOURS, PHONE_DISPLAY, PHONE_TEL } from '../data/business';
 
 // Posts to functions/api/enquiry.ts, which forwards to the Google Sheet.
 const ENDPOINT = '/api/enquiry';
@@ -30,8 +30,51 @@ interface EnquiryFormProps {
 
 type Status = 'idle' | 'submitting' | 'error';
 
+/** What to say under a field the browser has flagged as invalid. */
+function fieldError(field: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement): string {
+  const v = field.validity;
+  const label = field.dataset.label ?? 'This field';
+  if (v.valueMissing) return `${label} is required.`;
+  if (field.name === 'email') return 'Enter an email address like name@example.com.';
+  if (field.name === 'phone') return 'Enter a number we can call, e.g. 0412 345 678 or 08 8123 4567.';
+  return field.validationMessage;
+}
+
+/** Marks every invalid field with aria-invalid and an error message
+ *  that stays on screen (linked with aria-describedby), clears fields
+ *  that are now fine, and moves focus to the first problem. Returns
+ *  whether the form is valid. */
+function showErrors(form: HTMLFormElement): boolean {
+  let first: HTMLElement | undefined;
+  form.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>('input, select, textarea').forEach(
+    (field) => {
+      if (!field.name || field.type === 'hidden' || field.closest('.form__honeypot')) return;
+      const id = `${field.form?.id || 'form'}-${field.name}-error`;
+      document.getElementById(id)?.remove();
+      if (field.checkValidity()) {
+        field.removeAttribute('aria-invalid');
+        field.removeAttribute('aria-describedby');
+        return;
+      }
+      field.setAttribute('aria-invalid', 'true');
+      field.setAttribute('aria-describedby', id);
+      const message = document.createElement('span');
+      message.id = id;
+      message.className = 'form__field-error';
+      message.textContent = fieldError(field);
+      (field.closest('.form__field') ?? field.parentElement)?.append(message);
+      first ??= field;
+    },
+  );
+  first?.focus();
+  return !first;
+}
+
 export default function EnquiryForm({ kind, submitLabel, defaultAddress, before, defaultTopic = '' }: EnquiryFormProps) {
   const [status, setStatus] = useState<Status>('idle');
+  // Errors only show after a send attempt; from then on, each field is
+  // re-checked as it's corrected.
+  const [tried, setTried] = useState(false);
   const [managed, setManaged] = useState('');
 
   // Turnstile spam check, when a site key is configured. The widget adds
@@ -63,7 +106,8 @@ export default function EnquiryForm({ kind, submitLabel, defaultAddress, before,
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
-    if (!form.reportValidity()) return;
+    setTried(true);
+    if (!showErrors(form)) return;
 
     setStatus('submitting');
     try {
@@ -86,8 +130,16 @@ export default function EnquiryForm({ kind, submitLabel, defaultAddress, before,
   const needsAddress = kind === 'sales-appraisal' || kind === 'rental-appraisal' || kind === 'maintenance';
 
   return (
-    <form className="form" onSubmit={handleSubmit} noValidate>
+    <form
+      className="form"
+      id={`enquiry-${kind}`}
+      onSubmit={handleSubmit}
+      onChange={tried ? (e) => showErrors(e.currentTarget) : undefined}
+      noValidate
+    >
       {before}
+
+      <p className="form__required">Fields marked * are required.</p>
 
       {/* Honeypot. Deliberately not named like a real field: browser
           autofill ignores CSS hiding and would fill a field called
@@ -102,13 +154,13 @@ export default function EnquiryForm({ kind, submitLabel, defaultAddress, before,
 
       <label className="form__field">
         <span>Name*</span>
-        <input type="text" name="name" required autoComplete="name" />
+        <input type="text" name="name" required autoComplete="name" data-label="Your name" />
       </label>
 
       <div className="form__split">
         <label className="form__field">
           <span>Email*</span>
-          <input type="email" name="email" required autoComplete="email" />
+          <input type="email" name="email" required autoComplete="email" data-label="Your email" />
         </label>
         <label className="form__field">
           <span>Phone*</span>
@@ -123,7 +175,8 @@ export default function EnquiryForm({ kind, submitLabel, defaultAddress, before,
             autoComplete="tel"
             inputMode="tel"
             pattern="\+?[0-9 \(\)\-]{8,20}"
-            title="A phone number with at least 8 digits, e.g. 0412 345 678"
+            title="Enter a number we can call, e.g. 0412 345 678 or 08 8123 4567"
+            data-label="Your phone number"
           />
         </label>
       </div>
@@ -131,7 +184,13 @@ export default function EnquiryForm({ kind, submitLabel, defaultAddress, before,
       {needsAddress && (
         <label className="form__field">
           <span>{kind === 'maintenance' ? 'Rental property address*' : 'Property address*'}</span>
-          <AddressInput name="address" required autoComplete="street-address" defaultValue={defaultAddress} />
+          <AddressInput
+            name="address"
+            required
+            autoComplete="street-address"
+            defaultValue={defaultAddress}
+            data-label="The property address"
+          />
         </label>
       )}
 
@@ -293,18 +352,18 @@ export default function EnquiryForm({ kind, submitLabel, defaultAddress, before,
           {kind === 'maintenance'
             ? 'What needs fixing?*'
             : kind === 'careers'
-              ? 'Tell us a little about yourself'
+              ? 'Your experience and the role you’re after (optional)'
               : 'Anything else we should know? (optional)'}
         </span>
-        <textarea name="message" rows={4} required={kind === 'maintenance'} />
+        <textarea name="message" rows={4} required={kind === 'maintenance'} data-label="A description of the repair" />
       </label>
 
       {TURNSTILE_SITE_KEY && <div ref={turnstileBox} className="form__turnstile" />}
 
       {status === 'error' && (
         <p className="form__error" role="alert">
-          Something went wrong sending this. Please try again, or call us on{' '}
-          <a href={PHONE_TEL}>{PHONE_DISPLAY}</a>.
+          We couldn’t send your enquiry. Your details are still here, so try again, or call{' '}
+          <a href={PHONE_TEL}>{PHONE_DISPLAY}</a> ({OPENING_HOURS.display}).
         </p>
       )}
 
@@ -312,8 +371,7 @@ export default function EnquiryForm({ kind, submitLabel, defaultAddress, before,
         {status === 'submitting' ? 'Sending…' : submitLabel}
       </button>
       <p className="form__fineprint">
-        * Required. We use your details to respond to this enquiry. See our{' '}
-        <a href="/privacy/">Privacy Policy</a>.
+        We use your details to respond to this enquiry. See our <a href="/privacy/">Privacy Policy</a>.
       </p>
     </form>
   );

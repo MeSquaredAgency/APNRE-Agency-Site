@@ -7,6 +7,8 @@ import { LISTINGS_LINKS, REVIEWS_URL } from '../data/nav';
 import { STOCK } from '../data/media';
 import soldSticker from '../assets/photos/agent-placing-sold-sticker.jpg?photo';
 import soldSign from '../assets/photos/sold-sign-ridley.jpg?photo';
+import mountGambierStreet from '../assets/photos/mount-gambier-hillside-street.jpg?photo';
+import interior from '../assets/photos/interior-corner-windows.jpg?photo';
 
 // Pillars are facts APN can stand behind today. Swap in figures (years
 // in business, sales volumes, review scores) only once they're verified
@@ -32,23 +34,23 @@ export default function Home() {
               {
                 href: LISTINGS_LINKS.buy.href,
                 external: true,
-                image: STOCK.houseExterior.photo,
-                alt: STOCK.houseExterior.alt,
+                image: mountGambierStreet,
+                alt: '',
                 kicker: 'Buy',
                 title: 'Properties for sale',
               },
               {
                 href: LISTINGS_LINKS.rent.href,
                 external: true,
-                image: STOCK.livingRoom.photo,
-                alt: STOCK.livingRoom.alt,
+                image: interior,
+                alt: '',
                 kicker: 'Rent',
                 title: 'Properties for rent',
               },
               {
                 href: '/sold/',
                 image: soldSign,
-                alt: 'An Adelaide Property Network SOLD sign outside a brick home',
+                alt: '',
                 kicker: 'Sold',
                 title: 'Recent sales',
               },
@@ -74,13 +76,17 @@ export default function Home() {
             results nearby. No obligation.
           </p>
           <div className="split-feature__actions">
-            <a href="/appraisal/?type=sales" className="btn btn-dark">
+            <a href="/appraisal/sales/" className="btn btn-dark">
               Sales Appraisal <Icon name="arrow" />
             </a>
-            <a href="/appraisal/?type=rental" className="btn btn-outline-dark">
+            <a href="/appraisal/rental/" className="btn btn-outline-dark">
               Rental Appraisal
             </a>
           </div>
+          <p className="split-feature__more">
+            Or see how we work: <a href="/selling/">selling with APN</a> and{' '}
+            <a href="/leasing/">property management</a>.
+          </p>
         </div>
       </section>
 
@@ -128,10 +134,10 @@ export default function Home() {
           />
           <ImageCards
             items={[
-              { href: '/client-hub/landlords/', image: STOCK.openPlan.photo, alt: STOCK.openPlan.alt, kicker: 'I own a rental', title: 'Landlord hub' },
-              { href: '/client-hub/tenants/', image: STOCK.keysHand.photo, alt: STOCK.keysHand.alt, kicker: 'I’m renting', title: 'Tenant hub' },
-              { href: '/client-hub/sellers/', image: soldSign, alt: 'An Adelaide Property Network SOLD sign outside a brick home', kicker: 'I’m selling', title: 'Seller hub' },
-              { href: '/client-hub/buyers/', image: STOCK.houseExterior.photo, alt: STOCK.houseExterior.alt, kicker: 'I’m buying', title: 'Buyer hub' },
+              { href: '/client-hub/landlords/', image: STOCK.openPlan.photo, alt: '', kicker: 'I own a rental', title: 'Landlord hub' },
+              { href: '/client-hub/tenants/', image: STOCK.keysHand.photo, alt: '', kicker: 'I’m renting', title: 'Tenant hub' },
+              { href: '/client-hub/sellers/', image: soldSign, alt: '', kicker: 'I’m selling', title: 'Seller hub' },
+              { href: '/client-hub/buyers/', image: mountGambierStreet, alt: '', kicker: 'I’m buying', title: 'Buyer hub' },
             ]}
           />
         </div>

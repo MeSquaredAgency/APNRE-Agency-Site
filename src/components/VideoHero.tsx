@@ -7,9 +7,9 @@ import { saveAppraisalAddress } from '../lib/appraisal-handoff';
 type Mode = 'sell' | 'lease' | 'agent';
 
 const MODES: { id: Mode; label: string; placeholder: string; submit: string }[] = [
-  { id: 'sell', label: 'Sell', placeholder: 'Enter your property address', submit: 'Get an appraisal' },
-  { id: 'lease', label: 'Lease', placeholder: 'Enter your property address', submit: 'Get a rental appraisal' },
-  { id: 'agent', label: 'Find an agent', placeholder: 'Search by agent name or role', submit: 'Search' },
+  { id: 'sell', label: 'Sell', placeholder: 'Your property’s address', submit: 'Get an Appraisal' },
+  { id: 'lease', label: 'Lease', placeholder: 'Your property’s address', submit: 'Get a Rental Appraisal' },
+  { id: 'agent', label: 'Find an agent', placeholder: 'Agent name, role or office', submit: 'Search' },
 ];
 
 /** Whether the browser has asked sites to use less data (Chrome's
@@ -48,6 +48,20 @@ export default function VideoHero() {
     return () => reduce.removeEventListener('change', onChange);
   }, []);
 
+  // Pause while the hero is scrolled out of view, to save battery and
+  // decoding, and pick up again when it's back, unless reduced motion was
+  // turned on in the meantime.
+  useEffect(() => {
+    const v = video.current;
+    if (!src || !v || !('IntersectionObserver' in window)) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) v.pause();
+      else if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) void v.play().catch(() => undefined);
+    });
+    observer.observe(v);
+    return () => observer.disconnect();
+  }, [src]);
+
   // The button's state follows the video's own play/pause events (see
   // onPlay/onPause below), so it stays right when the browser blocks
   // autoplay or pauses the video itself, e.g. in low-power mode.
@@ -72,11 +86,25 @@ export default function VideoHero() {
     }
     // The address travels in session storage, never the URL.
     if (text) saveAppraisalAddress(text);
-    window.location.href = `/appraisal/?type=${mode === 'lease' ? 'rental' : 'sales'}`;
+    window.location.href = mode === 'lease' ? '/appraisal/rental/' : '/appraisal/sales/';
   }
 
   return (
     <section className="video-hero">
+      {/* The poster is a real image under the video rather than the
+          video's poster attribute, so phones get a smaller copy. It's the
+          page's largest image, preloaded in scripts/build-pages.mjs. */}
+      <picture className="video-hero__poster">
+        <source type="image/webp" srcSet={HERO_VIDEO.posterSrcSet} sizes="100vw" />
+        <img
+          src={HERO_VIDEO.poster}
+          alt=""
+          width={1600}
+          height={900}
+          decoding="async"
+          {...{ fetchpriority: 'high' }}
+        />
+      </picture>
       <video
         ref={video}
         className="video-hero__video"
@@ -86,7 +114,6 @@ export default function VideoHero() {
         loop
         playsInline
         preload="auto"
-        poster={HERO_VIDEO.poster}
         aria-hidden="true"
         onPlay={() => setPlaying(true)}
         onPause={() => setPlaying(false)}

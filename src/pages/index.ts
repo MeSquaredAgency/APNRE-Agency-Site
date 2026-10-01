@@ -11,7 +11,11 @@ export const PAGE_LOADERS: Record<string, () => Promise<ComponentType>> = {
   rent: () => import('./Listings').then((m) => m.Rent),
   sold: () => import('./Listings').then((m) => m.Sold),
   appraisal: () => import('./Appraisal').then((m) => m.default),
+  'appraisal-sales': () => import('./Appraisal').then((m) => m.SalesAppraisal),
+  'appraisal-rental': () => import('./Appraisal').then((m) => m.RentalAppraisal),
   people: () => import('./People').then((m) => m.default),
+  // Every /our-people/<id>/ page; Person picks the member from the path.
+  person: () => import('./Person').then((m) => m.default),
   story: () => import('./Story').then((m) => m.default),
   contact: () => import('./Contact').then((m) => m.default),
   careers: () => import('./Careers').then((m) => m.default),

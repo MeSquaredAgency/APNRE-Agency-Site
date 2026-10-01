@@ -40,6 +40,10 @@ export default function Header({ current, overlay = false }: HeaderProps) {
     }
     wasOpen.current = true;
     document.body.style.overflow = 'hidden';
+    // Screen readers' swipe navigation ignores the focus trap below, so
+    // take the page behind the menu out of reach entirely.
+    const behind = Array.from(document.querySelectorAll<HTMLElement>('.skip-link, #main, .site-footer, .sticky-actions'));
+    behind.forEach((el) => el.setAttribute('inert', ''));
     const focusables = () => [
       menuButton.current!,
       ...Array.from(menu.current?.querySelectorAll<HTMLElement>('a[href], button') ?? []),
@@ -60,6 +64,7 @@ export default function Header({ current, overlay = false }: HeaderProps) {
     window.addEventListener('keydown', onKey);
     return () => {
       document.body.style.overflow = '';
+      behind.forEach((el) => el.removeAttribute('inert'));
       window.removeEventListener('keydown', onKey);
     };
   }, [open]);
@@ -70,7 +75,9 @@ export default function Header({ current, overlay = false }: HeaderProps) {
     <header className={`site-header${solid ? ' is-solid' : ''}`}>
       <div className="wrap site-header__row">
         <a href="/" className="site-header__brand" aria-label="APN Real Estate — home">
-          <img src={logoReversed} alt={MAIN_LOGO_ALT} className="site-header__logo" />
+          {/* width/height are the file's own size, so the browser keeps
+              the space before it loads; CSS sets the displayed height. */}
+          <img src={logoReversed} alt={MAIN_LOGO_ALT} className="site-header__logo" width={448} height={300} />
         </a>
 
         <nav className="site-header__nav" aria-label="Primary">
@@ -83,7 +90,7 @@ export default function Header({ current, overlay = false }: HeaderProps) {
 
         <div className="site-header__actions">
           <a href="/appraisal/" className="btn btn-light btn-sm site-header__cta">
-            Free Appraisal
+            Book a Free Appraisal
           </a>
           <button
             type="button"

@@ -115,6 +115,11 @@ export default function AddressInput({ defaultValue = '', onChange, tone = 'ligh
   }
 
   const showList = enabled && open && options.length > 0;
+  // Announced by screen readers when suggestions arrive, since focus
+  // stays in the text box.
+  const announcement = showList
+    ? `${options.length} address ${options.length === 1 ? 'suggestion' : 'suggestions'}. Use the up and down arrows to choose.`
+    : '';
 
   return (
     <div className={`address-input address-input--${tone}`}>
@@ -161,8 +166,13 @@ export default function AddressInput({ defaultValue = '', onChange, tone = 'ligh
           : {})}
       />
       {enabled && (
+        <p className="visually-hidden" role="status">
+          {announcement}
+        </p>
+      )}
+      {enabled && (
         <div className="address-input__panel" hidden={!showList}>
-          <ul id={listId} role="listbox" className="address-input__list">
+          <ul id={listId} role="listbox" aria-label="Address suggestions" className="address-input__list">
             {options.map((o, i) => (
               <li
                 key={o.id}

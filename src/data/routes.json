@@ -8,13 +8,13 @@
   {
     "page": "selling",
     "path": "/selling/",
-    "title": "Sell Your Property | APN Real Estate",
+    "title": "Sell Your Home in Adelaide & Mount Gambier | APN Real Estate",
     "description": "Selling in Adelaide or Mount Gambier? See how APN runs a sale, meet the sales team and book a free, no-obligation sales appraisal."
   },
   {
     "page": "leasing",
     "path": "/leasing/",
-    "title": "Leasing & Property Management | APN Real Estate",
+    "title": "Property Management Adelaide & Mount Gambier | APN",
     "description": "Property management for landlords across Adelaide and Mount Gambier, with a named property manager you can reach directly. Free rental appraisals."
   },
   {
@@ -38,14 +38,62 @@
   {
     "page": "appraisal",
     "path": "/appraisal/",
-    "title": "Free Property Appraisal | APN Real Estate",
+    "title": "Free Property Appraisal Adelaide & Mount Gambier | APN",
     "description": "Book a free, no-obligation sales or rental appraisal with a local APN Real Estate agent in Adelaide or Mount Gambier."
+  },
+  {
+    "page": "appraisal-sales",
+    "path": "/appraisal/sales/",
+    "title": "Free Sales Appraisal Adelaide & Mount Gambier | APN",
+    "description": "What could your property sell for? Book a free, no-obligation sales appraisal with the APN sales team in Adelaide or Mount Gambier."
+  },
+  {
+    "page": "appraisal-rental",
+    "path": "/appraisal/rental/",
+    "title": "Free Rental Appraisal Adelaide & Mount Gambier | APN",
+    "description": "What could your property rent for? Book a free, no-obligation rental appraisal with a local APN property manager in Adelaide or Mount Gambier."
   },
   {
     "page": "people",
     "path": "/our-people/",
     "title": "Our People | APN Real Estate",
     "description": "Meet the APN Real Estate sales and property management team in Adelaide and Mount Gambier."
+  },
+  {
+    "page": "person",
+    "path": "/our-people/luke-whittaker/",
+    "title": "Luke Whittaker, Property Manager, Mount Gambier | APN Real Estate",
+    "description": "Luke Whittaker is a Property Manager at APN Real Estate in Mount Gambier. Call 1300 123 276 and ask for Luke."
+  },
+  {
+    "page": "person",
+    "path": "/our-people/marissa-bowell/",
+    "title": "Marissa Bowell, Property Manager, Blair Athol | APN Real Estate",
+    "description": "Marissa Bowell is a Property Manager and Sales Representative at APN Real Estate in Blair Athol, Adelaide."
+  },
+  {
+    "page": "person",
+    "path": "/our-people/jenny-saffin/",
+    "title": "Jenny Saffin, Property Manager, Mount Gambier | APN Real Estate",
+    "description": "Jenny Saffin is a Property Manager at APN Real Estate in Mount Gambier, working with landlords and tenants."
+  },
+  {
+    "page": "person",
+    "path": "/our-people/breeanna-arney/",
+    "title": "Breeanna Arney, Mount Gambier | APN Real Estate",
+    "description": "Breeanna Arney is a Property Management Trainee at APN Real Estate in Mount Gambier."
+  },
+  {
+    "page": "person",
+    "path": "/our-people/patrick-nhim/",
+    "title": "Patrick Nhim, Director, Adelaide | APN Real Estate",
+    "description": "Patrick Nhim founded APN Real Estate, originally Adelaide Property Network, and leads its sales team in Adelaide."
+  },
+  {
+    "page": "person",
+    "path": "/our-people/brett-david/",
+    "title": "Brett David, Regional Manager, Adelaide | APN Real Estate",
+    "description": "Brett David is APN Real Estate’s Regional Manager and Head of Leasing & Accounts, based in Adelaide."
   },
   {
     "page": "story",
@@ -75,7 +123,8 @@
     "page": "hub-landlords",
     "path": "/client-hub/landlords/",
     "title": "Landlord Hub | APN Real Estate",
-    "description": "For APN landlords: contact your property manager, get a rental appraisal, or talk to us about changing property managers."
+    "description": "For APN landlords: contact your property manager, get a rental appraisal, or talk to us about changing property managers.",
+    "noindex": true
   },
   {
     "page": "hub-tenants",
@@ -87,13 +136,15 @@
     "page": "hub-sellers",
     "path": "/client-hub/sellers/",
     "title": "Seller Hub | APN Real Estate",
-    "description": "Thinking of selling in Adelaide or Mount Gambier? Get a free sales appraisal, see recent sales and talk to the APN sales team."
+    "description": "Thinking of selling in Adelaide or Mount Gambier? Get a free sales appraisal, see recent sales and talk to the APN sales team.",
+    "noindex": true
   },
   {
     "page": "hub-buyers",
     "path": "/client-hub/buyers/",
     "title": "Buyer Hub | APN Real Estate",
-    "description": "Buying in Adelaide or Mount Gambier? See properties for sale, join the APN buyer list and talk to the sales team."
+    "description": "Buying in Adelaide or Mount Gambier? See properties for sale, join the APN buyer list and talk to the sales team.",
+    "noindex": true
   },
   {
     "page": "privacy",

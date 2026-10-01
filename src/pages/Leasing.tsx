@@ -1,10 +1,12 @@
 import Layout from '../components/Layout';
 import EnquiryForm from '../components/EnquiryForm';
 import Icon from '../components/Icon';
+import JsonLd from '../components/JsonLd';
 import Picture from '../components/Picture';
 import { CtaBand, Faq, FormSection, PageHero, Process, Reasons, Team } from '../components/sections';
 import { PHONE_DISPLAY, PHONE_TEL } from '../data/business';
 import { trackCallClick } from '../lib/analytics';
+import { service } from '../structured-data';
 import heroPhoto from '../assets/photos/balcony-view-hills.jpg?photo';
 import balconyWide from '../assets/photos/balcony-view-wide.jpg?photo';
 
@@ -75,7 +77,7 @@ const FAQS = [
 
 function Switching() {
   return (
-    <section className="photo-band">
+    <section className="photo-band" id="switch">
       <Picture photo={balconyWide} alt="" className="photo-band__img" />
       <div className="photo-band__scrim" />
       <div className="wrap photo-band__inner">
@@ -102,10 +104,18 @@ function Switching() {
 export default function Leasing() {
   return (
     <Layout>
+      <JsonLd
+        data={service({
+          name: 'Leasing & Property Management',
+          serviceType: 'Residential property management',
+          path: '/leasing/',
+          description: STEPS.map((s) => s.copy).join(' '),
+        })}
+      />
       <PageHero
         eyebrow="Leasing & property management"
-        title="Your property is an asset. We treat it like one."
-        lede="Property management for landlords across Adelaide and Mount Gambier, with a named property manager you can reach directly."
+        title="Property management in Adelaide & Mount Gambier."
+        lede="Your property is an asset, and we treat it like one, with a named property manager you can reach directly."
         photo={heroPhoto}
         photoAlt="View across the Adelaide hills from one of the properties APN manages"
         focalPoint="center 78%"
@@ -128,11 +138,21 @@ export default function Leasing() {
       <Process eyebrow="Our leasing process" title="From appraisal to a tenant in place." steps={STEPS} />
       <Switching />
       <Team group="property-management" eyebrow="Property management" title="Your property managers." />
-      <Faq title="Questions landlords ask us." items={FAQS} />
+      <Faq
+        title="Questions landlords ask us."
+        items={FAQS}
+        more={
+          <>
+            More detail: <a href="/blog/what-does-a-property-manager-do/">what does a property manager do?</a> Already
+            with APN? Go to the <a href="/client-hub/landlords/">landlord hub</a>, or{' '}
+            <a href="/our-people/?filter=property-management">meet our property managers</a>.
+          </>
+        }
+      />
       <FormSection
         id="appraisal"
         eyebrow="Free rental appraisal"
-        title="What is your property really worth to rent?"
+        title="What could your property rent for?"
         copy="Tell us about your property. A local APN property manager will review the details and contact you directly."
         steps={['We review your property', 'An APN property manager contacts you', 'You decide, with no obligation to appoint APN']}
       >

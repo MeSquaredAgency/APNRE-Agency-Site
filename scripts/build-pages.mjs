@@ -25,9 +25,11 @@ const FUNNELS = Object.fromEntries(funnels.map((f) => [f.id, f]));
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 
 // Only details verified elsewhere on the site (src/data/business.ts and
-// offices.ts): the two office addresses and the phone number. No ratings
-// or review counts. The @id is what blog posts point at as their
-// publisher (src/structured-data.ts).
+// offices.ts): the two office addresses, the phone number, the hours and
+// the registration numbers. No ratings or review counts, and no map
+// coordinates until someone confirms them. The @ids are what other
+// structured data points at: blog posts as their publisher, /our-people/
+// for each person's office (src/structured-data.ts).
 // Both offices: Monday to Saturday, 8:30am to 5:00pm (OPENING_HOURS in
 // src/data/business.ts).
 const HOURS = [
@@ -39,43 +41,80 @@ const HOURS = [
   },
 ];
 
+const ORG_ID = `${SITE}/#organization`;
+// Must match OFFICE_SCHEMA_IDS in src/structured-data.ts.
+const OFFICE_IDS = { adelaide: `${SITE}/#office-adelaide`, 'mount-gambier': `${SITE}/#office-mount-gambier` };
+// REA_PROFILE_URL in src/data/business.ts. Add the Google Business
+// Profiles and social accounts here once confirmed.
+const SAME_AS = ['https://www.realestate.com.au/agency/adelaide-property-network-blair-athol-JIASZF'];
+
+const office = ({ id, name, alternateName, street, locality, postcode, city, mapsQuery }) => ({
+  '@type': 'RealEstateAgent',
+  '@id': OFFICE_IDS[id],
+  name,
+  alternateName,
+  url: `${SITE}/contact/#${id}`,
+  telephone: '+61-1300-123-276',
+  parentOrganization: { '@id': ORG_ID },
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: street,
+    addressLocality: locality,
+    addressRegion: 'SA',
+    postalCode: postcode,
+    addressCountry: 'AU',
+  },
+  hasMap: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapsQuery)}`,
+  areaServed: { '@type': 'City', name: city, containedInPlace: { '@type': 'State', name: 'South Australia' } },
+  openingHoursSpecification: HOURS,
+});
+
 const JSON_LD = {
   '@context': 'https://schema.org',
-  '@type': 'RealEstateAgent',
-  '@id': `${SITE}/#organization`,
-  name: 'APN Real Estate',
-  alternateName: 'Adelaide Property Network',
-  url: `${SITE}/`,
-  logo: `${SITE}/apple-touch-icon.png`,
-  telephone: '+61-1300-123-276',
-  areaServed: ['Adelaide SA', 'Mount Gambier SA'],
-  openingHoursSpecification: HOURS,
-  location: [
+  '@graph': [
     {
-      '@type': 'Place',
-      openingHoursSpecification: HOURS,
-      name: 'APN Real Estate — Adelaide',
-      address: {
-        '@type': 'PostalAddress',
-        streetAddress: 'Level 1 / 420B, Cnr Main North Road and Barton Street',
-        addressLocality: 'Blair Athol',
-        addressRegion: 'SA',
-        postalCode: '5084',
-        addressCountry: 'AU',
-      },
+      '@type': 'Organization',
+      '@id': ORG_ID,
+      name: 'APN Real Estate',
+      alternateName: ['Adelaide Property Network', 'Mount Gambier Property Network', 'APN'],
+      url: `${SITE}/`,
+      logo: { '@type': 'ImageObject', url: `${SITE}/apple-touch-icon.png` },
+      telephone: '+61-1300-123-276',
+      identifier: [
+        { '@type': 'PropertyValue', propertyID: 'ACN', value: '164 181 971' },
+        { '@type': 'PropertyValue', propertyID: 'RLA', value: '255336' },
+      ],
+      sameAs: SAME_AS,
+      subOrganization: [{ '@id': OFFICE_IDS.adelaide }, { '@id': OFFICE_IDS['mount-gambier'] }],
     },
-    {
-      '@type': 'Place',
-      openingHoursSpecification: HOURS,
+    office({
+      id: 'adelaide',
+      name: 'APN Real Estate — Adelaide',
+      alternateName: 'Adelaide Property Network',
+      street: 'Level 1 / 420B, Cnr Main North Road and Barton Street',
+      locality: 'Blair Athol',
+      postcode: '5084',
+      city: 'Adelaide',
+      mapsQuery: '420B Main North Road, Blair Athol SA 5084',
+    }),
+    office({
+      id: 'mount-gambier',
       name: 'APN Real Estate — Mount Gambier',
-      address: {
-        '@type': 'PostalAddress',
-        streetAddress: '178 Commercial Street East',
-        addressLocality: 'Mount Gambier',
-        addressRegion: 'SA',
-        postalCode: '5290',
-        addressCountry: 'AU',
-      },
+      alternateName: 'Mount Gambier Property Network',
+      street: '178 Commercial Street East',
+      locality: 'Mount Gambier',
+      postcode: '5290',
+      city: 'Mount Gambier',
+      mapsQuery: '178 Commercial Street East, Mount Gambier SA 5290',
+    }),
+    {
+      '@type': 'WebSite',
+      '@id': `${SITE}/#website`,
+      url: `${SITE}/`,
+      name: 'APN Real Estate',
+      alternateName: ['Adelaide Property Network', 'APN'],
+      inLanguage: 'en-AU',
+      publisher: { '@id': ORG_ID },
     },
   ],
 };
@@ -116,10 +155,11 @@ function html(route) {
     route.page === 'home' || route.page === 'contact'
       ? `    <script type="application/ld+json">${JSON.stringify(JSON_LD)}</script>\n`
       : '';
-  // The home hero's poster is its largest image, so fetch it straight away.
+  // The home hero's poster is its largest image, so fetch it straight
+  // away: the same WebP set as HERO_VIDEO.posterSrcSet in src/data/media.ts.
   const preload =
     route.page === 'home'
-      ? `    <link rel="preload" as="image" href="/video/adelaide-aerial-poster.jpg" fetchpriority="high" />\n`
+      ? `    <link rel="preload" as="image" type="image/webp" imagesrcset="/video/adelaide-aerial-poster-800.webp 800w, /video/adelaide-aerial-poster-1600.webp 1600w" imagesizes="100vw" fetchpriority="high" />\n`
       : '';
   const headTags = `    <title>${title}</title>
     <meta name="description" content="${description}" />

@@ -1,4 +1,18 @@
+# Everything on apnre.com.au may be crawled. Pages that shouldn't be in
+# search carry their own noindex tag. AI search crawlers are listed
+# explicitly so the policy is clear: APN wants to be found and cited in
+# AI answers as well as in Google.
 User-agent: *
+Allow: /
+
+User-agent: GPTBot
+User-agent: OAI-SearchBot
+User-agent: ChatGPT-User
+User-agent: ClaudeBot
+User-agent: Claude-SearchBot
+User-agent: PerplexityBot
+User-agent: Google-Extended
+User-agent: Applebot-Extended
 Allow: /
 
 Sitemap: https://apnre.com.au/sitemap.xml

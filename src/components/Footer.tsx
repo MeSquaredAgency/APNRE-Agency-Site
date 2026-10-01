@@ -27,7 +27,7 @@ export default function Footer() {
       <div className="wrap site-footer__top">
         <div className="site-footer__brand">
           <a href="/" className="site-footer__logo">
-            <img src={logoReversed} alt="Adelaide Property Network — APN Real Estate" />
+            <img src={logoReversed} alt="Adelaide Property Network — APN Real Estate" width={448} height={300} />
           </a>
           <a href={PHONE_TEL} className="site-footer__phone" onClick={() => trackCallClick('footer')}>
             {PHONE_DISPLAY}
@@ -50,7 +50,7 @@ export default function Footer() {
         <nav className="site-footer__nav" aria-label="Footer">
           {NAV_GROUPS.map((group) => (
             <div key={group.title}>
-              <h2 className="site-footer__title">{group.title}</h2>
+              <p className="site-footer__title">{group.title}</p>
               <ul>
                 {group.links.map((link) => (
                   <li key={link.href}>

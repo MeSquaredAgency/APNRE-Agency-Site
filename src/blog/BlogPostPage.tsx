@@ -84,7 +84,7 @@ export default function BlogPostPage({ post, bodyHtml, related }: BlogPostPagePr
       <FormSection
         id="appraisal"
         eyebrow="Free rental appraisal"
-        title="What is your property really worth to rent?"
+        title="What could your property rent for?"
         copy="Tell us about your property. A local APN property manager will review the details and contact you directly."
       >
         <EnquiryForm kind="rental-appraisal" submitLabel="Get My Free Rental Appraisal" />

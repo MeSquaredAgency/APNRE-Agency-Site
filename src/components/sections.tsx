@@ -3,10 +3,12 @@
 
 import { useEffect, useState, type ReactNode } from 'react';
 import { OFFICE_LIST } from '../data/offices';
-import { TEAM, type TeamGroup, type TeamMember } from '../data/team';
+import { TEAM, teamMemberId, type TeamGroup, type TeamMember } from '../data/team';
 import { OPENING_HOURS, PHONE_DISPLAY, PHONE_TEL } from '../data/business';
 import { trackCallClick } from '../lib/analytics';
+import { faqPage } from '../structured-data';
 import Icon from './Icon';
+import JsonLd from './JsonLd';
 import Picture from './Picture';
 import type { Photo } from '../lib/photo';
 
@@ -60,7 +62,7 @@ export function Pillars({ items }: { items: Pillar[] }) {
       <ul className="wrap pillars__list">
         {items.map((p) => (
           <li key={p.title}>
-            <h2 className="pillars__title">{p.title}</h2>
+            <p className="pillars__title">{p.title}</p>
             <p>{p.copy}</p>
           </li>
         ))}
@@ -88,6 +90,7 @@ export function ImageCards({ items }: { items: ImageCard[] }) {
           href={c.href}
           className="image-card"
           key={c.title}
+          aria-label={c.external ? `${c.title} on realestate.com.au (opens in a new tab)` : c.title}
           {...(c.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
         >
           <Picture
@@ -184,9 +187,11 @@ export interface FaqItem {
   a: string;
 }
 
-export function Faq({ title, items }: { title: ReactNode; items: FaqItem[] }) {
+/** The questions as shown, plus matching FAQPage structured data. */
+export function Faq({ title, items, more }: { title: ReactNode; items: FaqItem[]; more?: ReactNode }) {
   return (
     <section className="section section-paper">
+      <JsonLd data={faqPage(items)} />
       <div className="wrap faq">
         <SectionHead eyebrow="Common questions" title={title} />
         <div className="faq__list">
@@ -199,6 +204,7 @@ export function Faq({ title, items }: { title: ReactNode; items: FaqItem[] }) {
               <p>{item.a}</p>
             </details>
           ))}
+          {more && <p className="faq__more">{more}</p>}
         </div>
       </div>
     </section>
@@ -296,7 +302,7 @@ const GROUP_LABELS: Record<TeamGroup, string> = {
 function TeamCard({ member }: { member: TeamMember }) {
   const office = OFFICE_LIST.find((o) => o.id === member.office);
   return (
-    <article className="team-card">
+    <article className="team-card" id={teamMemberId(member.name)}>
       <div className="team-card__photo">
         <Picture
           photo={member.photo}
@@ -305,7 +311,9 @@ function TeamCard({ member }: { member: TeamMember }) {
           sizes="(max-width: 560px) 50vw, 25vw"
         />
       </div>
-      <h3 className="team-card__name">{member.name}</h3>
+      <h3 className="team-card__name">
+        <a href={`/our-people/${teamMemberId(member.name)}/`}>{member.name}</a>
+      </h3>
       <p className="team-card__role">{member.role}</p>
       {office && <p className="team-card__office">{office.name}</p>}
       {member.bio && (
@@ -358,12 +366,18 @@ export function Team({ group, filterable = false, limit, eyebrow = 'Our people',
   }, [filterable]);
   const active = group ?? filter;
   const q = query.trim().toLowerCase();
-  const members = TEAM.filter(
-    (m) =>
-      (active === 'all' || m.groups.includes(active)) &&
-      (!q || m.name.toLowerCase().includes(q) || m.role.toLowerCase().includes(q)),
-  );
+  // Name, role or office, so "Mount Gambier" finds everyone there.
+  const matches = (m: TeamMember) =>
+    [m.name, m.role, OFFICE_LIST.find((o) => o.id === m.office)?.name ?? ''].some((text) =>
+      text.toLowerCase().includes(q),
+    );
+  const members = TEAM.filter((m) => (active === 'all' || m.groups.includes(active)) && (!q || matches(m)));
   const shown = limit ? members.slice(0, limit) : members;
+
+  function reset() {
+    setQuery('');
+    choose('all');
+  }
 
   function choose(next: Filter) {
     setFilter(next);
@@ -376,6 +390,9 @@ export function Team({ group, filterable = false, limit, eyebrow = 'Our people',
   return (
     <section className="section section-white" id="team">
       <div className="wrap">
+        {/* A headless list still needs a heading between the page's h1
+            and the h3 names, for screen readers' heading navigation. */}
+        {headless && <h2 className="visually-hidden">{title ?? 'Our team'}</h2>}
         {!headless && (
           <SectionHead
             eyebrow={eyebrow}
@@ -406,15 +423,20 @@ export function Team({ group, filterable = false, limit, eyebrow = 'Our people',
             </div>
             <label className="team-search">
               <Icon name="search" />
-              <span className="visually-hidden">Search by name or role</span>
+              <span className="visually-hidden">Search by name, role or office</span>
               <input
                 type="search"
-                placeholder="Search by name or role"
+                placeholder="Name, role or office"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
               />
             </label>
           </div>
+        )}
+        {filterable && (
+          <p className="visually-hidden" role="status">
+            {members.length === 1 ? 'Showing 1 person' : `Showing ${members.length} people`}
+          </p>
         )}
         {shown.length > 0 ? (
           <div className="team-grid" style={{ ['--team-cols' as string]: teamColumns(shown.length) }}>
@@ -423,7 +445,13 @@ export function Team({ group, filterable = false, limit, eyebrow = 'Our people',
             ))}
           </div>
         ) : (
-          <p className="team-empty">No one matches that search.</p>
+          <p className="team-empty">
+            No one matches {q ? <>“{query.trim()}”</> : 'that filter'}. Try a first name, a role like “property
+            manager”, or an office.{' '}
+            <button type="button" className="team-empty__reset" onClick={reset}>
+              Show everyone
+            </button>
+          </p>
         )}
       </div>
     </section>

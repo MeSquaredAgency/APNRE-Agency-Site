@@ -30,7 +30,12 @@ export default function Contact() {
         id="enquiry"
         eyebrow="Send an enquiry"
         title="How can we help?"
-        copy="Selling, buying, renting or property management: tell us a little about what you need."
+        copy={
+          <>
+            Selling, buying, renting or property management: tell us a little about what you need. Or read{' '}
+            <a href="/selling/">how we sell</a> and <a href="/leasing/">how we manage rentals</a>.
+          </>
+        }
       >
         <EnquiryForm kind="general" submitLabel="Send Enquiry" />
       </FormSection>

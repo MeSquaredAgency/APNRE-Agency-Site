@@ -2,6 +2,10 @@ node_modules
 dist
 dist-ssr
 *.local
+# Only .env (public IDs: GTM, Meta Pixel) is committed. Anything like
+# .env.production could hold secrets, so keep those out by default.
+.env.*
+!.env.example
 *.tsbuildinfo
 
 .DS_Store

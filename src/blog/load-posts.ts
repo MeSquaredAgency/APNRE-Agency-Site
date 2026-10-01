@@ -17,11 +17,27 @@ function escapeAttr(value: string): string {
   return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 }
 
+/** Link and image addresses a post may use. Anything else (javascript:,
+ *  data: and so on) is dropped, so a pasted link can't run code. */
+const SAFE_URL = /^(https?:|mailto:|tel:|\/|#)/i;
+
+// The post body goes into the page with dangerouslySetInnerHTML
+// (BlogPostPage.tsx), so the output must be safe however a post was
+// written: raw HTML is shown as text, never run. See docs/blog.md.
 const markdown = new Marked({
   renderer: {
+    html({ text }) {
+      return escapeAttr(text).replace(/>/g, '&gt;');
+    },
+    link({ href, title, tokens }) {
+      const text = this.parser.parseInline(tokens);
+      if (!SAFE_URL.test(href)) return text;
+      return `<a href="${escapeAttr(href)}"${title ? ` title="${escapeAttr(title)}"` : ''}>${text}</a>`;
+    },
     // Lazy-load post images, and turn a Markdown image title
     // (![alt](/x.jpg "Caption")) into a visible caption.
     image({ href, title, text }) {
+      if (!SAFE_URL.test(href)) return '';
       const img = `<img src="${escapeAttr(href)}" alt="${escapeAttr(text)}" loading="lazy" />`;
       return title ? `<figure>${img}<figcaption>${escapeAttr(title)}</figcaption></figure>` : img;
     },

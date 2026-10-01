@@ -43,12 +43,14 @@ the build, once the blog posts are known.
 | `/selling/` | Selling with APN: reasons, process, sales team, FAQ, sales appraisal form |
 | `/leasing/` | Leasing & property management: reasons, process, switching, PM team, FAQ, rental appraisal form |
 | `/buy/`, `/rent/`, `/sold/` | Links out to APN's realestate.com.au profile, plus buyer/tenant register forms |
-| `/appraisal/` | Sales or rental appraisal form (`?type=sales` or `?type=rental`) |
-| `/our-people/` | Team with Sales / Property Management / Leadership filters (`?filter=sales`) and name search (`?q=`) |
+| `/appraisal/sales/`, `/appraisal/rental/` | A sales or rental appraisal form, each its own page for search (`src/pages/Appraisal.tsx`) |
+| `/appraisal/` | Both, with a sales/rental switch (`?type=sales` or `?type=rental`), for the header button and older links |
+| `/our-people/` | Team with Sales / Property Management / Leadership filters (`?filter=sales`) and a name, role or office search (`?q=`) |
+| `/our-people/<name>/` | A page per team member (`src/pages/Person.tsx`), listed in `routes.json`: add one there when someone joins |
 | `/our-story/` | Where APN started, what it does, leadership, offices |
 | `/contact/` | Both offices and a general enquiry form |
 | `/careers/` | Expression of interest form |
-| `/client-hub/` | Client hub overview, plus a hub each for `landlords/`, `tenants/` (with repairs), `sellers/` and `buyers/`: quick actions, their team, FAQs and the right form (`src/pages/Hubs.tsx`) |
+| `/client-hub/` | Client hub overview, plus a hub each for `landlords/`, `tenants/` (with repairs), `sellers/` and `buyers/`: quick actions, their team, FAQs and the right form (`src/pages/Hubs.tsx`). The landlord, seller and buyer hubs repeat a lot of `/leasing/` and `/selling/`, so they're noindex to stop them competing in search; the tenant hub is indexed |
 | `/blog/`, `/blog/<post>/` | Guides, written as Markdown in `content/blog/`; see `docs/blog.md` |
 | `/privacy/`, `/thank-you/` | Privacy policy; post-submit page (noindex) |
 | `go.apnre.com.au/landlords/` (+ `thank-you/`) | The landlord campaign funnel for paid ads, and its thank-you page (both noindex). Funnels are served on go.apnre.com.au; see `docs/funnels.md` |
@@ -134,8 +136,11 @@ landlord page sends, told apart by `event_category`; see
   1. In Cloudflare, move the `apnre.com.au` and `www` custom domains
      from the old Pages project to this one, and give this one the same
      environment variables (`SHEETS_WEBHOOK_URL` at least).
-  2. Change the landing page URL in Google Ads and Meta ads from
-     `https://apnre.com.au/` to `https://apnre.com.au/landlords/`.
+  2. Add `go.apnre.com.au` as a custom domain on this project too, then
+     change the landing page URL in Google Ads and Meta ads from
+     `https://apnre.com.au/` to `https://go.apnre.com.au/landlords/`
+     (`docs/funnels.md`). `apnre.com.au/landlords/` still redirects
+     there, but each redirect is an extra hop before the page loads.
   3. If any ad conversion is "visited `/thank-you/`", change it to
      `/landlords/thank-you/` (see the end of `docs/gtm-events.md`).
   4. Submit a test on `/landlords/` and on one main-site form, and check

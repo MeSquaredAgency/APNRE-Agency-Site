@@ -52,19 +52,23 @@ landlord lead.
 
 1. In the **old** landing page Pages project, remove the custom domains
    `apnre.com.au` and `www.apnre.com.au`.
-2. In the **new** project, add them. If the domain's DNS is on
-   Cloudflare, it updates the records for you.
+2. In the **new** project, add them, plus `go.apnre.com.au` (the
+   funnels) and both `adelaidepropertynetwork.com.au` and
+   `www.adelaidepropertynetwork.com.au` (the old brand, which
+   `functions/_middleware.ts` redirects here; without the `www` one it
+   shows a Cloudflare 522 error). If the domains' DNS is on Cloudflare,
+   it updates the records for you.
 3. Straight away, change the ad links:
-   - **Google Ads:** final URL → `https://apnre.com.au/landlords/`
+   - **Google Ads:** final URL → `https://go.apnre.com.au/landlords/`
      (keep any tracking parameters).
    - **Meta ads:** website URL → the same.
    - Anything else that points at the old landing page as the landlord
-     offer (email signatures, social posts) → `/landlords/` too. The
+     offer (email signatures, social posts) → `https://go.apnre.com.au/landlords/` too. The
      Google Business Profile should stay on the homepage.
 
 ## 5. Check the live site
 
-- Submit a test on `https://apnre.com.au/landlords/` with GTM's
+- Submit a test on `https://go.apnre.com.au/landlords/` with GTM's
   **Preview** mode (Tag Assistant) running. Confirm `generate_lead`
   fires and the conversion counts, and check the Pixel with Meta's Pixel
   Helper. Delete the test row after.

@@ -38,23 +38,29 @@ export interface TeamMember {
   focalPoint?: string;
 }
 
+/** The anchor for someone's card on /our-people/ (e.g. #jenny-saffin),
+ *  also used as their structured-data @id. */
+export function teamMemberId(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+
 export const TEAM: TeamMember[] = [
   {
     name: 'Luke Whittaker',
     role: 'Property Manager, Mount Gambier',
     initials: 'LW',
     photo: lukePhoto,
-    photoAlt: 'Luke Whittaker, Property Manager and Sales Agent, Mount Gambier',
+    photoAlt: 'Luke Whittaker, Property Manager, Mount Gambier',
     groups: ['property-management'],
     office: 'mount-gambier',
-    bio: 'Luke is a Property Manager based in Mount Gambier, with 14 months at APN — all of it in property management. He handles complex tenancies and insurance claims, and also works across commercial sales and leasing and assists with residential sales. Outside work, he’s a family man who spends weekends watching F1, AFL, soccer or cricket.',
+    bio: 'Luke is a Property Manager based in Mount Gambier, and has worked in property management at APN since 2025. He handles complex tenancies and insurance claims, and also works across commercial sales and leasing and assists with residential sales. Outside work, he’s a family man who spends weekends watching F1, AFL, soccer or cricket.',
   },
   {
     name: 'Marissa Bowell',
     role: 'Property Manager / Sales Representative',
     initials: 'MB',
     photo: marissaPhoto,
-    photoAlt: 'Marissa Bowell, Property Manager, Blair Athol',
+    photoAlt: 'Marissa Bowell, Property Manager and Sales Representative, Blair Athol',
     groups: ['property-management', 'sales'],
     office: 'adelaide',
     bio: 'Marissa is a Property Manager and Sales Representative at APN, with four years of property management experience — covering tenant screening, lease management and maintenance for landlords, as well as sales. Outside work, she’s the team manager for her son’s local footy team, alongside her husband, who coaches — and otherwise usually active or spending time with family and friends.',
@@ -77,7 +83,7 @@ export const TEAM: TeamMember[] = [
     photoAlt: 'Breeanna Arney, Property Management Trainee, Mount Gambier',
     groups: ['property-management'],
     office: 'mount-gambier',
-    bio: 'Breeanna joined APN about a month ago as a Property Management Trainee. She’s learning every part of the job, with a focus on clear communication, maintenance coordination and inspections, and on being helpful to landlords and tenants alike. Outside work, she runs her own cleaning business and is a mum of three, so she’s used to staying organised and on top of the detail through busy days.',
+    bio: 'Breeanna joined APN in 2026 as a Property Management Trainee. She’s learning every part of the job, with a focus on clear communication, maintenance coordination and inspections, and on being helpful to landlords and tenants alike. Outside work, she runs her own cleaning business and is a mum of three, so she’s used to staying organised and on top of the detail through busy days.',
   },
   {
     name: 'Patrick Nhim',

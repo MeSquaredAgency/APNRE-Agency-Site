@@ -52,7 +52,7 @@ export function Buy() {
       <FormSection
         id="register"
         eyebrow="Buyer list"
-        title="Hear about new listings first."
+        title="Hear about new listings."
         copy="Tell us what you’re looking for and our sales team will let you know when something suitable comes up."
       >
         <EnquiryForm kind="buyer-register" submitLabel="Join the Buyer List" />
@@ -60,7 +60,7 @@ export function Buy() {
       <CtaBand
         title="Selling before you buy?"
         copy="Find out what your current property is worth with a free, no-obligation appraisal."
-        href="/appraisal/?type=sales"
+        href="/appraisal/sales/"
         label="Book a Sales Appraisal"
       />
     </Layout>
@@ -88,13 +88,13 @@ export function Rent() {
         title="Tell us what you need."
         copy="Let us know what you’re looking for and our property management team will get in touch if something suitable comes up."
       >
-        <EnquiryForm kind="tenant-register" submitLabel="Send My Details" />
+        <EnquiryForm kind="tenant-register" submitLabel="Get Rental Alerts" />
       </FormSection>
       <CtaBand
         title="Already renting with APN?"
         copy="Report a repair or maintenance issue with your rental property."
         href="/client-hub/tenants/#repairs"
-        label="Report Maintenance"
+        label="Report a Repair"
       />
     </Layout>
   );
@@ -119,7 +119,7 @@ export function Sold() {
       <CtaBand
         title="What could yours sell for?"
         copy="Book a free sales appraisal and we’ll walk you through recent comparable sales near you."
-        href="/appraisal/?type=sales"
+        href="/appraisal/sales/"
         label="Book a Sales Appraisal"
       />
     </Layout>

@@ -31,7 +31,7 @@ export const OG_PHOTOS = {
   buy: { file: photo('mount-gambier-hillside-street.jpg'), alt: 'Homes on a hillside street in Mount Gambier' },
   rent: { file: photo('interior-corner-windows.jpg'), alt: 'Floor-to-ceiling corner windows in a property managed by APN' },
   sold: { file: photo('sold-sign-ridley.jpg'), alt: 'An Adelaide Property Network SOLD sign outside a brick home', position: 'right', logo: false },
-  contact: { file: photo('office/blair-athol-frontage.jpg'), alt: 'The Adelaide Property Network office at 420 Main North Road, Blair Athol', logo: false },
+  contact: { file: photo('office/blair-athol-frontage.jpg'), alt: 'The Adelaide Property Network office at 420B Main North Road, Blair Athol', logo: false },
   story: { file: photo('agent-placing-sold-sticker.jpg'), alt: 'A SOLD sticker going up on an Adelaide Property Network auction sign', logo: false },
 };
 

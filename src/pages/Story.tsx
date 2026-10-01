@@ -92,6 +92,9 @@ export default function Story() {
       />
 
       <Team group="leadership" eyebrow="Leadership" title="Who runs APN." />
+      <p className="wrap people__careers">
+        Want to join us? <a href="/careers/">Work with APN</a>.
+      </p>
       <Offices />
       <CtaBand
         title="Work with a local team."

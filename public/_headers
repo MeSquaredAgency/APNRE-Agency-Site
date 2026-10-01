@@ -1,10 +1,17 @@
 # Cloudflare Pages response headers. See
 # https://developers.cloudflare.com/pages/configuration/headers/
 #
-# No full Content-Security-Policy yet: GTM loads whatever tags are set up
-# in the container, so a strict script policy would silently break
+# No enforced Content-Security-Policy yet: GTM loads whatever tags are
+# set up in the container, so a strict script policy would silently break
 # analytics whenever a tag is added there. frame-ancestors on its own is
 # safe and stops other sites framing these pages (clickjacking).
+#
+# The Report-Only policy below blocks nothing. Browsers only log what it
+# would have blocked (DevTools console, "Content-Security-Policy-Report-
+# Only"), which shows what an enforced policy needs to allow: the GTM
+# and GA4 tags, the Meta Pixel, Google address search, Turnstile and the
+# Pexels photos. Once a few weeks pass with nothing unexpected logged,
+# rename the header to Content-Security-Policy (keeping frame-ancestors).
 
 /*
   Strict-Transport-Security: max-age=31536000; includeSubDomains
@@ -12,6 +19,7 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()
   Content-Security-Policy: frame-ancestors 'none'
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://*.google-analytics.com https://connect.facebook.net https://maps.googleapis.com https://challenges.cloudflare.com https://static.cloudflareinsights.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://www.facebook.com https://connect.facebook.net https://maps.googleapis.com https://places.googleapis.com https://challenges.cloudflare.com https://cloudflareinsights.com; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self'; frame-src https://challenges.cloudflare.com https://www.googletagmanager.com https://www.facebook.com; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'
   X-Frame-Options: DENY
 
 # Built JS, CSS and images have a content hash in their file name, so a
@@ -27,6 +35,11 @@
 
 /og/*
   Cache-Control: public, max-age=86400
+
+# Blog photos keep the names the post refers to, so the same rule as the
+# video: a day, then revalidate in the background.
+/blog-images/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
 
 # Self-hosted fonts for the whole site (src/partials/fonts-agency.html and
 # fonts-landlords.html).

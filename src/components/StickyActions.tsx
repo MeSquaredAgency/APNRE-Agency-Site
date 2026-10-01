@@ -38,7 +38,11 @@ export default function StickyActions({ current }: { current: string }) {
 
   if (current.startsWith('/appraisal/')) return null;
   return (
-    <div className={`sticky-actions${visible ? ' is-visible' : ''}`} aria-hidden={!visible || undefined}>
+    <aside
+      className={`sticky-actions${visible ? ' is-visible' : ''}`}
+      aria-label="Quick actions"
+      aria-hidden={!visible || undefined}
+    >
       <a
         href={PHONE_TEL}
         className="sticky-actions__call"
@@ -50,6 +54,6 @@ export default function StickyActions({ current }: { current: string }) {
       <a href="/appraisal/" className="sticky-actions__cta" tabIndex={visible ? undefined : -1}>
         Free Appraisal <Icon name="arrow" />
       </a>
-    </div>
+    </aside>
   );
 }

@@ -44,7 +44,7 @@ export const OFFICES: Record<OfficeId, Office> = {
     mapsQuery: '420B Main North Road, Blair Athol SA 5084',
     phone: '1300 123 276',
     photo: blairAtholFrontage,
-    photoAlt: 'The Adelaide Property Network office at 420 Main North Road, Blair Athol, with its signage out the front',
+    photoAlt: 'The Adelaide Property Network office at 420B Main North Road, Blair Athol, with its signage out the front',
     about:
       'Our Blair Athol office, on the corner of Main North Road and Barton Street, is home to the sales team, leasing and accounts, and Adelaide property management.',
   },

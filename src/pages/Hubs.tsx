@@ -12,14 +12,17 @@ import type { ReactNode } from 'react';
 import Layout from '../components/Layout';
 import EnquiryForm, { type EnquiryKind } from '../components/EnquiryForm';
 import Icon, { type IconName } from '../components/Icon';
+import JsonLd from '../components/JsonLd';
 import { CtaBand, Faq, FormSection, ImageCards, PageHero, SectionHead, Team, type FaqItem } from '../components/sections';
 import { MAINTENANCE_FORM_ENABLED, PHONE_DISPLAY, PHONE_TEL } from '../data/business';
 import { LISTINGS_LINKS } from '../data/nav';
 import { STOCK } from '../data/media';
+import { breadcrumbList } from '../structured-data';
 import type { TeamGroup } from '../data/team';
 import type { Photo } from '../lib/photo';
 import { trackCallClick } from '../lib/analytics';
 import soldSign from '../assets/photos/sold-sign-ridley.jpg?photo';
+import mountGambierStreet from '../assets/photos/mount-gambier-hillside-street.jpg?photo';
 
 /* ---------- Building blocks ---------- */
 
@@ -102,6 +105,8 @@ function Repairs() {
 
 interface HubConfig {
   eyebrow: string;
+  /** This hub's path, for the breadcrumb's structured data. */
+  path: string;
   title: string;
   lede: string;
   photo: Photo;
@@ -114,6 +119,8 @@ interface HubConfig {
   extra?: ReactNode;
   faqTitle: string;
   faqs: FaqItem[];
+  /** Shown under the FAQs, e.g. links to a guide or service page. */
+  faqMore?: ReactNode;
   form: {
     kind: EnquiryKind;
     eyebrow: string;
@@ -136,15 +143,24 @@ function HubPage({ config: c }: { config: HubConfig }) {
         focalPoint={c.focalPoint}
       >
         <nav className="hub-crumbs" aria-label="Breadcrumb">
+          <a href="/">Home</a>
+          <span aria-hidden="true">/</span>
           <a href="/client-hub/">Client hub</a>
           <span aria-hidden="true">/</span>
-          <span>{c.eyebrow}</span>
+          <span aria-current="page">{c.eyebrow}</span>
         </nav>
       </PageHero>
+      <JsonLd
+        data={breadcrumbList([
+          { name: 'Home', path: '/' },
+          { name: 'Client hub', path: '/client-hub/' },
+          { name: c.eyebrow, path: c.path },
+        ])}
+      />
       <Actions items={c.actions} />
       <Team group={c.team} eyebrow="Your team" title={c.teamTitle} />
       {c.extra}
-      <Faq title={c.faqTitle} items={c.faqs} />
+      <Faq title={c.faqTitle} items={c.faqs} more={c.faqMore} />
       <FormSection id="enquiry" eyebrow={c.form.eyebrow} title={c.form.title} copy={c.form.copy}>
         <EnquiryForm kind={c.form.kind} submitLabel={c.form.submit} defaultTopic={c.form.topic} />
       </FormSection>
@@ -161,19 +177,26 @@ export function LandlordHub() {
     <HubPage
       config={{
         eyebrow: 'Landlords',
+        path: '/client-hub/landlords/',
         title: 'Landlord hub.',
         lede: 'For owners whose property APN manages, or who are thinking about it: reach your property manager, get an appraisal, or talk to us about changing over.',
         photo: STOCK.openPlan.photo,
         photoAlt: STOCK.openPlan.alt,
         actions: [
           { icon: 'users', title: 'Talk to your property manager', copy: `Call ${PHONE_DISPLAY} and ask for them by name, or send a message below.`, ...CALL, call: 'hub_landlord' },
-          { icon: 'chart', title: 'Get a rental appraisal', copy: 'What your property, or your next one, should lease for today.', href: '/appraisal/?type=rental' },
-          { icon: 'swap', title: 'Change to APN', copy: 'How switching property managers works, even with tenants in place.', href: '/leasing/#appraisal' },
-          { icon: 'tag', title: 'Thinking of selling?', copy: 'Sales and property management work together, including for tenanted sales.', href: '/appraisal/?type=sales' },
+          { icon: 'chart', title: 'Get a rental appraisal', copy: 'What your property, or your next one, should lease for today.', href: '/appraisal/rental/' },
+          { icon: 'swap', title: 'Switch to APN', copy: 'How switching property managers works, even with tenants in place.', href: '/leasing/#switch' },
+          { icon: 'tag', title: 'Thinking of selling?', copy: 'Sales and property management work together, including for tenanted sales.', href: '/appraisal/sales/' },
         ],
         team: 'property-management',
         teamTitle: 'Your property managers.',
         faqTitle: 'Questions from landlords.',
+        faqMore: (
+          <>
+            More detail: <a href="/blog/what-does-a-property-manager-do/">a guide to what your property manager does</a>,
+            or <a href="/leasing/">how property management with APN works</a>.
+          </>
+        ),
         faqs: [
           {
             q: 'Who do I contact about my property?',
@@ -210,6 +233,7 @@ export function TenantHub() {
     <HubPage
       config={{
         eyebrow: 'Tenants',
+        path: '/client-hub/tenants/',
         title: 'Tenant hub.',
         lede: 'Renting with APN, or looking for a place? Report a repair, find a rental, or get in touch with your property manager.',
         photo: STOCK.keysHand.photo,
@@ -264,13 +288,14 @@ export function SellerHub() {
     <HubPage
       config={{
         eyebrow: 'Sellers',
+        path: '/client-hub/sellers/',
         title: 'Seller hub.',
         lede: 'Thinking of selling, or already selling with APN? Get an appraisal, see recent results, or talk to the sales team.',
         photo: soldSign,
         photoAlt: 'An Adelaide Property Network SOLD sign outside a brick home',
         focalPoint: '70% center',
         actions: [
-          { icon: 'chart', title: 'Get a sales appraisal', copy: 'A realistic price guide based on recent sales nearby. No obligation.', href: '/appraisal/?type=sales' },
+          { icon: 'chart', title: 'Get a sales appraisal', copy: 'A realistic price guide based on recent sales nearby. No obligation.', href: '/appraisal/sales/' },
           { icon: 'tag', title: 'See recent sales', copy: 'What APN has sold recently.', href: '/sold/' },
           { icon: 'users', title: 'Talk to the sales team', copy: `Call ${PHONE_DISPLAY} about your sale.`, ...CALL, call: 'hub_seller' },
           { icon: 'key', title: 'Selling a tenanted property', copy: 'Our sales and property management teams work together on it.', href: '/selling/#appraisal' },
@@ -278,6 +303,12 @@ export function SellerHub() {
         team: 'sales',
         teamTitle: 'The sales team.',
         faqTitle: 'Questions from sellers.',
+        faqMore: (
+          <>
+            See <a href="/selling/">how a sale works with APN</a>, or{' '}
+            <a href="/our-people/?filter=sales">meet the sales team</a>.
+          </>
+        ),
         faqs: [
           {
             q: 'How much is my property worth?',
@@ -313,15 +344,17 @@ export function BuyerHub() {
     <HubPage
       config={{
         eyebrow: 'Buyers',
+        path: '/client-hub/buyers/',
         title: 'Buyer hub.',
         lede: 'Looking for your next home or investment? See what’s for sale, join our buyer list, or talk to the sales team.',
-        photo: STOCK.houseExterior.photo,
-        photoAlt: STOCK.houseExterior.alt,
+        photo: mountGambierStreet,
+        photoAlt: 'Homes on a hillside street in Mount Gambier',
+        focalPoint: '30% 65%',
         actions: [
           { icon: 'home', title: 'Properties for sale', copy: 'Current listings, with photos, inspection times and price guides.', href: LISTINGS_LINKS.buy.href, external: true },
           { icon: 'bell', title: 'Join our buyer list', copy: 'Hear about suitable new listings from the sales team.', href: '/buy/#register' },
           { icon: 'tag', title: 'See what’s sold', copy: 'A feel for what similar homes have sold for.', href: '/sold/' },
-          { icon: 'chart', title: 'Selling before you buy?', copy: 'Find out what your current property is worth.', href: '/appraisal/?type=sales' },
+          { icon: 'chart', title: 'Selling before you buy?', copy: 'Find out what your current property is worth.', href: '/appraisal/sales/' },
         ],
         team: 'sales',
         teamTitle: 'The sales team.',
@@ -336,7 +369,7 @@ export function BuyerHub() {
             a: 'Talk to the listing agent. They’ll explain how offers work for that property, including if it’s going to auction.',
           },
           {
-            q: 'Can I hear about properties before they’re advertised?',
+            q: 'Can you tell me when something suitable comes up?',
             a: 'Join our buyer list with what you’re looking for, and the sales team will let you know when something suitable comes up.',
           },
         ],
@@ -368,10 +401,10 @@ export function HubOverview() {
         <div className="wrap">
           <ImageCards
             items={[
-              { href: '/client-hub/landlords/', image: STOCK.openPlan.photo, alt: STOCK.openPlan.alt, kicker: 'I own a rental', title: 'Landlord hub' },
-              { href: '/client-hub/tenants/', image: STOCK.keysHand.photo, alt: STOCK.keysHand.alt, kicker: 'I’m renting', title: 'Tenant hub' },
-              { href: '/client-hub/sellers/', image: soldSign, alt: 'An Adelaide Property Network SOLD sign outside a brick home', kicker: 'I’m selling', title: 'Seller hub' },
-              { href: '/client-hub/buyers/', image: STOCK.houseExterior.photo, alt: STOCK.houseExterior.alt, kicker: 'I’m buying', title: 'Buyer hub' },
+              { href: '/client-hub/landlords/', image: STOCK.openPlan.photo, alt: '', kicker: 'I own a rental', title: 'Landlord hub' },
+              { href: '/client-hub/tenants/', image: STOCK.keysHand.photo, alt: '', kicker: 'I’m renting', title: 'Tenant hub' },
+              { href: '/client-hub/sellers/', image: soldSign, alt: '', kicker: 'I’m selling', title: 'Seller hub' },
+              { href: '/client-hub/buyers/', image: mountGambierStreet, alt: '', kicker: 'I’m buying', title: 'Buyer hub' },
             ]}
           />
         </div>

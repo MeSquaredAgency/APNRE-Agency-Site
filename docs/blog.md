@@ -1,7 +1,10 @@
 # Blog: /blog/
 
-Articles for landlords, there to bring in search traffic and turn it
-into appraisal requests. Every post ends with the appraisal form.
+Guides for APN's four audiences (landlords, tenants, sellers and
+buyers), there to bring in search traffic and turn it into enquiries.
+Every post currently ends with the rental appraisal form
+(`src/blog/BlogPostPage.tsx`); make that depend on the post once sales or
+buyer posts are published.
 
 Unlike the rest of the site, blog pages are built as finished HTML. The
 article text is in the page itself, not filled in by JavaScript, so
@@ -45,23 +48,38 @@ the article. Leave it out to credit "APN Real Estate".
 
 ## Writing for search
 
-- One topic per post, aimed at a question a landlord would type into
+- One topic per post, aimed at a question someone would type into
   Google ("how much bond can I charge in SA", "switching property
-  managers mid-lease").
+  managers mid-lease", "cost of selling a house in SA").
 - Put that phrase in the title and the first paragraph, and answer it
   early. If the title is too long for Google (over about 60
   characters), set a shorter `seoTitle:` for search and shares.
-- Don't aim a post at the same phrase as an office page ("property
-  management Adelaide"): the two compete in Google. Aim posts at
-  questions, and link to the office page instead.
-- Link to the homepage form (`/#appraisal`), the office pages and other
-  posts where it's natural.
+- Don't aim a post at the same phrase as a service page ("property
+  management Adelaide" is `/leasing/`): the two compete in Google. Aim
+  posts at questions, and link to the service page instead.
+- Link where it's natural to:
+  - the service page for the topic: `/leasing/`, `/selling/`, or
+    `/leasing/#switch` for changing property managers;
+  - the right appraisal: `/appraisal/rental/` or
+    `/appraisal/sales/`;
+  - the audience's hub (`/client-hub/landlords/`, `tenants/`,
+    `sellers/`, `buyers/`), the offices (`/contact/#adelaide`,
+    `/contact/#mount-gambier`) and other posts.
+- Name an author (see Authors above). A post credited to a real person
+  from the team does better in search than one credited to the company.
 - Rules and figures (bond limits, notice periods, rent increase rules)
   need to be correct for South Australia now. Link to the source, e.g.
   Consumer and Business Services (sa.gov.au), and set `updated:` when you
   revise a post after the rules change.
 - The same copy rules as the rest of the site apply: no claims about APN
   that can't be backed up, and no knocking competitors.
+
+## HTML in posts
+
+Posts are Markdown only. Any raw HTML in a post is shown as text rather
+than run, and links must start with `https://`, `http://`, `mailto:`,
+`tel:`, `/` or `#`, so a pasted script or `javascript:` link can't end up
+on the site (`src/blog/load-posts.ts`).
 
 ## Where things live
 
