@@ -9,29 +9,15 @@
 // Script? It keeps the webhook URL out of the browser bundle, and it's
 // one place to add validation, spam checks or a CRM push later.
 
+import { MAINTENANCE_FORM_ENABLED } from '../../src/data/business';
+import { isEmail, isPhone, json, NOT_CONFIGURED, postToSheet, sheetSafe, turnstileOk } from '../_lib/forms';
+
 interface Env {
   SHEETS_WEBHOOK_URL: string;
   /** Cloudflare Turnstile secret key. When set, every submission needs a
    *  valid token, so only set it together with VITE_TURNSTILE_SITE_KEY
    *  (otherwise the forms can't produce one and every enquiry fails). */
   TURNSTILE_SECRET?: string;
-}
-
-/** Checks a Turnstile token with Cloudflare. */
-async function turnstileOk(secret: string, token: string, ip: string | null): Promise<boolean> {
-  if (!token) return false;
-  const body = new FormData();
-  body.set('secret', secret);
-  body.set('response', token);
-  if (ip) body.set('remoteip', ip);
-  try {
-    const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', { method: 'POST', body });
-    const result = (await res.json()) as { success?: boolean };
-    return result.success === true;
-  } catch (err) {
-    console.error('Turnstile verification failed:', err);
-    return false;
-  }
 }
 
 interface EnquiryType {
@@ -121,18 +107,24 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   // so the bot doesn't retry, and don't write a row.
   if (get('hp_confirm')) return json({ ok: true });
 
+  const typeKey = get('type');
+  const type = TYPES[typeKey];
+  // The repairs form stays switched off until someone checks those rows
+  // every business day (MAINTENANCE_FORM_ENABLED), so a hand-made post
+  // can't create one either.
+  if (!type || (typeKey === 'maintenance' && !MAINTENANCE_FORM_ENABLED)) {
+    return json({ ok: false, error: 'Unknown enquiry type.' }, 400);
+  }
+
   if (env.TURNSTILE_SECRET) {
     const ok = await turnstileOk(
       env.TURNSTILE_SECRET,
       get('cf-turnstile-response', 4096),
       request.headers.get('CF-Connecting-IP'),
+      typeKey, // the form renders its widget with action = its type
     );
     if (!ok) return json({ ok: false, error: 'Spam check failed. Please try again.' }, 403);
   }
-
-  const typeKey = get('type');
-  const type = TYPES[typeKey];
-  if (!type) return json({ ok: false, error: 'Unknown enquiry type.' }, 400);
 
   const payload = {
     name: get('name'),
@@ -149,13 +141,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     return json({ ok: false, error: `Missing required field(s): ${missing.join(', ')}` }, 400);
   }
 
-  // Same rule as the form: 8 to 15 digits once spaces, brackets, + and
-  // dashes are ignored. Catches typos and junk without rejecting real
-  // numbers in any common format (0412 345 678, +61 412 345 678, 08 8123 4567).
-  const digits = payload.phone.replace(/\D/g, '').length;
-  if (digits < 8 || digits > 15 || /[^0-9 ()+\-]/.test(payload.phone)) {
-    return json({ ok: false, error: 'Please enter a valid phone number.' }, 400);
-  }
+  if (!isEmail(payload.email)) return json({ ok: false, error: 'Please enter a valid email address.' }, 400);
+  if (!isPhone(payload.phone)) return json({ ok: false, error: 'Please enter a valid phone number.' }, 400);
 
   const extras = Object.entries(type.extras)
     .map(([key, label]) => {
@@ -175,27 +162,20 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const message = [extras.length ? `[${extras.join(' | ')}]` : '', payload.message].filter(Boolean).join(' ');
 
   if (!env.SHEETS_WEBHOOK_URL) {
-    return json({ ok: false, error: 'Enquiries are not configured (SHEETS_WEBHOOK_URL missing).' }, 500);
+    console.error('SHEETS_WEBHOOK_URL is not set, so the enquiry was not recorded.');
+    return json({ ok: false, error: NOT_CONFIGURED }, 500);
   }
 
   try {
-    const res = await fetch(env.SHEETS_WEBHOOK_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ...payload,
-        message,
-        source: `apnre agency site / ${type.label}`,
-        submittedAt: new Date().toISOString(),
-      }),
+    await postToSheet(env.SHEETS_WEBHOOK_URL, {
+      name: sheetSafe(payload.name),
+      email: sheetSafe(payload.email),
+      phone: payload.phone,
+      address: sheetSafe(payload.address),
+      message: sheetSafe(message),
+      source: `apnre agency site / ${type.label}`,
+      submittedAt: new Date().toISOString(),
     });
-    if (!res.ok) throw new Error(`Sheet webhook responded ${res.status}`);
-    // Apps Script can answer 200 with an error page, so require the
-    // script's own { ok: true } rather than trusting the status.
-    const body = await res.json().catch(() => null);
-    if (!body || body.ok !== true) {
-      throw new Error(`Sheet webhook did not confirm success: ${JSON.stringify(body)}`);
-    }
   } catch (err) {
     console.error('Failed to forward enquiry to sheet webhook:', err);
     return json({ ok: false, error: 'Could not record submission. Please try again.' }, 502);
@@ -203,10 +183,3 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
 
   return json({ ok: true });
 };
-
-function json(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  });
-}

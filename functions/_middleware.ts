@@ -13,8 +13,10 @@
 //                     there's one address to track and rank.
 //
 // Every redirect keeps the query string, so ad click IDs (gclid, fbclid)
-// and UTM tags survive it. Any other host, like *.pages.dev preview
-// deployments, is left alone so everything can be tested there.
+// and UTM tags survive it, and adds the trailing slash pages live at, so
+// it's one hop rather than two. Any other host, like *.pages.dev preview
+// deployments, serves everything so it can be tested there, but with an
+// X-Robots-Tag: noindex header so previews never show up in search.
 
 import config from '../src/data/funnels.json';
 
@@ -38,23 +40,48 @@ const isApi = (path: string) => path.startsWith('/api/');
  *  function at all (public/_routes.json). */
 const isFile = (path: string) => /\/[^/]+\.[a-z0-9]+$/i.test(path);
 
+/** /landlords → /landlords/, so the redirect lands on the page itself
+ *  rather than on Pages' own trailing-slash redirect. */
+const withSlash = (path: string) => (isFile(path) || path.endsWith('/') ? path : `${path}/`);
+
 function redirect(host: string, url: URL, status: 301 | 302): Response {
-  return Response.redirect(`https://${host}${url.pathname}${url.search}`, status);
+  return Response.redirect(`https://${host}${withSlash(url.pathname)}${url.search}`, status);
 }
+
+/** The response as-is, plus an X-Robots-Tag header. */
+function noindex(response: Response): Response {
+  const out = new Response(response.body, response);
+  out.headers.set('X-Robots-Tag', 'noindex');
+  return out;
+}
+
+/** go. only holds noindex funnel pages, so it gets its own robots.txt
+ *  with no sitemap (the main one lists apnre.com.au pages). Crawling stays
+ *  allowed: a crawler has to fetch a page to see its noindex tag. */
+const GO_ROBOTS = 'User-agent: *\nAllow: /\n';
 
 export const onRequest: PagesFunction = async (context) => {
   const url = new URL(context.request.url);
   const { hostname: host, pathname: path } = url;
 
   if (host === GO) {
-    if (isFunnelPath(path) || isApi(path) || isFile(path)) return context.next();
+    if (path === '/robots.txt') {
+      return new Response(GO_ROBOTS, { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+    }
+    // The page's own noindex tag, repeated as a header, which also
+    // covers anything served here that isn't HTML.
+    if (isFunnelPath(path) || isApi(path) || isFile(path)) return noindex(await context.next());
     // 302, not 301: the root of go. may become a funnel directory later.
     return redirect(MAIN, url, 302);
   }
 
-  if (MAIN_HOSTS.has(host) && isFunnelPath(path)) return redirect(GO, url, 301);
+  if (MAIN_HOSTS.has(host)) {
+    if (isFunnelPath(path)) return redirect(GO, url, 301);
+    return context.next();
+  }
 
-  if (OLD_BRAND_HOSTS.has(host)) return redirect(MAIN, url, 301);
+  // Old ad links to the funnel go straight to go., not via apnre.com.au.
+  if (OLD_BRAND_HOSTS.has(host)) return redirect(isFunnelPath(path) ? GO : MAIN, url, 301);
 
-  return context.next();
+  return noindex(await context.next());
 };

@@ -34,7 +34,9 @@ function doPost(e) {
     new Date(),
     data.name || '',
     data.email || '',
-    data.phone || '',
+    // Stored as text: without the leading apostrophe, Sheets drops the
+    // 0 from 0412 345 678 and reads +61 412 345 678 as a formula.
+    data.phone ? "'" + data.phone : '',
     data.address || '',
     data.message || '',
     data.source || '',

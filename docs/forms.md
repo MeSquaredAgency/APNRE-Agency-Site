@@ -14,6 +14,22 @@ script).
 Then set `SHEETS_WEBHOOK_URL` in this site's Cloudflare Pages project
 too.
 
+## Keeping the sheet safe
+
+Google Sheets reads a cell starting with `=`, `+`, `-` or `@` as a
+formula, so a visitor could plant one in a row staff will open. Both
+endpoints add a leading apostrophe to any such value
+(`sheetSafe` in `functions/_lib/forms.ts`), which Sheets stores as plain
+text and doesn't show. Phone numbers are the exception: the Apps Script
+in `docs/google-sheet-lead-webhook.md` and `docs/lead-notifications.md`
+writes that column as text itself, so `0412 345 678` keeps its 0 and
+`+61 412 345 678` isn't read as a sum. **If the sheet's script predates
+September 2026, replace it with the current one** (Deploy → Manage
+deployments → New version keeps the same URL).
+
+The endpoints also check the email and phone format, cap every field's
+length, and give up on the webhook after 10 seconds.
+
 ## What ends up in each column
 
 | Column | Contents |
@@ -71,5 +87,11 @@ Set **both or neither**. With only the secret set, the forms can't
 produce a token and every enquiry is rejected. With only the site key
 set, the widget shows but nothing checks it.
 
-The landlord landing page's form (`/api/lead` in that repo) isn't
-covered; it still relies on its honeypot.
+The landlord funnel's form (`functions/api/lead.ts`) uses the same keys
+and is checked the same way. The server also confirms each token was
+issued on an APN hostname (or a `pages.dev` preview) and for that form.
+
+Turnstile stops automated posts but not a determined human, so also add
+a rate-limiting rule: Cloudflare dashboard → the apnre.com.au zone →
+**Security → WAF → Rate limiting rules**, matching URI path starting
+with `/api/`, e.g. 5 requests per minute per IP, action Block.

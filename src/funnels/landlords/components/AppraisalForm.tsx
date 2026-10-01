@@ -1,5 +1,6 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { trackAppraisalLead, trackAppraisalFormSubmit } from '../lib/analytics';
+import { loadTurnstile, TURNSTILE_SITE_KEY } from '../../../lib/turnstile';
 import type { OfficeId } from '../data/offices';
 
 // Posts to the Cloudflare Pages Function at functions/api/lead.ts, which
@@ -37,8 +38,34 @@ export default function AppraisalForm({ office }: AppraisalFormProps) {
     return () => window.removeEventListener(SWITCHING_EVENT, onSwitching);
   }, []);
 
+  // Turnstile spam check, when a site key is configured: the same widget
+  // as the main site's forms (src/components/EnquiryForm.tsx), checked by
+  // functions/api/lead.ts when TURNSTILE_SECRET is set.
+  const turnstileBox = useRef<HTMLDivElement>(null);
+  const turnstileId = useRef<string>();
+  useEffect(() => {
+    if (!TURNSTILE_SITE_KEY || !turnstileBox.current) return;
+    let cancelled = false;
+    loadTurnstile()
+      .then((ts) => {
+        if (cancelled || !turnstileBox.current) return;
+        turnstileId.current = ts.render(turnstileBox.current, {
+          sitekey: TURNSTILE_SITE_KEY,
+          action: 'landlord-appraisal', // checked by functions/api/lead.ts
+          appearance: 'interaction-only',
+        });
+      })
+      .catch((err) => console.warn(err));
+    return () => {
+      cancelled = true;
+      if (turnstileId.current) window.turnstile?.remove(turnstileId.current);
+      turnstileId.current = undefined;
+    };
+  }, []);
+
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (!e.currentTarget.reportValidity()) return;
 
     if (!FORM_ENDPOINT) {
       // No backend configured. Do not fake a successful lead capture —
@@ -65,6 +92,8 @@ export default function AppraisalForm({ office }: AppraisalFormProps) {
       });
     } catch (err) {
       console.error('Appraisal form submission failed:', err);
+      // Turnstile tokens are single-use, so get a fresh one for the retry.
+      if (turnstileId.current) window.turnstile?.reset(turnstileId.current);
       setStatus('error');
     }
   }
@@ -180,7 +209,17 @@ export default function AppraisalForm({ office }: AppraisalFormProps) {
                 </label>
                 <label>
                   Phone*
-                  <input type="tel" name="phone" required autoComplete="tel" />
+                  {/* Same rule as functions/api/lead.ts; see EnquiryForm.tsx
+                      for why ( ) and - are escaped. */}
+                  <input
+                    type="tel"
+                    name="phone"
+                    required
+                    autoComplete="tel"
+                    inputMode="tel"
+                    pattern="\+?[0-9 \(\)\-]{8,20}"
+                    title="A phone number with at least 8 digits, e.g. 0412 345 678"
+                  />
                 </label>
               </div>
 
@@ -225,6 +264,8 @@ export default function AppraisalForm({ office }: AppraisalFormProps) {
                   />
                 </label>
               </div>
+
+              {TURNSTILE_SITE_KEY && <div ref={turnstileBox} className="appraisal__turnstile" />}
 
               <button
                 type="submit"

@@ -59,12 +59,14 @@ function doPost(e) {
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
   const data = JSON.parse(e.postData.contents);
 
-  // Unchanged from the original script: same columns, same order.
+  // Same columns, same order as the original script.
   sheet.appendRow([
     new Date(),
     data.name || '',
     data.email || '',
-    data.phone || '',
+    // Stored as text: without the leading apostrophe, Sheets drops the
+    // 0 from 0412 345 678 and reads +61 412 345 678 as a formula.
+    data.phone ? "'" + data.phone : '',
     data.address || '',
     data.message || '',
     data.source || '',
