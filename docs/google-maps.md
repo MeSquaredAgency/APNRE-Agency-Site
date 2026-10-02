@@ -10,7 +10,9 @@ It's off until a key is set. Without one, the fields are ordinary text
 boxes and everything else works the same. The code is
 `src/lib/places.ts` and `src/components/AddressInput.tsx`.
 
-The landlord campaign page (`/landlords/`) keeps its own form unchanged.
+The landlord campaign page (`go.apnre.com.au/landlords/`) uses the same
+address field, so the key's website restrictions need that host too (see
+step 4).
 
 ## 1. Create the key
 

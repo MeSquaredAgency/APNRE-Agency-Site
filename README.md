@@ -73,24 +73,26 @@ conventions, is `docs/funnels.md`.
 
 ### The landlord funnel (`go.apnre.com.au/landlords/`)
 
-The paid-ads landing page, moved in from the `APNRE-Website` repo. It's
-deliberately kept as it was, so ad performance and tracking carry on
-unchanged:
+The paid-ads landing page, moved in from the `APNRE-Website` repo. It
+looks like the rest of apnre.com.au, while its form and tracking stay
+exactly as they were, so ad conversions carry on being counted the same
+way:
 
-- Its own code in `src/funnels/landlords/` (page, components, office data,
-  analytics) and its own browser entry, `src/funnels/landlords/main.tsx`. Its
-  stylesheet (`src/funnels/landlords/index.css`) and self-hosted fonts
-  (`public/fonts/`, `src/partials/fonts-landlords.html`) load only on
-  these two pages; the main site's styles never load there, and its
-  styles never reach the main site.
+- Built from the main site's pieces: its stylesheet (`src/index.css`),
+  fonts, sections (`src/components/sections.tsx`), header, sticky phone
+  bar, form styles and address suggestions, plus team, office and
+  business data. The page itself (`src/funnels/landlords/App.tsx`) holds
+  its own copy, and `src/funnels/landlords/landlords.css` the few styles
+  only it needs. Its browser entry is `src/funnels/landlords/main.tsx`.
+- Kept to itself so ad visitors stay on the page: the header shows only
+  its in-page links, team names aren't linked, and the footer has no
+  site menu (just the offices, phone and the form).
 - Its own form endpoint, `functions/api/lead.ts` (same Google Sheet;
   Source column `apnre-website / appraisal form`), and its own analytics
-  events (`docs/gtm-events.md`).
-- Shared with the main site: team data (`src/data/team.ts`), business
-  details (`src/data/business.ts`), photos and `Picture`.
+  events (`docs/gtm-events.md`). Same field names as before.
 - `noindex` and not in the sitemap or the main menu: it's for ad
-  traffic, and `/leasing/` is the page for search. Its "office" links go
-  to `/contact/`, and its privacy link to the main `/privacy/`.
+  traffic, and `/leasing/` is the page for search. The two share copy, so
+  keep them in step.
 
 ## Where content lives
 

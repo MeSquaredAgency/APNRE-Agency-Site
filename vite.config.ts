@@ -4,7 +4,6 @@ import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { imagetools } from 'vite-imagetools';
 import routes from './src/data/routes.json';
-import { loadPosts } from './src/blog/load-posts';
 
 // Serves the /blog/ pages on the dev server, rendered the same way the
 // build does (src/blog-server.tsx) but including drafts, so a post can be
@@ -87,21 +86,13 @@ export default defineConfig({
     photoDefaults(),
     // Favicons, GTM and the Meta Pixel.
     partial('shared-head', 'head-shared.html'),
-    // Each page has one of these two markers (scripts/build-pages.mjs):
-    // Both self-hosted from public/fonts/: Playfair Display and Figtree
-    // for the main site, Archivo and Public Sans for /landlords/.
+    // Playfair Display and Figtree, self-hosted from public/fonts/, at
+    // every page's fonts marker (scripts/build-pages.mjs).
     partial('fonts-agency', 'fonts-agency.html'),
-    partial('fonts-landlords', 'fonts-landlords.html'),
     // GTM / Meta Pixel <noscript> fallbacks.
     partial('shared-body', 'body-shared.html'),
     blogDevServer(),
   ],
-  define: {
-    // Whether any post is published, so the landlord page's footer only
-    // links to the blog once there's something to read. Worked out when
-    // the build (or dev server) starts.
-    __BLOG_HAS_POSTS__: JSON.stringify(loadPosts().length > 0),
-  },
   build: {
     outDir: 'dist',
     assetsDir: 'assets',

@@ -20,7 +20,7 @@ apart.
 | `generate_lead` | main site (`src/lib/analytics.ts`) | Any enquiry form accepted by `/api/enquiry`, just before the redirect to `/thank-you/` | `event_category` (`enquiry_form`), `form_name` (`sales-appraisal`, `rental-appraisal`, `buyer-register`, `tenant-register`, `general`, `careers`, `maintenance`) |
 | `generate_lead` | landlord page (`src/funnels/landlords/lib/analytics.ts`) | The appraisal form on `go.apnre.com.au/landlords/` accepted by `/api/lead` | `event_category` (`appraisal_form`), `event_label` (`Free Rental Appraisal`), `office` (`home`), `currently_managed` (`agent`, `self`, `not-rented`, `not_answered`) |
 | `appraisal_form_submit` | landlord page | Straight after its `generate_lead`, just before the redirect to `/landlords/thank-you/` | `form_name` (`landlord_appraisal`) |
-| `click_to_call` | both | A tap on a Call button | `placement` (where the button is, e.g. `header_menu`, `sticky_bar`, `footer`, `cta_band`) |
+| `click_to_call` | both | A tap on a Call button | `placement` (where the button is, e.g. `header`, `menu`, `sticky_bar`, `footer`, `cta_band`) |
 
 ## Setting it up in GTM
 

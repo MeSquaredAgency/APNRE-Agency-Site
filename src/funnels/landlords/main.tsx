@@ -2,14 +2,15 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import ThankYouPage from './ThankYouPage';
-import './index.css';
+import '../../index.css';
+import './landlords.css';
 
 // Browser entry for the landlord campaign pages (/landlords/ and
-// /landlords/thank-you/). They were the separate landing page repo
-// (APNRE-Website) and keep its own look, stylesheet, fonts, form
-// (/api/lead) and analytics events, so paid-ad tracking carries on
-// unchanged. Only this entry imports ./index.css, so the landing styles
-// never reach the rest of the site, and the site's never reach these.
+// /landlords/thank-you/, served at go.apnre.com.au). They use the main
+// site's stylesheet and sections, so they look like the rest of
+// apnre.com.au, plus a few rules of their own in ./landlords.css. Their
+// form (/api/lead) and analytics events are their own, so paid-ad
+// tracking carries on unchanged (docs/gtm-events.md).
 //
 // Like the main site, the built pages arrive pre-rendered
 // (scripts/prerender.mjs) and are hydrated in place.

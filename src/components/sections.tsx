@@ -56,9 +56,9 @@ export interface Pillar {
   copy: string;
 }
 
-export function Pillars({ items }: { items: Pillar[] }) {
+export function Pillars({ items, label = 'About APN' }: { items: Pillar[]; label?: string }) {
   return (
-    <section className="pillars" aria-label="About APN">
+    <section className="pillars" aria-label={label}>
       <ul className="wrap pillars__list">
         {items.map((p) => (
           <li key={p.title}>
@@ -188,9 +188,9 @@ export interface FaqItem {
 }
 
 /** The questions as shown, plus matching FAQPage structured data. */
-export function Faq({ title, items, more }: { title: ReactNode; items: FaqItem[]; more?: ReactNode }) {
+export function Faq({ id, title, items, more }: { id?: string; title: ReactNode; items: FaqItem[]; more?: ReactNode }) {
   return (
-    <section className="section section-paper">
+    <section className="section section-paper" id={id}>
       <JsonLd data={faqPage(items)} />
       <div className="wrap faq">
         <SectionHead eyebrow="Common questions" title={title} />
@@ -299,7 +299,7 @@ const GROUP_LABELS: Record<TeamGroup, string> = {
   leadership: 'Leadership',
 };
 
-function TeamCard({ member }: { member: TeamMember }) {
+function TeamCard({ member, linked }: { member: TeamMember; linked: boolean }) {
   const office = OFFICE_LIST.find((o) => o.id === member.office);
   return (
     <article className="team-card" id={teamMemberId(member.name)}>
@@ -312,7 +312,7 @@ function TeamCard({ member }: { member: TeamMember }) {
         />
       </div>
       <h3 className="team-card__name">
-        <a href={`/our-people/${teamMemberId(member.name)}/`}>{member.name}</a>
+        {linked ? <a href={`/our-people/${teamMemberId(member.name)}/`}>{member.name}</a> : member.name}
       </h3>
       <p className="team-card__role">{member.role}</p>
       {office && <p className="team-card__office">{office.name}</p>}
@@ -338,6 +338,9 @@ interface TeamProps {
   eyebrow?: string;
   title?: ReactNode;
   headless?: boolean;
+  /** Link each name to the person's own page. Off on campaign funnels,
+   *  which keep visitors on the page. */
+  linkNames?: boolean;
 }
 
 /** Columns on wide screens, so a team never leaves one person alone on
@@ -351,7 +354,15 @@ function teamColumns(count: number): number {
 const FILTERS = ['all', 'sales', 'property-management', 'leadership'] as const;
 type Filter = (typeof FILTERS)[number];
 
-export function Team({ group, filterable = false, limit, eyebrow = 'Our people', title, headless = false }: TeamProps) {
+export function Team({
+  group,
+  filterable = false,
+  limit,
+  eyebrow = 'Our people',
+  title,
+  headless = false,
+  linkNames = true,
+}: TeamProps) {
   const [filter, setFilter] = useState<Filter>('all');
   const [query, setQuery] = useState('');
   // Pre-rendered showing everyone; ?filter= (from menu links like "Sales
@@ -441,7 +452,7 @@ export function Team({ group, filterable = false, limit, eyebrow = 'Our people',
         {shown.length > 0 ? (
           <div className="team-grid" style={{ ['--team-cols' as string]: teamColumns(shown.length) }}>
             {shown.map((m) => (
-              <TeamCard key={m.name} member={m} />
+              <TeamCard key={m.name} member={m} linked={linkNames} />
             ))}
           </div>
         ) : (

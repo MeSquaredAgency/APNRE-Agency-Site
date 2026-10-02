@@ -1,21 +1,22 @@
 import logoReversed from '../../../assets/logo/adelaide-property-network-logo-reversed.png';
-import { OFFICE_LIST } from '../data/offices';
+import Icon from '../../../components/Icon';
+import { OFFICE_LIST } from '../../../data/offices';
 import {
   ABN,
   ACN,
   BUSINESS_NAME,
   LEGAL_ENTITY_NAME,
+  OPENING_HOURS,
   PHONE_DISPLAY,
   PHONE_TEL,
   RLA_NUMBER,
 } from '../../../data/business';
+import { trackCallClick } from '../../../lib/analytics';
 
-interface FooterProps {
-  /** Where the footer CTA points. See Header's ctaHref. */
-  ctaHref?: string;
-}
-
-export default function Footer({ ctaHref = '#appraisal' }: FooterProps) {
+// The main site's footer (src/components/Footer.tsx) without its site
+// menu: the offices and phone number, then one way forward, the form.
+// No stock-imagery note, since every photo on these pages is APN's own.
+export default function Footer({ ctaHref }: { ctaHref: string }) {
   // Only details that are actually filled in (src/data/business.ts).
   const registration = [
     LEGAL_ENTITY_NAME,
@@ -26,41 +27,43 @@ export default function Footer({ ctaHref = '#appraisal' }: FooterProps) {
 
   return (
     <footer className="site-footer">
-      <div className="wrap site-footer__inner">
+      <div className="wrap site-footer__top funnel-footer">
         <div className="site-footer__brand">
           <a href="/" className="site-footer__logo">
-            {/* The main logo with its grey parts lightened so they read on
-                charcoal; the green is unchanged. */}
             <img
               src={logoReversed}
+              alt="Adelaide Property Network — APN Real Estate"
               width={448}
               height={300}
-              alt="Adelaide Property Network — APN Real Estate"
               loading="lazy"
               decoding="async"
             />
           </a>
-          <p>Property management across Adelaide and Mount Gambier.</p>
+          <a href={PHONE_TEL} className="site-footer__phone" onClick={() => trackCallClick('footer')}>
+            {PHONE_DISPLAY}
+          </a>
+          <p className="site-footer__hours">
+            <span aria-hidden="true">Both offices: {OPENING_HOURS.display}</span>
+            <span className="visually-hidden">Both offices are {OPENING_HOURS.spoken.toLowerCase()}</span>
+          </p>
         </div>
 
-        {OFFICE_LIST.map((office) => (
-          <div className="site-footer__col" key={office.id}>
-            <p className="site-footer__heading"><a href={office.path}>{office.name}</a></p>
-            <p>
+        <div className="site-footer__offices funnel-footer__offices">
+          {OFFICE_LIST.map((office) => (
+            <p key={office.id}>
+              <strong>{office.name}</strong>
+              <br />
               {office.addressLines[0]}
               <br />
               {office.addressLines[1]}
             </p>
-          </div>
-        ))}
+          ))}
+        </div>
 
-        <div className="site-footer__col">
-          <p className="site-footer__heading">Get in touch</p>
-          <p>
-            <a href={PHONE_TEL} className="site-footer__phone">{PHONE_DISPLAY}</a>
-          </p>
-          <a href={ctaHref} className="btn btn-outline-light site-footer__btn">
-            Free Rental Appraisal
+        <div className="funnel-footer__cta">
+          <p className="site-footer__title">Property management across Adelaide and Mount Gambier.</p>
+          <a href={ctaHref} className="btn btn-outline-light">
+            Free Rental Appraisal <Icon name="arrow" />
           </a>
         </div>
       </div>
@@ -68,13 +71,10 @@ export default function Footer({ ctaHref = '#appraisal' }: FooterProps) {
       <div className="wrap site-footer__legal">
         <p>
           © {new Date().getFullYear()} {BUSINESS_NAME}
-          {registration.length > 0 && <> · {registration.join(' · ')}</>}
-          . Formerly Adelaide Property Network.
+          {registration.length > 0 && <> · {registration.join(' · ')}</>}. Formerly Adelaide
+          Property Network.
         </p>
-        <nav className="site-footer__legal-links" aria-label="More">
-          {__BLOG_HAS_POSTS__ && <a href="/blog/">Blog</a>}
-          <a href="/privacy/">Privacy Policy</a>
-        </nav>
+        <a href="/privacy/">Privacy Policy</a>
       </div>
     </footer>
   );

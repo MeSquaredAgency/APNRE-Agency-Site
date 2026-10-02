@@ -9,8 +9,8 @@
 //
 // A route with "funnel": "<id>" is a campaign funnel page, served at
 // go.apnre.com.au (src/data/funnels.json, docs/funnels.md): it gets that
-// funnel's entry script, fonts and link-preview image, and a go.
-// canonical URL. Everything else is the main site.
+// funnel's entry script and link-preview image, and a go. canonical
+// URL. Everything else is the main site.
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -122,14 +122,14 @@ const JSON_LD = {
 const ENTRIES = { main: '/src/main.tsx', blog: '/src/blog-main.tsx' };
 
 /** Everything after the shared head: fonts marker, then per-page tags. */
-function shell({ entry, fonts, headTags, rootAttrs = '' }) {
+function shell({ entry, headTags, rootAttrs = '' }) {
   return `<!doctype html>
 <html lang="en-AU">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <!-- shared-head -->
-    <!-- fonts-${fonts} -->
+    <!-- fonts-agency -->
 ${headTags}    <script type="module" src="${entry}"></script>
   </head>
   <body>
@@ -181,7 +181,6 @@ function html(route) {
 ${preload}${jsonLd}`;
   return shell({
     entry: funnel ? funnel.entry : ENTRIES.main,
-    fonts: funnel ? funnel.fonts : 'agency',
     headTags,
     rootAttrs: ` data-page="${route.page}"`,
   });
@@ -200,7 +199,7 @@ for (const route of routes) {
 mkdirSync(join(ROOT, 'blog'), { recursive: true });
 writeFileSync(
   join(ROOT, 'blog/index.html'),
-  shell({ entry: ENTRIES.blog, fonts: 'agency', headTags: '    <!-- blog-head -->\n' }),
+  shell({ entry: ENTRIES.blog, headTags: '    <!-- blog-head -->\n' }),
 );
 
 await buildOgImages(routes.filter((r) => !r.funnel).map((r) => r.page));

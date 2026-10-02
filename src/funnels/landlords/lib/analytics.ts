@@ -77,17 +77,5 @@ export function trackAppraisalFormSubmit(formName: string, onDone: () => void) {
   setTimeout(finish, 1500);
 }
 
-/** A tap on a "Call" button. `placement` says which one. */
-export function trackCallClick(placement: string) {
-  try {
-    pushEvent('click_to_call', { placement });
-  } catch (err) {
-    console.warn('dataLayer call event failed:', err);
-  }
-
-  try {
-    window.fbq?.('track', 'Contact', { content_name: placement });
-  } catch (err) {
-    console.warn('Meta Pixel call event failed:', err);
-  }
-}
+// Call-button taps use the main site's trackCallClick (src/lib/analytics.ts):
+// the same click_to_call event and Meta Pixel Contact.

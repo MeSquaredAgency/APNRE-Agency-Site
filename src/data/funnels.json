@@ -6,7 +6,6 @@
       "name": "Landlord rental appraisal",
       "path": "/landlords/",
       "entry": "/src/funnels/landlords/main.tsx",
-      "fonts": "landlords",
       "og": {
         "image": "/landlords-og.jpg",
         "alt": "APN Real Estate: your property is an asset, we manage it like one. Property management for landlords across Adelaide and Mount Gambier."

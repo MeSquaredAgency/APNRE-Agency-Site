@@ -12,7 +12,7 @@ import Icon from './Icon';
  *  bottom of it would cover them. */
 const BAR_HEIGHT = 72;
 const SCROLLED = 40;
-export default function StickyActions({ current }: { current: string }) {
+export default function StickyActions({ current, cta: ownCta }: { current: string; cta?: { href: string; label: string } }) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -37,6 +37,8 @@ export default function StickyActions({ current }: { current: string }) {
   }, []);
 
   if (current.startsWith('/appraisal/')) return null;
+  // A funnel passes its own (its form on the page).
+  const cta = ownCta ?? { href: '/appraisal/', label: 'Free Appraisal' };
   return (
     <aside
       className={`sticky-actions${visible ? ' is-visible' : ''}`}
@@ -51,8 +53,8 @@ export default function StickyActions({ current }: { current: string }) {
       >
         <Icon name="phone" /> Call
       </a>
-      <a href="/appraisal/" className="sticky-actions__cta" tabIndex={visible ? undefined : -1}>
-        Free Appraisal <Icon name="arrow" />
+      <a href={cta.href} className="sticky-actions__cta" tabIndex={visible ? undefined : -1}>
+        {cta.label} <Icon name="arrow" />
       </a>
     </aside>
   );

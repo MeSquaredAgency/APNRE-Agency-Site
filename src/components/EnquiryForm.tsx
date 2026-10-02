@@ -44,7 +44,7 @@ function fieldError(field: HTMLInputElement | HTMLSelectElement | HTMLTextAreaEl
  *  that stays on screen (linked with aria-describedby), clears fields
  *  that are now fine, and moves focus to the first problem. Returns
  *  whether the form is valid. */
-function showErrors(form: HTMLFormElement): boolean {
+export function showErrors(form: HTMLFormElement): boolean {
   let first: HTMLElement | undefined;
   form.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>('input, select, textarea').forEach(
     (field) => {

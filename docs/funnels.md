@@ -73,15 +73,17 @@ Analytics only runs on the live domains, so testing on a
 
 ## For developers: adding a funnel
 
-1. **Code:** create `src/funnels/<id>/` with a `main.tsx` entry, its
-   page(s) and its own stylesheet. `src/funnels/landlords/` is the
-   pattern: own components and CSS, shared data from `src/data/`, shared
-   `Picture` component, and its form posting to an endpoint in
-   `functions/api/`.
+1. **Code:** create `src/funnels/<id>/` with a `main.tsx` entry and its
+   page(s). `src/funnels/landlords/` is the pattern: the main site's
+   stylesheet and sections (`src/components/sections.tsx`), so the
+   funnel looks like apnre.com.au; the main header with the `funnel`
+   option (only the page's own links and button); a small stylesheet of
+   its own for anything the main site doesn't have; and its form posting
+   to an endpoint in `functions/api/`. Keep visitors on the page: no
+   links into the main site beyond the logo and privacy policy.
 2. **Register it** in `src/data/funnels.json`: `id`, `name`, `path`
-   (with trailing slash), `entry`, `fonts` (`landlords` for Archivo /
-   Public Sans, `agency` for the main site's fonts) and its share image
-   (`og.image` in `public/`, `og.alt`).
+   (with trailing slash), `entry` and its share image (`og.image` in
+   `public/`, `og.alt`).
 3. **Routes:** add its page(s) to `src/data/routes.json` with
    `"funnel": "<id>"` and `"noindex": true`, and to `FUNNEL_LOADERS` in
    `src/server.tsx`.
