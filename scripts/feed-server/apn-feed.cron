@@ -1,0 +1,6 @@
+# /etc/cron.d/apn-feed on the listings feed server (docs/listings-feed.md).
+# Times are the server's, which setup step 4 sets to Adelaide time.
+# Every 5 minutes: rebuild the site if PropertyMe changed a listing.
+# 1:15am: rebuild anyway, so past inspection times drop off.
+*/5 * * * * root /usr/local/bin/apn-feed-sync.py >> /var/log/apn-feed.log 2>&1
+15 1 * * * root /usr/local/bin/apn-feed-sync.py --daily >> /var/log/apn-feed.log 2>&1

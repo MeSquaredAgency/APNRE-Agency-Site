@@ -11,6 +11,7 @@ const MESSAGES: Record<string, string> = {
   'tenant-register': 'Our property management team will be in touch if something suitable comes up.',
   careers: 'We’ve got your details and will be in touch if a suitable role comes up.',
   maintenance: 'Your property manager will be in touch to arrange the repair.',
+  listing: 'The agent for this property will be in touch to answer your questions.',
   'office-lease': 'We’ll call you to arrange an inspection of the office and talk you through the lease.',
   'podcast-hire': 'We’ll confirm your podcast room booking by phone or email. It isn’t final until we do.',
 };

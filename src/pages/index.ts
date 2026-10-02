@@ -27,4 +27,7 @@ export const PAGE_LOADERS: Record<string, () => Promise<ComponentType>> = {
   'hub-buyers': () => import('./Hubs').then((m) => m.BuyerHub),
   privacy: () => import('./Privacy').then((m) => m.default),
   'thank-you': () => import('./ThankYou').then((m) => m.default),
+  // Every /buy/<slug>/, /rent/<slug>/ and /sold/<slug>/ page; Listing
+  // picks the listing from the path.
+  listing: () => import('./Listing').then((m) => m.default),
 };

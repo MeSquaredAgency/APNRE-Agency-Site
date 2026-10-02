@@ -178,6 +178,13 @@ const TYPES: Record<string, EnquiryType> = {
     required: ['address', 'message'],
     extras: { urgency: 'Urgency', access: 'Access' },
   },
+  // From a property's own page (src/pages/Listing.tsx): the address and
+  // PropertyMe listing ID come from hidden fields.
+  listing: {
+    label: 'Listing enquiry',
+    required: ['address'],
+    extras: { listing: 'Listing ID' },
+  },
   // /office-space/ (src/pages/OfficeSpace.tsx). The address is set from
   // the chosen room, never taken from the form.
   'office-lease': {

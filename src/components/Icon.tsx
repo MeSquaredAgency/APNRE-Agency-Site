@@ -24,6 +24,9 @@ const PATHS = {
   chart: 'M4 20V4M4 20h16M8 16v-4M12 16V8M16 16v-6',
   swap: 'M7 7h13l-3-3M17 17H4l3 3',
   clock: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v5l3 2',
+  bed: 'M3 19v-7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v7M3 16h18M6 10V7a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v3',
+  bath: 'M4 12h16v2a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5v-2zM6 12V6a2 2 0 0 1 4 0M7 19l-1 2M17 19l1 2',
+  car: 'M5 17v-5l2-5h10l2 5v5M3 17h18M5 12h14M7 17v2M17 17v2',
 } as const;
 
 export type IconName = keyof typeof PATHS;

@@ -42,7 +42,8 @@ the build, once the blog posts are known.
 | `/` | Home: video hero with Sell / Lease / Find an agent search, key points, listings cards, appraisal feature, team, story, client hub, offices |
 | `/selling/` | Selling with APN: reasons, process, sales team, FAQ, sales appraisal form |
 | `/leasing/` | Leasing & property management: reasons, process, switching, PM team, FAQ, rental appraisal form |
-| `/buy/`, `/rent/`, `/sold/` | Links out to APN's realestate.com.au profile, plus buyer/tenant register forms |
+| `/buy/`, `/rent/`, `/sold/` | Listings from PropertyMe's feed, plus buyer/tenant register forms. Until the feed is set up, a link to APN's realestate.com.au profile instead (`docs/listings-feed.md`) |
+| `/buy/<listing>/`, `/rent/<listing>/`, `/sold/<listing>/` | A page per listing (`src/pages/Listing.tsx`), made at build time from the feed, with an enquiry form |
 | `/office-space/` | Offices for lease (6–12 months) in APN's Blair Athol building and the podcast room for daily hire, with a clickable floor plan and booking requests (`src/pages/OfficeSpace.tsx`, rooms in `src/data/office-space.ts`; see `docs/office-space.md`) |
 | `/appraisal/sales/`, `/appraisal/rental/` | A sales or rental appraisal form, each its own page for search (`src/pages/Appraisal.tsx`) |
 | `/appraisal/` | Both, with a sales/rental switch (`?type=sales` or `?type=rental`), for the header button and older links |
@@ -102,6 +103,8 @@ way:
 - `src/data/team.ts`: people, roles, bios, and which team filters they
   appear under
 - `src/data/nav.ts`: header menu, footer links, listing links
+- Listings come from PropertyMe at build time, never from the repo:
+  see `docs/listings-feed.md`
 - Page copy lives in each page file under `src/pages/`
 
 Keep claims verifiable: no sales figures, rankings, awards, review
@@ -123,9 +126,9 @@ landlord page sends, told apart by `event_category`; see
 
 ## Before launch
 
-- [ ] **Listings.** Every listing link points at the realestate.com.au
-  agency profile. When the CRM's feed or API is available, replace
-  `LISTINGS_LINKS` in `src/data/nav.ts` with real listing pages.
+- [ ] **Listings.** Set up the PropertyMe feed (`docs/listings-feed.md`).
+  Until then `/buy/`, `/rent/` and `/sold/` link to the realestate.com.au
+  agency profile.
 - [ ] **Repairs form.** `MAINTENANCE_FORM_ENABLED` is `false`, so
   `/client-hub/tenants/#repairs` tells tenants to call. Only switch it on once someone
   checks those sheet rows every business day. (If APN's property
@@ -173,9 +176,12 @@ landlord page sends, told apart by `event_category`; see
 
 `npm run build`:
 
-1. `scripts/build-pages.mjs` writes an HTML file per route
-   (`src/data/routes.json`), the sitemap, and each page's link-preview
-   image (`scripts/og-images.mjs`).
+1. `scripts/fetch-listings.mjs` downloads the listings feed into
+   `src/data/listings.json` (`docs/listings-feed.md`). Then
+   `scripts/build-pages.mjs` writes an HTML file per route
+   (`src/data/routes.json`, plus one per listing, from
+   `scripts/routes.mjs`) and each page's link-preview image
+   (`scripts/og-images.mjs`).
 2. Vite builds the browser code, turning `?photo` imports into WebP and
    JPEG copies (see `docs/media.md`).
 3. A server build of `src/server.tsx` renders every page, and

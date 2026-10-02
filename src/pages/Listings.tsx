@@ -1,12 +1,15 @@
-// /buy/, /rent/ and /sold/. Until the site has a listings feed from the
-// CRM, each page points to APN's realestate.com.au profile, which is
-// always current, rather than showing a copy here that could go stale.
+// /buy/, /rent/ and /sold/. Each shows its listings from PropertyMe's feed
+// (src/lib/listings.ts), linking to a page per property. Until the feed is
+// set up (docs/listings-feed.md), or when a section has nothing in it,
+// the page points to APN's realestate.com.au profile instead, which is
+// always current.
 
 import Layout from '../components/Layout';
 import EnquiryForm from '../components/EnquiryForm';
 import Icon from '../components/Icon';
-import { CtaBand, FormSection, PageHero } from '../components/sections';
+import { CtaBand, FormSection, PageHero, SectionHead } from '../components/sections';
 import { LISTINGS_LINKS } from '../data/nav';
+import { listingsIn, type Listing, type ListingSection } from '../lib/listings';
 import mountGambier from '../assets/photos/mount-gambier-hillside-street.jpg?photo';
 import interior from '../assets/photos/interior-corner-windows.jpg?photo';
 import soldSign from '../assets/photos/sold-sign-ridley.jpg?photo';
@@ -33,6 +36,98 @@ function ListingsPanel({ link, title, copy }: ListingsPanelProps) {
   );
 }
 
+/** Bedrooms, bathrooms and car spaces, read out in full by screen readers. */
+export function ListingFeatures({ listing }: { listing: Listing }) {
+  const items = [
+    { icon: 'bed', n: listing.bedrooms, label: 'bedroom' },
+    { icon: 'bath', n: listing.bathrooms, label: 'bathroom' },
+    { icon: 'car', n: listing.carSpaces, label: 'car space' },
+  ] as const;
+  const shown = items.filter((item) => item.n);
+  if (shown.length === 0) return null;
+  return (
+    <ul className="listing-features">
+      {shown.map((item) => (
+        <li key={item.icon}>
+          <Icon name={item.icon} />
+          {item.n}
+          <span className="visually-hidden">
+            {' '}
+            {item.label}
+            {item.n === 1 ? '' : 's'}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function ListingCard({ listing }: { listing: Listing }) {
+  const photo = listing.photos?.[0];
+  const badge = listing.underOffer ? 'Under offer' : listing.section === 'sold' ? 'Sold' : '';
+  return (
+    <li>
+      <a className="listing-card" href={listing.path}>
+        <div className="listing-card__photo">
+          {photo ? (
+            // The address beside it says what the property is, so the
+            // photo itself is decorative here.
+            <img src={photo} alt="" loading="lazy" decoding="async" />
+          ) : (
+            <span className="listing-card__no-photo">Photos coming soon</span>
+          )}
+          {badge && <span className="listing-card__badge">{badge}</span>}
+        </div>
+        <div className="listing-card__body">
+          <p className="listing-card__price">{listing.price}</p>
+          <h3 className="listing-card__address">{listing.street ?? listing.suburb}</h3>
+          <p className="listing-card__meta">
+            {[listing.street ? listing.suburb : '', listing.category].filter(Boolean).join(' · ')}
+          </p>
+          <ListingFeatures listing={listing} />
+        </div>
+      </a>
+    </li>
+  );
+}
+
+interface ListingsGridProps {
+  section: ListingSection;
+  link: { href: string; label: string };
+  eyebrow: string;
+  /** e.g. n => `${n} properties for sale.` */
+  title: (n: number) => string;
+  /** The page's usual copy, shown when the section is empty. */
+  fallback: { title: string; copy: string };
+}
+
+/** The section's listings, or the realestate.com.au panel when there are none. */
+function ListingsGrid({ section, link, eyebrow, title, fallback }: ListingsGridProps) {
+  const listings = listingsIn(section);
+  if (listings.length === 0) return <ListingsPanel link={link} {...fallback} />;
+  return (
+    <section className="section section-white">
+      <div className="wrap">
+        <SectionHead eyebrow={eyebrow} title={title(listings.length)} />
+        <ul className="listing-grid">
+          {listings.map((l) => (
+            <ListingCard key={l.id} listing={l} />
+          ))}
+        </ul>
+        <p className="listing-grid__more">
+          You can also see our listings on{' '}
+          <a href={link.href} target="_blank" rel="noopener noreferrer">
+            realestate.com.au
+          </a>
+          .
+        </p>
+      </div>
+    </section>
+  );
+}
+
+const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+
 export function Buy() {
   return (
     <Layout>
@@ -44,10 +139,15 @@ export function Buy() {
         photoAlt="Homes on a hillside street in Mount Gambier"
         focalPoint="30% 65%"
       />
-      <ListingsPanel
+      <ListingsGrid
+        section="buy"
         link={LISTINGS_LINKS.buy}
-        title="See everything we have on the market."
-        copy="Our current listings, with photos, inspection times and price guides, are on our realestate.com.au agency page."
+        eyebrow="On the market"
+        title={(n) => `${plural(n, 'property', 'properties')} for sale.`}
+        fallback={{
+          title: 'See everything we have on the market.',
+          copy: 'Our current listings, with photos, inspection times and price guides, are on our realestate.com.au agency page.',
+        }}
       />
       <FormSection
         id="register"
@@ -77,10 +177,15 @@ export function Rent() {
         photo={interior}
         photoAlt="Floor-to-ceiling corner windows in a rental property managed by APN"
       />
-      <ListingsPanel
+      <ListingsGrid
+        section="rent"
         link={LISTINGS_LINKS.rent}
-        title="See what’s available to rent."
-        copy="Our current rentals, with photos and inspection times, are on our realestate.com.au agency page. Apply through the listing."
+        eyebrow="Available now"
+        title={(n) => `${plural(n, 'property', 'properties')} for rent.`}
+        fallback={{
+          title: 'See what’s available to rent.',
+          copy: 'Our current rentals, with photos and inspection times, are on our realestate.com.au agency page. Apply through the listing.',
+        }}
       />
       <FormSection
         id="register"
@@ -111,10 +216,15 @@ export function Sold() {
         photoAlt="An Adelaide Property Network SOLD sign outside a brick home"
         focalPoint="70% center"
       />
-      <ListingsPanel
+      <ListingsGrid
+        section="sold"
         link={LISTINGS_LINKS.sold}
-        title="See our recent results."
-        copy="Our sold properties are listed on our realestate.com.au agency page."
+        eyebrow="Recent results"
+        title={(n) => (n === 1 ? 'Our latest sale.' : `Our latest ${n} sales.`)}
+        fallback={{
+          title: 'See our recent results.',
+          copy: 'Our sold properties are listed on our realestate.com.au agency page.',
+        }}
       />
       <CtaBand
         title="What could yours sell for?"

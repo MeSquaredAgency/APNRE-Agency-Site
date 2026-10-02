@@ -16,6 +16,7 @@ export type EnquiryKind =
   | 'general'
   | 'careers'
   | 'maintenance'
+  | 'listing'
   | 'office-lease'
   | 'podcast-hire';
 
@@ -28,6 +29,8 @@ interface EnquiryFormProps {
   before?: ReactNode;
   /** Preselects "What's it about?" on the general form, e.g. on a hub page. */
   defaultTopic?: string;
+  /** The property a 'listing' enquiry is about (src/pages/Listing.tsx). */
+  listing?: { id: string; address: string };
   /** Fields of the page's own, at the top of the form under the
    *  required-fields note (e.g. the office booking choices). */
   choices?: ReactNode;
@@ -86,6 +89,7 @@ export default function EnquiryForm({
   defaultAddress,
   before,
   defaultTopic = '',
+  listing,
   choices,
   detailsHeading,
 }: EnquiryFormProps) {
@@ -177,6 +181,12 @@ export default function EnquiryForm({
         </label>
       </div>
       <input type="hidden" name="type" value={kind} />
+      {listing && (
+        <>
+          <input type="hidden" name="address" value={listing.address} />
+          <input type="hidden" name="listing" value={listing.id} />
+        </>
+      )}
 
       <label className="form__field">
         <span>Name*</span>

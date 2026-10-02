@@ -3,7 +3,8 @@ import { resolve } from 'node:path';
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { imagetools } from 'vite-imagetools';
-import routes from './src/data/routes.json';
+// Fixed pages plus one per listing (scripts/routes.mjs).
+import { allRoutes } from './scripts/routes.mjs';
 
 // Serves the /blog/ pages on the dev server, rendered the same way the
 // build does (src/blog-server.tsx) but including drafts, so a post can be
@@ -107,7 +108,7 @@ export default defineConfig({
       // several routes can share a page id (every /our-people/<name>/).
       input: {
         ...Object.fromEntries(
-          routes.map((r) => [r.path === '/' ? 'home' : r.path.slice(1, -1), resolve(__dirname, `.${r.path}index.html`)]),
+          allRoutes().map((r) => [r.path === '/' ? 'home' : r.path.slice(1, -1), resolve(__dirname, `.${r.path}index.html`)]),
         ),
         blog: resolve(__dirname, 'blog/index.html'),
       },
