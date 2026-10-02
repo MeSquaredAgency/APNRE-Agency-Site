@@ -15,13 +15,14 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { allRoutes } from './routes.mjs';
 
 const SITE = 'https://apnre.com.au';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const dist = join(root, 'dist');
 const ssrDir = join(root, 'dist-ssr');
 
-const routes = JSON.parse(readFileSync(join(root, 'src/data/routes.json'), 'utf8'));
+const routes = allRoutes();
 const { renderPage, renderBlogPages } = await import(pathToFileURL(join(ssrDir, 'server.js')).href);
 
 // Each page's own module, for its modulepreload tags and its <lastmod>.
@@ -46,6 +47,7 @@ const PAGE_FILES = {
   'hub-sellers': 'src/pages/Hubs.tsx',
   'hub-buyers': 'src/pages/Hubs.tsx',
   privacy: 'src/pages/Privacy.tsx',
+  listing: 'src/pages/Listing.tsx',
 };
 
 // Vite's manifest: source file → built chunk, its static imports and the
@@ -136,7 +138,8 @@ function lastCommitDate(paths) {
 const urls = [
   ...routes
     .filter((r) => !r.noindex)
-    .map((r) => ({ path: r.path, lastmod: lastCommitDate([PAGE_FILES[r.page] ?? 'src/pages', ...SHARED]) })),
+    // A listing's <lastmod> is when the feed last changed it.
+    .map((r) => ({ path: r.path, lastmod: r.lastmod ?? lastCommitDate([PAGE_FILES[r.page] ?? 'src/pages', ...SHARED]) })),
   ...blogPages.filter((p) => p.indexable).map((p) => ({ path: p.path, lastmod: p.lastmod ?? today })),
 ];
 writeFileSync(

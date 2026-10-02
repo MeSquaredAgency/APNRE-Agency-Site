@@ -1,0 +1,15 @@
+# /etc/caddy/Caddyfile on the listings feed server (docs/listings-feed.md).
+# Serves the bundle apn-feed-sync.py writes, over HTTPS, only to requests
+# carrying the token the Cloudflare Pages build sends
+# (LISTINGS_FEED_TOKEN). Caddy gets the certificate itself.
+#
+# FEED_TOKEN comes from /etc/caddy/feed.env (setup step 7).
+
+feed.apnre.com.au {
+	@authorised header Authorization "Bearer {$FEED_TOKEN}"
+	handle @authorised {
+		root * /var/www/feed
+		file_server
+	}
+	respond 403
+}

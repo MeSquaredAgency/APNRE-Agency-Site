@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SAMPLE ONLY: made-up listing for local development (npm run dev:sample). -->
+<propertyList date="2026-09-28-10:00:00">
+  <rental modTime="2026-09-28-10:00:00" status="current">
+    <agentID>SAMPLE</agentID>
+    <uniqueID>SAMPLE-R1</uniqueID>
+    <listingAgent id="1">
+      <name>Sample Agent</name>
+      <telephone type="BH">1300 123 276</telephone>
+      <email>sample@example.com</email>
+    </listingAgent>
+    <dateAvailable>2026-10-20</dateAvailable>
+    <rent period="week" display="yes">520</rent>
+    <bond>2080</bond>
+    <address display="yes">
+      <subNumber>2</subNumber>
+      <streetNumber>14</streetNumber>
+      <street>Sample Street</street>
+      <suburb display="yes">BLAIR ATHOL</suburb>
+      <state>SA</state>
+      <postcode>5084</postcode>
+    </address>
+    <category name="Unit"/>
+    <headline>SAMPLE: Light-filled two-bedroom unit</headline>
+    <description>This is a made-up listing used to preview the site's listing pages.
+
+Two bedrooms with built-in robes, an updated kitchen and a private courtyard.
+Close to shops and public transport.</description>
+    <features><bedrooms>2</bedrooms><bathrooms>1</bathrooms><carports>1</carports></features>
+    <inspectionTimes>
+      <inspection>11-Oct-2026 10:00am to 10:15am</inspection>
+      <inspection>15-Oct-2026 5:30pm to 5:45pm</inspection>
+    </inspectionTimes>
+    <objects>
+      <img id="m" modTime="2026-09-20-09:00:00" url="https://images.pexels.com/photos/7031581/pexels-photo-7031581.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1200" format="jpg"/>
+      <img id="a" modTime="2026-09-20-09:00:00" url="https://images.pexels.com/photos/10628470/pexels-photo-10628470.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1200" format="jpg"/>
+      <img id="b" modTime="2026-09-20-09:00:00" url="https://images.pexels.com/photos/8089172/pexels-photo-8089172.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1200" format="jpg"/>
+    </objects>
+  </rental>
+</propertyList>

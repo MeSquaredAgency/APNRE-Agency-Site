@@ -37,7 +37,7 @@ length, and give up on the webhook after 10 seconds.
 | Name / Email / Phone | Always required |
 | Address | Required for appraisals and repair requests; blank otherwise |
 | Message | Form-specific answers in brackets, then the free-text message, e.g. `[Suburbs: Enfield \| Budget: 700k \| Bedrooms: 3+] Looking for a yard` |
-| Source | `apnre agency site / <form>`, one of: Sales appraisal, Rental appraisal, Buyer register, Tenant register, General enquiry, Careers expression of interest, Maintenance request, Office space lease, Podcast room hire |
+| Source | `apnre agency site / <form>`, one of: Sales appraisal, Rental appraisal, Buyer register, Tenant register, General enquiry, Careers expression of interest, Maintenance request, Listing enquiry, Office space lease, Podcast room hire |
 
 Filter the sheet on Source to split leads by team, or point a Zapier/Make
 "new row" trigger at it to route each type to the right inbox.

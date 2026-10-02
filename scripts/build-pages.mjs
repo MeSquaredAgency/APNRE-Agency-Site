@@ -1,4 +1,5 @@
-// Writes one index.html per route in src/data/routes.json, the blog
+// Writes one index.html per route in src/data/routes.json and per
+// listing (scripts/routes.mjs), the blog
 // template (blog/index.html, filled in per post by scripts/prerender.mjs
 // and the dev server) and each page's link-preview image. Every page is a
 // real file at its own path, so Cloudflare Pages serves it directly and
@@ -11,14 +12,15 @@
 // go.apnre.com.au (src/data/funnels.json, docs/funnels.md): it gets that
 // funnel's entry script and link-preview image, and a go. canonical
 // URL. Everything else is the main site.
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildOgImages, OG_DEFAULT, OG_PHOTOS } from './og-images.mjs';
+import { allRoutes } from './routes.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SITE = 'https://apnre.com.au';
-const routes = JSON.parse(readFileSync(join(ROOT, 'src/data/routes.json'), 'utf8'));
+const routes = allRoutes();
 const { origin: FUNNEL_ORIGIN, funnels } = JSON.parse(readFileSync(join(ROOT, 'src/data/funnels.json'), 'utf8'));
 const FUNNELS = Object.fromEntries(funnels.map((f) => [f.id, f]));
 
@@ -146,11 +148,19 @@ function html(route) {
   const url = (funnel ? FUNNEL_ORIGIN : SITE) + route.path;
   const title = esc(route.title);
   const description = esc(route.description);
-  // Each funnel has its own share image, made for ads; main-site pages
-  // get theirs from scripts/og-images.mjs.
+  // Each funnel has its own share image, made for ads; a listing uses its
+  // main photo, whose size we don't know; other main-site pages get
+  // theirs from scripts/og-images.mjs.
   const og = funnel
-    ? { image: FUNNEL_ORIGIN + funnel.og.image, alt: funnel.og.alt }
-    : { image: `${SITE}/og/${route.page}.jpg`, alt: (OG_PHOTOS[route.page] ?? OG_DEFAULT).alt };
+    ? { image: FUNNEL_ORIGIN + funnel.og.image, alt: funnel.og.alt, sized: true }
+    : route.ogImage
+      ? { image: route.ogImage, alt: route.ogAlt ?? '', sized: false }
+      : { image: `${SITE}/og/${route.page}.jpg`, alt: (OG_PHOTOS[route.page] ?? OG_DEFAULT).alt, sized: true };
+  const ogSize = og.sized
+    ? `    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+`
+    : '';
   const jsonLd =
     route.page === 'home' || route.page === 'contact'
       ? `    <script type="application/ld+json">${JSON.stringify(JSON_LD)}</script>\n`
@@ -169,14 +179,12 @@ function html(route) {
     <meta property="og:site_name" content="APN Real Estate" />
     <meta property="og:title" content="${title}" />
     <meta property="og:description" content="${description}" />
-    <meta property="og:image" content="${og.image}" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="${esc(og.alt)}" />
+    <meta property="og:image" content="${esc(og.image)}" />
+${ogSize}    <meta property="og:image:alt" content="${esc(og.alt)}" />
     <meta property="og:url" content="${url}" />
     <meta property="og:locale" content="en_AU" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content="${og.image}" />
+    <meta name="twitter:image" content="${esc(og.image)}" />
     <meta name="twitter:image:alt" content="${esc(og.alt)}" />
 ${preload}${jsonLd}`;
   return shell({
@@ -184,6 +192,17 @@ ${preload}${jsonLd}`;
     headTags,
     rootAttrs: ` data-page="${route.page}"`,
   });
+}
+
+// Listing pages come and go with the feed, so clear out the last run's
+// before writing this one's (the generated folders inside /buy/, /rent/
+// and /sold/; their own index.html stays).
+for (const section of ['buy', 'rent', 'sold']) {
+  const dir = join(ROOT, section);
+  if (!existsSync(dir)) continue;
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (entry.isDirectory()) rmSync(join(dir, entry.name), { recursive: true, force: true });
+  }
 }
 
 for (const route of routes) {
@@ -202,6 +221,6 @@ writeFileSync(
   shell({ entry: ENTRIES.blog, headTags: '    <!-- blog-head -->\n' }),
 );
 
-await buildOgImages(routes.filter((r) => !r.funnel).map((r) => r.page));
+await buildOgImages([...new Set(routes.filter((r) => !r.funnel && !r.ogImage).map((r) => r.page))]);
 
 console.log(`Generated ${routes.length} pages, the blog template and their link-preview images`);

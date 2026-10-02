@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SAMPLE ONLY: a leased rental, which the site should leave out. -->
+<propertyList date="2026-09-01-09:00:00">
+  <rental modTime="2026-09-01-09:00:00" status="leased">
+    <agentID>SAMPLE</agentID>
+    <uniqueID>SAMPLE-R2</uniqueID>
+    <address display="yes"><streetNumber>1</streetNumber><street>Gone Lane</street><suburb>PROSPECT</suburb><state>SA</state><postcode>5082</postcode></address>
+    <headline>SAMPLE: Leased (should not appear)</headline>
+  </rental>
+</propertyList>

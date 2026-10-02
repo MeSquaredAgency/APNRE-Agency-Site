@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SAMPLE ONLY: made-up listing for local development (npm run dev:sample). -->
+<propertyList date="2026-09-25-15:00:00">
+  <residential modTime="2026-09-25-15:00:00" status="current">
+    <agentID>SAMPLE</agentID>
+    <uniqueID>SAMPLE-S1</uniqueID>
+    <authority value="exclusive"/>
+    <underOffer value="no"/>
+    <listingAgent id="1"><name>Sample Agent</name><telephone type="mobile">0400 000 000</telephone></listingAgent>
+    <price display="no">650000</price>
+    <priceView>Offers over $640,000</priceView>
+    <address display="yes">
+      <streetNumber>8</streetNumber>
+      <street>Example Avenue</street>
+      <suburb display="yes">MOUNT GAMBIER</suburb>
+      <state>SA</state>
+      <postcode>5290</postcode>
+    </address>
+    <category name="House"/>
+    <headline>SAMPLE: Family home on a big block</headline>
+    <description>This is a made-up listing used to preview the site's listing pages.
+
+Three bedrooms, two living areas and a double garage on a 720 m² block.</description>
+    <features><bedrooms>3</bedrooms><bathrooms>2</bathrooms><garages>2</garages></features>
+    <landDetails><area unit="squareMeter">720</area></landDetails>
+    <inspectionTimes><inspection>12-Oct-2026 1:00pm to 1:30pm</inspection></inspectionTimes>
+    <objects>
+      <img id="m" modTime="2026-09-20-09:00:00" url="https://images.pexels.com/photos/29012619/pexels-photo-29012619.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1200" format="jpg"/>
+      <img id="a" modTime="2026-09-20-09:00:00" url="https://images.pexels.com/photos/7045356/pexels-photo-7045356.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1200" format="jpg"/>
+    </objects>
+  </residential>
+</propertyList>
