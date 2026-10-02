@@ -461,9 +461,10 @@ export default function OfficeSpace() {
       <PageHero
         eyebrow="Office space for lease · Blair Athol"
         title="Private offices on Main North Road."
-        lede={`Lockable private offices on Level 1 of 420B Main North Road, where our Adelaide team works, from $${OFFICE_RENT_FROM} a week including GST on 6 to 12 month terms. Plus a podcast room you can hire from 2 hours to a full day.`}
+        lede={`Lockable offices from $${OFFICE_RENT_FROM} a week including GST, on 6 to 12 month terms. Plus a podcast room you can hire from 2 hours to a full day.`}
         photo={BLAIR_ATHOL_PHOTOS.hallway.photo}
         photoAlt={BLAIR_ATHOL_PHOTOS.hallway.alt}
+        quiet
       >
         <div className="page-hero__actions">
           <a href={officeCta.href} className="btn btn-primary" onClick={() => setMode('lease')}>

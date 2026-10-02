@@ -22,12 +22,15 @@ interface PageHeroProps {
   photo?: Photo;
   photoAlt?: string;
   focalPoint?: string;
+  /** For a busy photo: a dark panel behind the words, fading out to the
+   *  right, so the text stays easy to read. */
+  quiet?: boolean;
   children?: ReactNode;
 }
 
-export function PageHero({ eyebrow, title, lede, photo, photoAlt = '', focalPoint, children }: PageHeroProps) {
+export function PageHero({ eyebrow, title, lede, photo, photoAlt = '', focalPoint, quiet = false, children }: PageHeroProps) {
   return (
-    <section className={`page-hero${photo ? ' page-hero--photo' : ''}`}>
+    <section className={`page-hero${photo ? ' page-hero--photo' : ''}${quiet ? ' page-hero--quiet' : ''}`}>
       {photo && (
         // The hero is the page's main image, so it loads straight away.
         <Picture
