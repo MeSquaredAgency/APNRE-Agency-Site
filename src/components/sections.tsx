@@ -7,6 +7,7 @@ import { TEAM, teamMemberId, type TeamGroup, type TeamMember } from '../data/tea
 import { OPENING_HOURS, PHONE_DISPLAY, PHONE_TEL } from '../data/business';
 import { trackCallClick } from '../lib/analytics';
 import { faqPage } from '../structured-data';
+import HeroSlides, { type HeroSlide } from './HeroSlides';
 import Icon from './Icon';
 import JsonLd from './JsonLd';
 import Picture from './Picture';
@@ -21,6 +22,8 @@ interface PageHeroProps {
   /** Leave unset for a plain dark hero. */
   photo?: Photo;
   photoAlt?: string;
+  /** Several photos to crossfade between, instead of `photo`. */
+  slides?: HeroSlide[];
   focalPoint?: string;
   /** For a busy photo: a dark panel behind the words, fading out to the
    *  right, so the text stays easy to read. */
@@ -28,10 +31,11 @@ interface PageHeroProps {
   children?: ReactNode;
 }
 
-export function PageHero({ eyebrow, title, lede, photo, photoAlt = '', focalPoint, quiet = false, children }: PageHeroProps) {
+export function PageHero({ eyebrow, title, lede, photo, photoAlt = '', slides, focalPoint, quiet = false, children }: PageHeroProps) {
   return (
-    <section className={`page-hero${photo ? ' page-hero--photo' : ''}${quiet ? ' page-hero--quiet' : ''}`}>
-      {photo && (
+    <section className={`page-hero${photo || slides ? ' page-hero--photo' : ''}${quiet ? ' page-hero--quiet' : ''}`}>
+      {slides && <HeroSlides slides={slides} />}
+      {photo && !slides && (
         // The hero is the page's main image, so it loads straight away.
         <Picture
           photo={photo}

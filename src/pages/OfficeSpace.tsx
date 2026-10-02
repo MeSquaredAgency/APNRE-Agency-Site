@@ -462,8 +462,9 @@ export default function OfficeSpace() {
         eyebrow="Office space for lease · Blair Athol"
         title="Private offices on Main North Road."
         lede={`Lockable offices from $${OFFICE_RENT_FROM} a week including GST, on 6 to 12 month terms. Plus a podcast room you can hire from 2 hours to a full day.`}
-        photo={BLAIR_ATHOL_PHOTOS.hallway.photo}
-        photoAlt={BLAIR_ATHOL_PHOTOS.hallway.alt}
+        // The photos that stay calm behind the words: no signage or
+        // shelves where the heading sits.
+        slides={[BLAIR_ATHOL_PHOTOS.hallway, BLAIR_ATHOL_PHOTOS.boardroom, BLAIR_ATHOL_PHOTOS.lounge]}
         quiet
       >
         <div className="page-hero__actions">

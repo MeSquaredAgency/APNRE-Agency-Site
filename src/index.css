@@ -655,6 +655,84 @@ input, select, textarea {
     background: linear-gradient(0deg, rgba(0, 0, 0, 0.82) 0%, rgba(0, 0, 0, 0.6) 60%, rgba(0, 0, 0, 0.5) 100%);
   }
 }
+/* Crossfading hero photos (HeroSlides.tsx). Each slide drifts in a
+   little as it fades up; reduced motion turns both off (see the top of
+   this file), and the slideshow then doesn't advance by itself. */
+.hero-slides,
+.hero-slides__slide {
+  position: absolute;
+  inset: 0;
+}
+.hero-slides__slide {
+  opacity: 0;
+  transition: opacity 1.4s ease;
+}
+.hero-slides__slide.is-active {
+  opacity: 1;
+}
+.hero-slides__slide.is-active .page-hero__img {
+  animation: hero-drift 8s ease-out both;
+}
+@keyframes hero-drift {
+  from {
+    transform: scale(1.05);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+.hero-slides__controls {
+  position: absolute;
+  right: var(--gutter);
+  bottom: 24px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.hero-slides__dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.hero-slides__dot::before {
+  content: '';
+  width: 22px;
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.45);
+  transition: background 0.2s, width 0.2s;
+}
+.hero-slides__dot:hover::before {
+  background: rgba(255, 255, 255, 0.8);
+}
+.hero-slides__dot[aria-current='true']::before {
+  width: 30px;
+  background: var(--lime);
+}
+.hero-slides__toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin-left: 8px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(0, 0, 0, 0.3);
+  color: var(--white);
+}
+@media (max-width: 760px) {
+  .hero-slides__controls {
+    bottom: 12px;
+  }
+}
+
 /* A busy photo (signage, a bright wall) behind the words: darken the
    text side almost solid and let the photo show through on the right. */
 .page-hero--quiet .page-hero__scrim {
