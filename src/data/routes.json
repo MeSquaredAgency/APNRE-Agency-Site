@@ -36,6 +36,12 @@
     "description": "See properties APN Real Estate has recently sold in Adelaide and Mount Gambier, and find out what your own property could be worth with a free appraisal."
   },
   {
+    "page": "office-space",
+    "path": "/office-space/",
+    "title": "Office Space for Lease Blair Athol | APN Real Estate",
+    "description": "Private offices for lease at 420B Main North Road, Blair Athol, from $220 a week incl. GST on 6–12 month terms, plus a podcast room for daily hire."
+  },
+  {
     "page": "appraisal",
     "path": "/appraisal/",
     "title": "Free Property Appraisal Adelaide & Mount Gambier | APN",

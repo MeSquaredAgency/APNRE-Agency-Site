@@ -37,8 +37,11 @@ export default function StickyActions({ current, cta: ownCta }: { current: strin
   }, []);
 
   if (current.startsWith('/appraisal/')) return null;
-  // A funnel passes its own (its form on the page).
-  const cta = ownCta ?? { href: '/appraisal/', label: 'Free Appraisal' };
+  // Office space tenants aren't after an appraisal: send them to the
+  // booking form instead. A funnel passes its own (its form on the page).
+  const cta =
+    ownCta ??
+    (current === '/office-space/' ? { href: '#book', label: 'Book a Room' } : { href: '/appraisal/', label: 'Free Appraisal' });
   return (
     <aside
       className={`sticky-actions${visible ? ' is-visible' : ''}`}

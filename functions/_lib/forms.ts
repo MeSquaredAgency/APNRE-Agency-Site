@@ -67,7 +67,7 @@ export function isPhone(value: string): boolean {
  *  confirms it saved the row: Apps Script can answer 200 with an error
  *  page (a renamed tab, a stale deployment), so the status alone isn't
  *  proof. */
-export async function postToSheet(webhookUrl: string, row: Record<string, string>): Promise<void> {
+export async function postToSheet(webhookUrl: string, row: Record<string, unknown>): Promise<void> {
   const res = await fetch(webhookUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

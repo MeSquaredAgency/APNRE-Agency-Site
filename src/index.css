@@ -1516,6 +1516,8 @@ input, select, textarea {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px;
+  /* An error under one field shouldn't stretch the one beside it. */
+  align-items: start;
 }
 @media (max-width: 560px) {
   .form__split {
@@ -2312,4 +2314,417 @@ input, select, textarea {
 .hub-action__title svg {
   flex: none;
   margin-top: 0.3em;
+}
+
+/* ---------- Office space (/office-space/) ---------- */
+
+/* Booking forms: a heading between the booking choices and the contact
+   fields, and a second line under an option's name. */
+.form__heading {
+  margin-top: 8px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  font-size: 1.2rem;
+}
+.form__option-note {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--grey-500);
+}
+.form__choice-options label:has(.form__option-note),
+.form__checks label:has(.form__option-note) {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  line-height: 1.3;
+}
+.form__field .form__option-note {
+  margin-top: 2px;
+}
+.form__note--boxed {
+  margin-top: 0;
+  padding: 14px 16px;
+  background: var(--lime-wash);
+  border-left: 3px solid var(--lime);
+  color: var(--ink);
+}
+.form__choice-options label:has(input:disabled) {
+  cursor: not-allowed;
+  color: var(--grey-500);
+  background: var(--stone);
+}
+
+/* Podcast room sessions, grouped by length with the price. */
+.session-group + .session-group {
+  margin-top: 14px;
+}
+.session-group__head {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--grey-700);
+}
+.session-group__head span {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink);
+}
+
+/* A zero-height target for #podcast, between two sections. */
+.anchor {
+  display: block;
+  height: 0;
+}
+
+.plan__intro {
+  margin: -16px 0 32px;
+  color: var(--grey-700);
+}
+
+.plan {
+  display: grid;
+  gap: 16px;
+}
+.plan__svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.plan__svg--portrait {
+  display: none;
+  max-width: 440px;
+  margin: 0 auto;
+}
+@media (max-width: 900px) {
+  .plan__svg--landscape {
+    display: none;
+  }
+  .plan__svg--portrait {
+    display: block;
+  }
+}
+
+.plan__outline {
+  fill: var(--white);
+  stroke: var(--ink);
+  stroke-width: 8;
+  stroke-linejoin: round;
+}
+.plan__shape {
+  stroke: var(--ink);
+  stroke-width: 4;
+  stroke-linejoin: round;
+  transition: fill 0.15s;
+}
+.plan__label {
+  fill: var(--ink);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  text-anchor: middle;
+  pointer-events: none;
+}
+.plan__label-sub {
+  font-weight: 400;
+}
+
+.plan__room--available .plan__shape {
+  fill: #cde59a;
+}
+.plan__hatch-bg {
+  fill: #eef6dc;
+}
+.plan__hatch-line {
+  stroke: var(--lime);
+  stroke-width: 5;
+}
+.plan__room--shared .plan__shape {
+  fill: var(--white);
+}
+.plan__room--shared .plan__label {
+  fill: var(--grey-700);
+  font-weight: 500;
+}
+.plan__room--service .plan__shape {
+  fill: var(--white);
+  stroke-dasharray: 10 8;
+}
+.plan__room--service .plan__label {
+  fill: var(--grey-500);
+  font-weight: 400;
+}
+.plan__street text {
+  fill: var(--grey-500);
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-anchor: middle;
+}
+.plan__room--occupied .plan__shape {
+  fill: var(--stone-2);
+}
+.plan__room--occupied .plan__label {
+  fill: var(--grey-500);
+  font-weight: 500;
+}
+
+.plan__room[role='button'] {
+  cursor: pointer;
+  outline: none;
+}
+@media (hover: hover) {
+  .plan__room[role='button']:hover .plan__shape {
+    fill: var(--lime);
+  }
+}
+.plan__room.is-selected .plan__shape,
+.plan__room.is-selected:hover .plan__shape {
+  fill: var(--ink);
+}
+.plan__room.is-selected .plan__label {
+  fill: var(--white);
+}
+/* Keyboard focus: the room fills like a hover and gets a heavy edge.
+   Rooms drawn after this one cover the outer half of its stroke, so the
+   edge is wide enough for the inner half alone to read. */
+.plan__room:focus-visible .plan__shape {
+  fill: var(--lime);
+  stroke: var(--ink);
+  stroke-width: 12;
+}
+.plan__room.is-selected:focus-visible .plan__shape {
+  fill: var(--ink);
+  stroke: var(--lime);
+}
+
+.plan__entry path {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.plan__entry text {
+  fill: var(--ink);
+  font-family: var(--font-sans);
+  font-weight: 600;
+}
+
+.plan__legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  font-size: 0.9rem;
+  color: var(--grey-700);
+}
+.plan__legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.plan__swatch {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--ink);
+}
+.plan__swatch--available { background: #cde59a; }
+.plan__swatch--podcast { background: repeating-linear-gradient(45deg, var(--lime) 0 3px, #eef6dc 3px 7px); }
+.plan__swatch--shared { background: var(--white); }
+.plan__swatch--occupied { background: var(--stone-2); }
+
+.plan__info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 32px;
+  margin-top: 24px;
+  padding: 20px 24px;
+  background: var(--stone);
+  border-left: 3px solid var(--lime);
+}
+.plan__info p {
+  color: var(--grey-700);
+}
+.plan__info .plan__info-title {
+  font-family: var(--font-serif);
+  font-size: 1.35rem;
+  color: var(--ink);
+}
+@media (max-width: 900px) {
+  .plan__info {
+    position: sticky;
+    bottom: 16px;
+    z-index: 5;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16);
+  }
+}
+@media (max-width: 760px) {
+  /* Above the call / book bar (src/components/StickyActions.tsx). */
+  .plan__info {
+    bottom: calc(72px + 12px + env(safe-area-inset-bottom));
+    padding: 14px 16px;
+    gap: 12px;
+  }
+  .plan__info .plan__info-title {
+    font-size: 1.15rem;
+  }
+  .plan__info p {
+    font-size: 0.92rem;
+  }
+  .plan__info .btn {
+    width: 100%;
+    min-height: 46px;
+  }
+}
+
+.included {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 40px 32px;
+}
+.included li {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  padding-top: 20px;
+  border-top: 2px solid var(--lime);
+}
+.included p {
+  color: var(--grey-700);
+}
+.included__costs {
+  margin-top: 40px;
+  color: var(--grey-700);
+}
+@media (max-width: 1000px) {
+  .included {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 560px) {
+  .included {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* The podcast room's date picker: a month at a time, Monday to
+   Saturday, a radio per day. */
+.cal {
+  display: grid;
+  gap: 6px;
+}
+.cal__nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+.cal__month {
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+}
+.cal__step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--grey-300);
+  border-radius: var(--radius);
+  background: var(--white);
+  color: var(--ink);
+}
+.cal__step--prev svg {
+  transform: rotate(90deg);
+}
+.cal__step--next svg {
+  transform: rotate(-90deg);
+}
+@media (hover: hover) {
+  .cal__step:not(:disabled):hover {
+    border-color: var(--ink);
+  }
+}
+.cal__step:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.cal__grid {
+  display: grid;
+  gap: 4px;
+}
+.cal__grid[hidden] {
+  display: none;
+}
+.cal__row {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 4px;
+}
+.cal__row--head span {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--grey-500);
+}
+.cal__day {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  border: 1px solid var(--grey-300);
+  border-radius: var(--radius);
+  background: var(--white);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+@media (hover: hover) {
+  .cal__day:not(.cal__day--closed):not(.cal__day--blank):hover {
+    border-color: var(--ink);
+  }
+}
+.cal__day:has(input:checked) {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--white);
+}
+.cal__day:has(input:focus-visible) {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+.cal__day--blank {
+  border-color: transparent;
+  background: transparent;
+  cursor: default;
+}
+/* Before tomorrow or past the booking window. */
+.cal__day--closed {
+  border-color: transparent;
+  background: var(--stone);
+  color: var(--grey-300);
+  cursor: default;
+}
+.cal__day:has(input:disabled) {
+  border-color: transparent;
+  background: var(--stone);
+  color: var(--grey-500);
+  text-decoration: line-through;
+  cursor: not-allowed;
 }

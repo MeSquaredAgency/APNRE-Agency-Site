@@ -15,7 +15,9 @@ export type EnquiryKind =
   | 'tenant-register'
   | 'general'
   | 'careers'
-  | 'maintenance';
+  | 'maintenance'
+  | 'office-lease'
+  | 'podcast-hire';
 
 interface EnquiryFormProps {
   kind: EnquiryKind;
@@ -26,6 +28,11 @@ interface EnquiryFormProps {
   before?: ReactNode;
   /** Preselects "What's it about?" on the general form, e.g. on a hub page. */
   defaultTopic?: string;
+  /** Fields of the page's own, at the top of the form under the
+   *  required-fields note (e.g. the office booking choices). */
+  choices?: ReactNode;
+  /** Heading between `choices` and the contact fields. */
+  detailsHeading?: string;
 }
 
 type Status = 'idle' | 'submitting' | 'error';
@@ -34,6 +41,8 @@ type Status = 'idle' | 'submitting' | 'error';
 function fieldError(field: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement): string {
   const v = field.validity;
   const label = field.dataset.label ?? 'This field';
+  // A radio group's data-label reads as an object: "an office".
+  if (v.valueMissing && field.type === 'radio') return `Choose ${label}.`;
   if (v.valueMissing) return `${label} is required.`;
   if (field.name === 'email') return 'Enter an email address like name@example.com.';
   if (field.name === 'phone') return 'Enter a number we can call, e.g. 0412 345 678 or 08 8123 4567.';
@@ -62,7 +71,8 @@ export function showErrors(form: HTMLFormElement): boolean {
       message.id = id;
       message.className = 'form__field-error';
       message.textContent = fieldError(field);
-      (field.closest('.form__field') ?? field.parentElement)?.append(message);
+      // A radio group's message goes once, under the whole group.
+      (field.closest('.form__field, .form__group') ?? field.parentElement)?.append(message);
       first ??= field;
     },
   );
@@ -70,8 +80,19 @@ export function showErrors(form: HTMLFormElement): boolean {
   return !first;
 }
 
-export default function EnquiryForm({ kind, submitLabel, defaultAddress, before, defaultTopic = '' }: EnquiryFormProps) {
+export default function EnquiryForm({
+  kind,
+  submitLabel,
+  defaultAddress,
+  before,
+  defaultTopic = '',
+  choices,
+  detailsHeading,
+}: EnquiryFormProps) {
   const [status, setStatus] = useState<Status>('idle');
+  // A reason from the server worth showing as-is, e.g. a podcast room
+  // session someone else booked a moment ago (409).
+  const [conflict, setConflict] = useState('');
   // Errors only show after a send attempt; from then on, each field is
   // re-checked as it's corrected.
   const [tried, setTried] = useState(false);
@@ -110,9 +131,11 @@ export default function EnquiryForm({ kind, submitLabel, defaultAddress, before,
     if (!showErrors(form)) return;
 
     setStatus('submitting');
+    setConflict('');
     try {
       const res = await fetch(ENDPOINT, { method: 'POST', body: new FormData(form) });
       const body = await res.json().catch(() => null);
+      if (res.status === 409 && typeof body?.error === 'string') setConflict(body.error);
       if (!res.ok || !body || body.ok !== true) {
         throw new Error(`Submission not confirmed (${res.status}): ${JSON.stringify(body)}`);
       }
@@ -140,6 +163,9 @@ export default function EnquiryForm({ kind, submitLabel, defaultAddress, before,
       {before}
 
       <p className="form__required">Fields marked * are required.</p>
+
+      {choices}
+      {detailsHeading && <h3 className="form__heading">{detailsHeading}</h3>}
 
       {/* Honeypot. Deliberately not named like a real field: browser
           autofill ignores CSS hiding and would fill a field called
@@ -360,7 +386,12 @@ export default function EnquiryForm({ kind, submitLabel, defaultAddress, before,
 
       {TURNSTILE_SITE_KEY && <div ref={turnstileBox} className="form__turnstile" />}
 
-      {status === 'error' && (
+      {status === 'error' && conflict && (
+        <p className="form__error" role="alert">
+          {conflict}
+        </p>
+      )}
+      {status === 'error' && !conflict && (
         <p className="form__error" role="alert">
           We couldn’t send your enquiry. Your details are still here, so try again, or call{' '}
           <a href={PHONE_TEL}>{PHONE_DISPLAY}</a> ({OPENING_HOURS.display}).

@@ -43,6 +43,7 @@ the build, once the blog posts are known.
 | `/selling/` | Selling with APN: reasons, process, sales team, FAQ, sales appraisal form |
 | `/leasing/` | Leasing & property management: reasons, process, switching, PM team, FAQ, rental appraisal form |
 | `/buy/`, `/rent/`, `/sold/` | Links out to APN's realestate.com.au profile, plus buyer/tenant register forms |
+| `/office-space/` | Offices for lease (6–12 months) in APN's Blair Athol building and the podcast room for daily hire, with a clickable floor plan and booking requests (`src/pages/OfficeSpace.tsx`, rooms in `src/data/office-space.ts`; see `docs/office-space.md`) |
 | `/appraisal/sales/`, `/appraisal/rental/` | A sales or rental appraisal form, each its own page for search (`src/pages/Appraisal.tsx`) |
 | `/appraisal/` | Both, with a sales/rental switch (`?type=sales` or `?type=rental`), for the header button and older links |
 | `/our-people/` | Team with Sales / Property Management / Leadership filters (`?filter=sales`) and a name, role or office search (`?q=`) |
@@ -161,6 +162,10 @@ landlord page sends, told apart by `event_category`; see
   `apnre.com.au` / `www.apnre.com.au` (`src/partials/head-shared.html`),
   so previews and local testing don't pollute APN's data. Add a hostname
   there if the site is ever served from another one.
+- [ ] **Office space.** List the podcast room's kit item by item, and
+  deploy the updated Apps Script in `docs/lead-notifications.md`, which
+  emails office and podcast requests to sales@apnre.com.au and runs the
+  podcast room calendar (`docs/office-space.md`).
 - [ ] Have APN review the selling and leasing copy (reasons, process
   steps and FAQs).
 
