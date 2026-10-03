@@ -124,53 +124,50 @@ landlord page sends, told apart by `event_category`; see
 `docs/gtm-events.md`), fires a Meta Pixel `Lead` for appraisals or
 `Contact` for other forms, then goes to `/thank-you/`.
 
-## Before launch
+## Launch status
 
-- [ ] **Listings.** Set up the PropertyMe feed (`docs/listings-feed.md`).
-  Until then `/buy/`, `/rent/` and `/sold/` link to the realestate.com.au
-  agency profile.
+The site went live at `apnre.com.au` in place of `APNRE-Website` (whose
+repo is now archived) at the start of October 2026. As checked on
+3 Oct 2026:
+
+- [x] **Switch-over.** `apnre.com.au`, `www`, `go.apnre.com.au` and
+  `adelaidepropertynetwork.com.au` are on this Pages project, with all
+  the environment variables below set for Production
+  (`docs/switch-over.md`).
+- [x] **Spam check.** Turnstile keys set (`docs/forms.md`).
+- [x] **Address suggestions.** `VITE_GOOGLE_MAPS_API_KEY` set
+  (`docs/google-maps.md`).
+- [x] **Lead emails.** The script in `docs/lead-notifications.md` was
+  redeployed on 3 Oct 2026. Before then the live script differed from
+  that page, and one enquiry (1 Oct) was never emailed. Submit one test
+  of each form type to confirm each email reaches the right inbox.
+- [ ] **Listings.** The feed server (`feed.apnre.com.au`), deploy hook
+  and `LISTINGS_FEED_*` variables are in place, but PropertyMe hasn't
+  uploaded anything yet: set up the integration in PropertyMe and enable
+  each listing (steps 9–10 of `docs/listings-feed.md`), and limit the FTP
+  firewall rule to PropertyMe's IPs once they send them. Until then
+  `/buy/`, `/rent/` and `/sold/` link to the realestate.com.au profile.
+- [ ] **Ads.** If not done yet, change the landing page URL in Google Ads
+  and Meta ads to `https://go.apnre.com.au/landlords/` (`docs/funnels.md`),
+  and any "visited `/thank-you/`" conversion to `/landlords/thank-you/`
+  (end of `docs/gtm-events.md`).
+- [ ] **GTM.** Set up the `generate_lead` and `click_to_call` triggers
+  and GA4 tags in `docs/gtm-events.md`, if they aren't already. One of
+  each covers the whole site.
 - [ ] **Repairs form.** `MAINTENANCE_FORM_ENABLED` is `false`, so
   `/client-hub/tenants/#repairs` tells tenants to call. Only switch it on once someone
   checks those sheet rows every business day. (If APN's property
   management software has a tenant portal, link that instead.)
-- [ ] **GTM.** Set up the `generate_lead` and `click_to_call` triggers
-  and GA4 tags in `docs/gtm-events.md`, if they aren't already. One of
-  each covers the whole site.
-- [ ] **Switch-over.** Full step-by-step guide: `docs/switch-over.md`.
-  This site replaces the `APNRE-Website` deployment
-  at `apnre.com.au`. On the day:
-  1. In Cloudflare, move the `apnre.com.au` and `www` custom domains
-     from the old Pages project to this one, and give this one the same
-     environment variables (`SHEETS_WEBHOOK_URL` at least).
-  2. Add `go.apnre.com.au` as a custom domain on this project too, then
-     change the landing page URL in Google Ads and Meta ads from
-     `https://apnre.com.au/` to `https://go.apnre.com.au/landlords/`
-     (`docs/funnels.md`). `apnre.com.au/landlords/` still redirects
-     there, but each redirect is an extra hop before the page loads.
-  3. If any ad conversion is "visited `/thank-you/`", change it to
-     `/landlords/thank-you/` (see the end of `docs/gtm-events.md`).
-  4. Submit a test on `/landlords/` and on one main-site form, and check
-     both rows reach the sheet.
-  5. Archive the `APNRE-Website` repo on GitHub, so nobody keeps editing
-     the old copy.
-- [ ] **Lead emails.** Put the team inboxes into the Apps Script in
-  `docs/lead-notifications.md` and redeploy it.
-- [ ] **Address suggestions.** Create a restricted Google Maps key and
-  set `VITE_GOOGLE_MAPS_API_KEY` (`docs/google-maps.md`). Until then the
-  address fields are plain text boxes.
-- [ ] **Spam check.** Create the Turnstile keys and set
-  `VITE_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET` together
-  (`docs/forms.md`).
-- [ ] **Analytics host.** GTM and the Meta Pixel only run on
-  `apnre.com.au` / `www.apnre.com.au` (`src/partials/head-shared.html`),
-  so previews and local testing don't pollute APN's data. Add a hostname
-  there if the site is ever served from another one.
-- [ ] **Office space.** List the podcast room's kit item by item, and
-  deploy the updated Apps Script in `docs/lead-notifications.md`, which
-  emails office and podcast requests to sales@apnre.com.au and runs the
-  podcast room calendar (`docs/office-space.md`).
+- [ ] **Office space.** List the podcast room's kit item by item
+  (`PODCAST_EQUIPMENT` in `src/data/office-space.ts`;
+  `docs/office-space.md`).
 - [ ] Have APN review the selling and leasing copy (reasons, process
   steps and FAQs).
+
+Analytics only run on `apnre.com.au` / `www.apnre.com.au`
+(`src/partials/head-shared.html`), so previews and local testing don't
+pollute APN's data. Add a hostname there if the site is ever served from
+another one.
 
 ## How the build works
 
