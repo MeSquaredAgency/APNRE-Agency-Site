@@ -1,15 +1,17 @@
-// /buy/, /rent/ and /sold/. Each shows its listings from PropertyMe's feed
-// (src/lib/listings.ts), linking to a page per property. Until the feed is
-// set up (docs/listings-feed.md), or when a section has nothing in it,
-// the page points to APN's realestate.com.au profile instead, which is
-// always current.
+// /buy/, /rent/, /sold/ and /commercial/. Each shows its listings from
+// PropertyMe's feed (src/lib/listings.ts), linking to a page per property.
+// Until the feed is set up (docs/listings-feed.md), or when a section has
+// nothing in it, /buy/, /rent/ and /sold/ point to APN's
+// realestate.com.au profile instead, which is always current.
 
 import Layout from '../components/Layout';
 import EnquiryForm from '../components/EnquiryForm';
 import Icon from '../components/Icon';
 import { CtaBand, FormSection, PageHero, SectionHead } from '../components/sections';
 import { LISTINGS_LINKS } from '../data/nav';
-import { listingsIn, type Listing, type ListingSection } from '../lib/listings';
+import { BLAIR_ATHOL_PHOTOS } from '../data/offices';
+import { OFFICE_RENT_FROM } from '../data/office-space';
+import { listingsIn, thumb, type Listing, type ListingSection } from '../lib/listings';
 import mountGambier from '../assets/photos/mount-gambier-hillside-street.jpg?photo';
 import interior from '../assets/photos/interior-corner-windows.jpg?photo';
 import soldSign from '../assets/photos/sold-sign-ridley.jpg?photo';
@@ -62,12 +64,14 @@ export function ListingFeatures({ listing }: { listing: Listing }) {
   );
 }
 
-function ListingCard({ listing }: { listing: Listing }) {
-  const photo = listing.photos?.[0];
+export function ListingCard({ listing }: { listing: Listing }) {
+  const photo = thumb(listing, 0);
   const badge = listing.underOffer ? 'Under offer' : listing.section === 'sold' ? 'Sold' : '';
   return (
     <li>
-      <a className="listing-card" href={listing.path}>
+      {/* Blair Athol's offices have no page of their own: they're on
+          /office-space/, with the floor plan and request form. */}
+      <a className="listing-card" href={listing.apnBuilding === 'blair-athol' ? '/office-space/#listed' : listing.path}>
         <div className="listing-card__photo">
           {photo ? (
             // The address beside it says what the property is, so the
@@ -231,6 +235,67 @@ export function Sold() {
         copy="Book a free sales appraisal and we’ll walk you through recent comparable sales near you."
         href="/appraisal/sales/"
         label="Book a Sales Appraisal"
+      />
+    </Layout>
+  );
+}
+
+/** Every lease that isn't a home: offices, shops and other commercial
+ *  space, including the offices in APN's own buildings (Blair Athol's
+ *  cards link to /office-space/). */
+export function Commercial() {
+  const listings = listingsIn('commercial');
+  return (
+    <Layout>
+      <PageHero
+        eyebrow="Commercial"
+        title="Commercial property for lease."
+        lede="Offices, shops and other commercial space across Adelaide and Mount Gambier."
+        photo={BLAIR_ATHOL_PHOTOS.meetingRoom.photo}
+        photoAlt={BLAIR_ATHOL_PHOTOS.meetingRoom.alt}
+      />
+      {listings.length > 0 ? (
+        <section className="section section-white">
+          <div className="wrap">
+            <SectionHead
+              eyebrow="Available now"
+              title={`${plural(listings.length, 'commercial property', 'commercial properties')} for lease.`}
+            />
+            <ul className="listing-grid">
+              {listings.map((l) => (
+                <ListingCard key={l.id} listing={l} />
+              ))}
+            </ul>
+          </div>
+        </section>
+      ) : (
+        <section className="section section-white">
+          <div className="wrap listings-panel">
+            <div>
+              <h2 className="h-1">Nothing listed right now.</h2>
+              <p className="lede">
+                Tell us what kind of space you’re after and we’ll let you know when something suitable comes up.
+              </p>
+            </div>
+            <a href="#enquire" className="btn btn-primary">
+              Tell Us What You Need <Icon name="arrow" />
+            </a>
+          </div>
+        </section>
+      )}
+      <FormSection
+        id="enquire"
+        eyebrow="Looking for space?"
+        title="Tell us what you need."
+        copy="Let us know the kind of space, the size and the area you’re after, and our team will be in touch."
+      >
+        <EnquiryForm kind="general" submitLabel="Send Enquiry" defaultTopic="Commercial leasing" />
+      </FormSection>
+      <CtaBand
+        title="Need an office of your own?"
+        copy={`Private offices in our Blair Athol building, from $${OFFICE_RENT_FROM} a week including GST.`}
+        href="/office-space/"
+        label="See Office Space"
       />
     </Layout>
   );

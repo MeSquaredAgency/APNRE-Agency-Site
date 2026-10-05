@@ -13,7 +13,8 @@ sed -i 's/\r$//' vsftpd.conf apn-feed-sync.py apn-feed.cron Caddyfile
 timedatectl set-timezone Australia/Adelaide
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -q
-apt-get install -y -q vsftpd caddy
+# python3-pil: apn-feed-sync.py converts listing photos to WebP.
+apt-get install -y -q vsftpd caddy python3-pil
 
 install -m 644 vsftpd.conf /etc/vsftpd.conf
 install -m 755 apn-feed-sync.py /usr/local/bin/apn-feed-sync.py

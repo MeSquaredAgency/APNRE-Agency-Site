@@ -10,7 +10,7 @@ import Icon from '../components/Icon';
 import JsonLd from '../components/JsonLd';
 import { CtaBand, FormSection, PageHero } from '../components/sections';
 import { TEAM, teamMemberId } from '../data/team';
-import { formatDay, LISTINGS, listingAddress, type Listing as ListingData } from '../lib/listings';
+import { formatDay, LISTINGS, listingAddress, photoSrcSet, thumb, type Listing as ListingData } from '../lib/listings';
 import { usePath } from '../lib/route';
 import { breadcrumbList, SITE } from '../structured-data';
 import { ListingFeatures } from './Listings';
@@ -19,6 +19,7 @@ const SECTIONS = {
   buy: { name: 'Buy', path: '/buy/', eyebrow: 'For sale' },
   rent: { name: 'Rent', path: '/rent/', eyebrow: 'For rent' },
   sold: { name: 'Sold', path: '/sold/', eyebrow: 'Sold' },
+  commercial: { name: 'Commercial', path: '/commercial/', eyebrow: 'For lease' },
 };
 
 /** Photos shown straight away under the main one; the rest sit behind
@@ -29,32 +30,34 @@ function Photos({ listing, address }: { listing: ListingData; address: string })
   const photos = listing.photos ?? [];
   if (photos.length === 0) return null;
   const alt = (i: number) => `${address}, photo ${i + 1} of ${photos.length}`;
-  const [main, ...rest] = photos;
-  const more = rest.slice(GRID_PHOTOS);
+  // Thumbnails are the 800px copies; each opens the full-size photo.
+  const tile = (i: number) => (
+    <li key={photos[i]}>
+      <a href={photos[i]} target="_blank" rel="noopener">
+        <img src={thumb(listing, i)} alt={alt(i)} loading="lazy" decoding="async" />
+      </a>
+    </li>
+  );
+  const rest = photos.map((_, i) => i).slice(1);
   return (
     <div className="listing-photos">
-      {/* React 18 doesn't know fetchPriority yet; the lowercase attribute
-          passes straight through (as in Picture). */}
-      <img className="listing-photos__main" src={main} alt={alt(0)} decoding="async" {...{ fetchpriority: 'high' }} />
-      {rest.length > 0 && (
-        <ul className="listing-photos__grid">
-          {rest.slice(0, GRID_PHOTOS).map((src, i) => (
-            <li key={src}>
-              <img src={src} alt={alt(i + 1)} loading="lazy" decoding="async" />
-            </li>
-          ))}
-        </ul>
-      )}
-      {more.length > 0 && (
+      {/* The page's largest image (its LCP), so it's fetched first. React
+          18 doesn't know fetchPriority yet; the lowercase attribute passes
+          straight through (as in Picture). */}
+      <img
+        className="listing-photos__main"
+        src={photos[0]}
+        srcSet={photoSrcSet(listing, 0)}
+        sizes="(max-width: 1360px) 100vw, 1232px"
+        alt={alt(0)}
+        decoding="async"
+        {...{ fetchpriority: 'high' }}
+      />
+      {rest.length > 0 && <ul className="listing-photos__grid">{rest.slice(0, GRID_PHOTOS).map(tile)}</ul>}
+      {rest.length > GRID_PHOTOS && (
         <details className="listing-photos__more">
           <summary>Show all {photos.length} photos</summary>
-          <ul className="listing-photos__grid">
-            {more.map((src, i) => (
-              <li key={src}>
-                <img src={src} alt={alt(i + 1 + GRID_PHOTOS)} loading="lazy" decoding="async" />
-              </li>
-            ))}
-          </ul>
+          <ul className="listing-photos__grid">{rest.slice(GRID_PHOTOS).map(tile)}</ul>
         </details>
       )}
     </div>
@@ -82,10 +85,9 @@ function Description({ text }: { text: string }) {
 
 export default function Listing() {
   const path = usePath();
-  // Offices have no page of their own (they're on /office-space/).
-  const listing = LISTINGS.find(
-    (l): l is ListingData & { section: keyof typeof SECTIONS } => l.path === path && l.section !== 'office',
-  );
+  // Blair Athol's offices have no page of their own (they're on
+  // /office-space/).
+  const listing = LISTINGS.find((l) => l.path === path && l.apnBuilding !== 'blair-athol');
   if (!listing) throw new Error(`No listing for ${path}; check src/data/listings.json (npm run pages)`);
   const section = SECTIONS[listing.section];
   const address = listingAddress(listing);
@@ -142,6 +144,11 @@ export default function Listing() {
           <div className="listing__body">
             <div className="listing__copy">
               {listing.headline && <h2 className="h-2">{listing.headline}</h2>}
+              {listing.apnBuilding === 'mount-gambier' && (
+                <p className="listing__note">
+                  This space is in APN’s own Mount Gambier office building.
+                </p>
+              )}
               {listing.description && <Description text={listing.description} />}
               {facts.length > 0 && (
                 <dl className="listing__facts">

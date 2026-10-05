@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SAMPLE ONLY: a made-up office in APN's Mount Gambier building, for local development. -->
+<propertyList date="2026-10-05T04:00:00">
+  <rental modTime="2026-10-05T03:00:00" status="current">
+    <agentID>SAMPLE</agentID>
+    <uniqueID>SAMPLE-C2</uniqueID>
+    <rent period="weekly" display="yes">250.00</rent>
+    <address display="yes"><subNumber>2</subNumber><streetNumber>178</streetNumber><street>Commercial Street East</street><suburb display="yes">Mount Gambier</suburb><state>SA</state><postcode>5290</postcode></address>
+    <category name="Offices"/>
+    <headline>SAMPLE: Office on Commercial Street East</headline>
+    <description>This is a made-up listing used to preview the commercial pages.</description>
+    <images><img id="m" url="https://images.pexels.com/photos/8089172/pexels-photo-8089172.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1200"/></images>
+  </rental>
+</propertyList>

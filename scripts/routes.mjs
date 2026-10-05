@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
-const SECTION_LABEL = { buy: 'For Sale', rent: 'For Rent', sold: 'Sold' };
+const SECTION_LABEL = { buy: 'For Sale', rent: 'For Rent', sold: 'Sold', commercial: 'For Lease' };
 const SITE = 'https://apnre.com.au';
 
 /** Feed photos can be paths on this site (/listing-photo/...); link
@@ -64,6 +64,6 @@ export function allRoutes() {
       .sort()
       .pop();
   const fixed = routes.map((r) => (newest(r.page) ? { ...r, lastmod: newest(r.page) } : r));
-  // Offices go on /office-space/, not pages of their own.
-  return [...fixed, ...listings.filter((l) => l.section !== 'office').map(listingRoute)];
+  // Blair Athol's offices are on /office-space/, not pages of their own.
+  return [...fixed, ...listings.filter((l) => l.apnBuilding !== 'blair-athol').map(listingRoute)];
 }

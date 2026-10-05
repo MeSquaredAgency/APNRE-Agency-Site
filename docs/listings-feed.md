@@ -1,7 +1,7 @@
 # Listings feed (PropertyMe → website)
 
-`/buy/`, `/rent/` and `/sold/` show APN's listings from PropertyMe, with
-a page for each property. Until the feed is set up they link to the
+`/buy/`, `/rent/`, `/sold/` and `/commercial/` show APN's listings from
+PropertyMe, with a page for each property. Until the feed is set up they link to the
 realestate.com.au profile instead, so nothing breaks in the meantime.
 
 ## How it works
@@ -25,19 +25,42 @@ PropertyMe ──FTP──▶ feed server ──HTTPS──▶ Cloudflare Pages 
 3. The build (`scripts/fetch-listings.mjs`) downloads the bundle and turns
    it into listings (`scripts/reaxml.mjs`). Each listing then gets its
    own page alongside the rest of the site (`scripts/routes.mjs`).
-4. PropertyMe's photo server (`docs.propertyme.com`) only works over
-   plain http, which an https page can't show. So the pages load photos
-   and floor plans from `/listing-photo/<file>` on the site instead
-   (`functions/listing-photo/[file].ts`), which fetches them from
-   PropertyMe and caches them at Cloudflare.
+4. Photos. PropertyMe's (on `docs.propertyme.com`) are large JPEGs
+   (rentals 800px at about 200 KB, sales often bigger), over plain http
+   only, and PropertyMe deletes them about a month after upload. So the
+   feed server downloads each photo and floor plan once, while it's
+   there, and keeps two WebP copies in `/var/www/feed/photos/`: up to
+   1600px for a listing's main photo, and 800px (about 30–40 KB) for
+   cards and thumbnails. The first copy of a listing's photos takes a
+   while on the small server (about 7 seconds a photo); after that only
+   new photos are copied. The build downloads the copies into the site
+   as `/listing-photos/<file>.webp`, cached for a year. A photo
+   the server hasn't copied yet loads from `/listing-photo/<file>`
+   instead (`functions/listing-photo/[file].ts`), which fetches it from
+   PropertyMe. A photo that failed to copy is retried each night; the
+   failures are in `/var/log/apn-feed.log`.
 
 A new or changed listing shows on the site about 10 minutes after it's
 saved in PropertyMe: up to 7 minutes for the server to notice, then the
 build.
 
-Rentals whose PropertyMe type is "Office" (the spare offices in the
-Blair Athol building) are kept off `/rent/`: they belong on
-`/office-space/`, which doesn't read them yet.
+Leases that aren't homes (PropertyMe types such as Offices, Retail and
+Other; anything not a REAXML home type, in `RESIDENTIAL` in
+`scripts/reaxml.mjs`) go on `/commercial/` instead of `/rent/`, each
+with its own page. Two addresses are APN's own buildings
+(`apnBuildingOf`):
+
+- **420 Main North Road, Blair Athol:** these offices have no page of
+  their own. They show under "Listed now" on `/office-space/`, with
+  their photos, and their cards on `/commercial/` link there. The floor
+  plan's available and occupied rooms still come from
+  `src/data/office-space.ts`, because PropertyMe's suite numbers haven't
+  been matched to the plan's office numbers yet.
+- **178 Commercial Street East, Mount Gambier:** listed on
+  `/commercial/` like the rest, with a note that it's in APN's own
+  building.
+
+Commercial property *for sale* stays on `/buy/`.
 
 Only current listings for sale or rent and recent sales (the latest 24)
 show up. Leased, withdrawn and off-market listings drop off at the next

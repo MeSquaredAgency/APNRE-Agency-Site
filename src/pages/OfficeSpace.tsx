@@ -42,6 +42,80 @@ import {
   isBookableDate,
   latestLeaseStart,
 } from '../lib/bookings';
+import { formatDay, LISTINGS, photoSrcSet, thumb, type Listing } from '../lib/listings';
+
+/** The Blair Athol offices APN has listed in PropertyMe (its feed:
+ *  docs/listings-feed.md), with their photos. Shown alongside the floor
+ *  plan, which still takes each room's status from office-space.ts until
+ *  PropertyMe's suite numbers are matched to the plan's. */
+const LISTED_OFFICES = LISTINGS.filter((l) => l.apnBuilding === 'blair-athol');
+
+function ListedOffices({ onRequest }: { onRequest: () => void }) {
+  if (LISTED_OFFICES.length === 0) return null;
+  return (
+    <section className="section section-paper" id="listed">
+      <div className="wrap">
+        <SectionHead eyebrow="Listed now" title="Offices available to lease." />
+        <ul className="listed-offices">
+          {LISTED_OFFICES.map((office) => (
+            <ListedOffice key={office.id} office={office} onRequest={onRequest} />
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+function ListedOffice({ office, onRequest }: { office: Listing; onRequest: () => void }) {
+  const name = office.street ?? office.headline ?? 'Office';
+  const photos = office.photos ?? [];
+  const alt = (i: number) => `${name}, photo ${i + 1} of ${photos.length}`;
+  const intro = office.description?.split(/\n\s*\n/)[0];
+  return (
+    <li className="listed-office">
+      {photos.length > 0 && (
+        <div className="listed-office__photos">
+          <img
+            className="listed-office__main"
+            src={photos[0]}
+            srcSet={photoSrcSet(office, 0)}
+            sizes="(max-width: 760px) 100vw, 55vw"
+            alt={alt(0)}
+            loading="lazy"
+            decoding="async"
+          />
+          {photos.length > 1 && (
+            <details>
+              <summary>Show all {photos.length} photos</summary>
+              <ul className="listing-photos__grid">
+                {photos.slice(1).map((src, i) => (
+                  <li key={src}>
+                    <a href={src} target="_blank" rel="noopener">
+                      <img src={thumb(office, i + 1)} alt={alt(i + 1)} loading="lazy" decoding="async" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )}
+        </div>
+      )}
+      <div className="listed-office__body">
+        <h3 className="h-3">{name}</h3>
+        <p className="listed-office__price">{office.price}</p>
+        <p className="listed-office__meta">
+          {office.availableFrom ? `Available from ${formatDay(office.availableFrom)}` : 'Available now'}
+          {office.buildingArea ? ` · ${office.buildingArea}` : ''}
+        </p>
+        {office.headline && office.headline !== name && <p className="listed-office__headline">{office.headline}</p>}
+        {intro && <p>{intro}</p>}
+        <a href="#book" className="btn btn-primary" onClick={onRequest}>
+          Request This Office <Icon name="arrow" />
+        </a>
+      </div>
+    </li>
+  );
+}
 
 type Mode = 'lease' | 'podcast';
 
@@ -508,6 +582,8 @@ export default function OfficeSpace() {
           <RoomSummary mode={mode} room={selectedRoom} />
         </div>
       </section>
+
+      <ListedOffices onRequest={() => setMode('lease')} />
 
       <section className="section section-white">
         <div className="wrap">

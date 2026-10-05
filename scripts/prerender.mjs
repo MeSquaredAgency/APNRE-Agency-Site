@@ -33,6 +33,7 @@ const PAGE_FILES = {
   buy: 'src/pages/Listings.tsx',
   rent: 'src/pages/Listings.tsx',
   sold: 'src/pages/Listings.tsx',
+  commercial: 'src/pages/Listings.tsx',
   appraisal: 'src/pages/Appraisal.tsx',
   'appraisal-sales': 'src/pages/Appraisal.tsx',
   'appraisal-rental': 'src/pages/Appraisal.tsx',

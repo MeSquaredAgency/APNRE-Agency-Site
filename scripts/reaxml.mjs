@@ -174,6 +174,48 @@ function category(type, node) {
   return { land: 'Land', rural: 'Rural', commercial: 'Commercial' }[type] ?? 'Property';
 }
 
+/** "Duplex Semi-detached" → "duplexsemidetached", for comparing. */
+const categoryKey = (name) => name.toLowerCase().replace(/[^a-z]/g, '');
+
+// REAXML's home types. A lease of any other type ("Offices", "Retail",
+// "Other", "Warehouse"...) is commercial. PropertyMe uses "Other" for
+// commercial spaces, as APN confirmed, so it isn't treated as a home.
+const RESIDENTIAL = new Set(
+  [
+    'House',
+    'Unit',
+    'Townhouse',
+    'Villa',
+    'Apartment',
+    'Flat',
+    'Studio',
+    'DuplexSemi-detached',
+    'Duplex',
+    'Terrace',
+    'BlockOfUnits',
+    'Retirement',
+    'ServicedApartment',
+    'Alpine',
+    'AcreageSemi-rural',
+    'Property',
+  ].map(categoryKey),
+);
+
+/** Space in one of APN's own office buildings, which APN leases out
+ *  itself: Blair Athol's has its own page (/office-space/). */
+function apnBuildingOf(address) {
+  const number = `${text(address.subNumber)} ${text(address.streetNumber)}`;
+  const street = text(address.street);
+  const suburb = text(address.suburb).toLowerCase();
+  if (suburb === 'blair athol' && /\b420b?\b/i.test(number) && /main\s+n(orth|th)?\.?\s+r(oa)?d/i.test(street)) {
+    return 'blair-athol';
+  }
+  if (suburb === 'mount gambier' && /\b178\b/.test(number) && /commercial\s+st(reet)?\.?\s+e(ast)?/i.test(street)) {
+    return 'mount-gambier';
+  }
+  return undefined;
+}
+
 export function slugify(s) {
   return s
     .toLowerCase()
@@ -194,12 +236,11 @@ function toListing(type, node, agentId) {
 
   const commercialType = attr(node.commercialListingType, 'value').toLowerCase();
   const forRent = type === 'rental' || (type === 'commercial' && commercialType === 'lease');
-  // APN lists the spare offices in its Blair Athol building in PropertyMe
-  // as rentals of type "Office". They belong on /office-space/, not
-  // /rent/, so they get their own section and no page of their own.
-  const isOffice = forRent && /\boffices?\b/i.test(category(type, node));
+  // Leases that aren't homes (PropertyMe types like "Offices", "Retail"
+  // and "Other") go on /commercial/, not /rent/.
+  const commercial = forRent && (type === 'commercial' || !RESIDENTIAL.has(categoryKey(category(type, node))));
   let section;
-  if (status === 'current') section = isOffice ? 'office' : forRent ? 'rent' : 'buy';
+  if (status === 'current') section = commercial ? 'commercial' : forRent ? 'rent' : 'buy';
   else if (status === 'sold' && !forRent) section = 'sold';
   else return { skip: `status ${status}` };
 
@@ -210,11 +251,14 @@ function toListing(type, node, agentId) {
   const state = text(address.state).toUpperCase();
   const postcode = text(address.postcode);
   if (!suburb && !street) return { skip: 'no address to show' };
+  const apnBuilding = section === 'commercial' ? apnBuildingOf(address) : undefined;
 
   const features = node.features ?? {};
   const land = node.landDetails ?? {};
   const building = node.buildingDetails ?? {};
-  const carSpaces = (num(features.garages) ?? 0) + (num(features.carports) ?? 0) + (num(features.openSpaces) ?? 0);
+  // Commercial listings give a single <carSpaces> count instead.
+  const carSpaces =
+    num(node.carSpaces) ?? (num(features.garages) ?? 0) + (num(features.carports) ?? 0) + (num(features.openSpaces) ?? 0);
   const rentEl = type === 'commercial' ? node.commercialRent : node.rent;
   const today = new Date().toISOString().slice(0, 10);
   const inspections = (node.inspectionTimes?.inspection ?? [])
@@ -257,6 +301,7 @@ function toListing(type, node, agentId) {
     bond: forRent && num(node.bond) ? money(num(node.bond)) : undefined,
     agents: agents(node),
     soldDate: soldDate || undefined,
+    apnBuilding,
     modified,
   };
   // Drop empty fields so the JSON (shipped to the browser) stays small.

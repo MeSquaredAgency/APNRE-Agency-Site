@@ -195,9 +195,9 @@ ${preload}${jsonLd}`;
 }
 
 // Listing pages come and go with the feed, so clear out the last run's
-// before writing this one's (the generated folders inside /buy/, /rent/
-// and /sold/; their own index.html stays).
-for (const section of ['buy', 'rent', 'sold']) {
+// before writing this one's (the generated folders inside /buy/, /rent/,
+// /sold/ and /commercial/; their own index.html stays).
+for (const section of ['buy', 'rent', 'sold', 'commercial']) {
   const dir = join(ROOT, section);
   if (!existsSync(dir)) continue;
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
