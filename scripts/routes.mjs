@@ -11,6 +11,11 @@ import { fileURLToPath } from 'node:url';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 const SECTION_LABEL = { buy: 'For Sale', rent: 'For Rent', sold: 'Sold' };
+const SITE = 'https://apnre.com.au';
+
+/** Feed photos can be paths on this site (/listing-photo/...); link
+ *  previews need a full URL. */
+const absolute = (url) => (url.startsWith('/') ? SITE + url : url);
 
 /** The listing's address as one line, e.g. "2/14 Smith Street, Blair Athol". */
 export const listingAddress = (l) => [l.street, l.suburb].filter(Boolean).join(', ');
@@ -37,7 +42,7 @@ function listingRoute(l) {
     description: clip(l.headline ? `${l.headline}. ${summary}.` : `${summary}.`, 160),
     // The main photo is the link preview, hosted wherever the feed's
     // photos are (scripts/build-pages.mjs).
-    ...(l.photos?.[0] ? { ogImage: l.photos[0], ogAlt: `${address}: main photo` } : {}),
+    ...(l.photos?.[0] ? { ogImage: absolute(l.photos[0]), ogAlt: `${address}: main photo` } : {}),
     lastmod: (l.modified || l.soldDate || '').slice(0, 10) || undefined,
   };
 }

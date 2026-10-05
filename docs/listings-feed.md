@@ -12,17 +12,24 @@ PropertyMe ──FTP──▶ feed server ──HTTPS──▶ Cloudflare Pages 
               per listing)       file + rebuild)       listing)
 ```
 
-1. PropertyMe uploads a REAXML file per listing to the feed server over
-   FTP, and replaces it whenever the listing changes. That's PropertyMe's
-   "custom listings" integration. It only supports plain FTP, and photos
-   come as links to PropertyMe's servers, not files.
+1. PropertyMe uploads a REAXML file to the feed server over FTP each time
+   a listing changes, named like `APNRE_<date-time>_<number>_live.xml`.
+   That's PropertyMe's "custom listings" integration. It only supports
+   plain FTP, and photos come as links to PropertyMe's servers, not files.
 2. Every 5 minutes, `apn-feed-sync.py` on the server checks for changes.
-   If there are any, it bundles all the files into one
-   `listings.json` and calls the Cloudflare Pages deploy hook. It also
-   rebuilds once a night so past inspection times drop off.
+   If there are any, it moves files that only hold an older version of a
+   listing to `/srv/propertyme-archive/`, bundles the rest into one
+   `listings.json` (leaving out the FTP login PropertyMe puts in every
+   file), and calls the Cloudflare Pages deploy hook. It also rebuilds
+   once a night so past inspection times drop off.
 3. The build (`scripts/fetch-listings.mjs`) downloads the bundle and turns
    it into listings (`scripts/reaxml.mjs`). Each listing then gets its
    own page alongside the rest of the site (`scripts/routes.mjs`).
+4. PropertyMe's photo server (`docs.propertyme.com`) only works over
+   plain http, which an https page can't show. So the pages load photos
+   and floor plans from `/listing-photo/<file>` on the site instead
+   (`functions/listing-photo/[file].ts`), which fetches them from
+   PropertyMe and caches them at Cloudflare.
 
 A new or changed listing shows on the site about 10 minutes after it's
 saved in PropertyMe: up to 7 minutes for the server to notice, then the
@@ -198,12 +205,7 @@ Enable the integration on a single listing (the listing → Advertising →
 your custom listing → Actions → Enable). Within about 10 minutes it
 should be on `/buy/` or `/rent/`. Before enabling the rest, check:
 
-- `sudo ls -la /srv/propertyme`: one file per listing, or a new file
-  per update? If it's a new file per update, the folder keeps growing.
-  The build only uses the newest version of each listing, but old
-  files should be cleared out now and then.
-- The photos load. They're requested over `https://` even if the feed
-  says `http://`.
+- The photos and floor plans load (through `/listing-photo/`).
 - The price, address and inspections match PropertyMe. Then mark the
   listing as leased or withdrawn and check it disappears.
 
