@@ -56,7 +56,7 @@ writeFileSync(OUT, `${JSON.stringify(listings, null, 2)}\n`);
 
 const count = (section) => listings.filter((l) => l.section === section).length;
 console.log(
-  `Listings: ${count('buy')} for sale, ${count('rent')} for rent, ${count('sold')} sold, from ${files.length} file(s) (${source})`,
+  `Listings: ${count('buy')} for sale, ${count('rent')} for rent, ${count('sold')} sold, ${count('office')} office(s), from ${files.length} file(s) (${source})`,
 );
 // Leased, withdrawn and off-market listings are skipped on purpose; the
 // rest are worth a look in the build log.

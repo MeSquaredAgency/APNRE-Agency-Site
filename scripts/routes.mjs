@@ -64,5 +64,6 @@ export function allRoutes() {
       .sort()
       .pop();
   const fixed = routes.map((r) => (newest(r.page) ? { ...r, lastmod: newest(r.page) } : r));
-  return [...fixed, ...listings.map(listingRoute)];
+  // Offices go on /office-space/, not pages of their own.
+  return [...fixed, ...listings.filter((l) => l.section !== 'office').map(listingRoute)];
 }

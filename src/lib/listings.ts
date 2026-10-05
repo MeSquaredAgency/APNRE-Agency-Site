@@ -6,7 +6,10 @@
 
 import data from '../data/listings.json';
 
-export type ListingSection = 'buy' | 'rent' | 'sold';
+/** 'office': one of the offices in APN's Blair Athol building, listed in
+ *  PropertyMe as an "Office" rental. Not shown on /rent/ and no page of
+ *  its own; it belongs on /office-space/. */
+export type ListingSection = 'buy' | 'rent' | 'sold' | 'office';
 
 export interface ListingAgent {
   name: string;

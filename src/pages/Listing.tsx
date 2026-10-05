@@ -82,7 +82,10 @@ function Description({ text }: { text: string }) {
 
 export default function Listing() {
   const path = usePath();
-  const listing = LISTINGS.find((l) => l.path === path);
+  // Offices have no page of their own (they're on /office-space/).
+  const listing = LISTINGS.find(
+    (l): l is ListingData & { section: keyof typeof SECTIONS } => l.path === path && l.section !== 'office',
+  );
   if (!listing) throw new Error(`No listing for ${path}; check src/data/listings.json (npm run pages)`);
   const section = SECTIONS[listing.section];
   const address = listingAddress(listing);
