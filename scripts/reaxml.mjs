@@ -194,8 +194,12 @@ function toListing(type, node, agentId) {
 
   const commercialType = attr(node.commercialListingType, 'value').toLowerCase();
   const forRent = type === 'rental' || (type === 'commercial' && commercialType === 'lease');
+  // APN lists the spare offices in its Blair Athol building in PropertyMe
+  // as rentals of type "Office". They belong on /office-space/, not
+  // /rent/, so they get their own section and no page of their own.
+  const isOffice = forRent && /\boffices?\b/i.test(category(type, node));
   let section;
-  if (status === 'current') section = forRent ? 'rent' : 'buy';
+  if (status === 'current') section = isOffice ? 'office' : forRent ? 'rent' : 'buy';
   else if (status === 'sold' && !forRent) section = 'sold';
   else return { skip: `status ${status}` };
 

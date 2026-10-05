@@ -35,6 +35,10 @@ A new or changed listing shows on the site about 10 minutes after it's
 saved in PropertyMe: up to 7 minutes for the server to notice, then the
 build.
 
+Rentals whose PropertyMe type is "Office" (the spare offices in the
+Blair Athol building) are kept off `/rent/`: they belong on
+`/office-space/`, which doesn't read them yet.
+
 Only current listings for sale or rent and recent sales (the latest 24)
 show up. Leased, withdrawn and off-market listings drop off at the next
 build, and their pages go with them.
