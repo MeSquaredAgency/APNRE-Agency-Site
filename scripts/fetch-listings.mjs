@@ -66,15 +66,24 @@ async function feedFiles() {
  *  Returns how many were used. */
 async function useCopies(listings, photos) {
   const wanted = new Map();
-  const swap = (src) => {
-    const copy = photos[src.match(/^\/listing-photo\/(.+)$/)?.[1] ?? ''];
-    if (!copy) return src;
-    wanted.set(copy.file, new URL(`photos/${encodeURIComponent(copy.file)}`, LISTINGS_FEED_URL));
-    return `/listing-photos/${copy.file}`;
+  const want = (file) => {
+    wanted.set(file, new URL(`photos/${encodeURIComponent(file)}`, LISTINGS_FEED_URL));
+    return `/listing-photos/${file}`;
+  };
+  const copyOf = (src) => photos[src.match(/^\/listing-photo\/(.+)$/)?.[1] ?? ''];
+  /** The copy at up to 1600px, or `src` if there isn't one. */
+  const large = (src) => (copyOf(src) ? want(copyOf(src).file) : src);
+  /** The 800px copy for cards and thumbnails, or `src`. */
+  const small = (src) => {
+    const copy = copyOf(src);
+    return copy ? want(copy.small ?? copy.file) : src;
   };
   for (const l of listings) {
-    if (l.photos) l.photos = l.photos.map(swap);
-    if (l.floorplans) l.floorplans = l.floorplans.map(swap);
+    if (l.photos) {
+      l.thumbs = l.photos.map(small);
+      l.photos = l.photos.map(large);
+    }
+    if (l.floorplans) l.floorplans = l.floorplans.map(large);
   }
 
   const queue = [...wanted];
@@ -106,7 +115,7 @@ writeFileSync(OUT, `${JSON.stringify(listings, null, 2)}\n`);
 
 const count = (section) => listings.filter((l) => l.section === section).length;
 console.log(
-  `Listings: ${count('buy')} for sale, ${count('rent')} for rent, ${count('sold')} sold, ${count('office')} office(s), from ${files.length} file(s) (${source})`,
+  `Listings: ${count('buy')} for sale, ${count('rent')} for rent, ${count('sold')} sold, ${count('commercial')} commercial, from ${files.length} file(s) (${source})`,
 );
 // Leased, withdrawn and off-market listings are skipped on purpose; the
 // rest are worth a look in the build log.

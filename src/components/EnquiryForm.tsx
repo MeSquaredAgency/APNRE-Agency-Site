@@ -338,6 +338,7 @@ export default function EnquiryForm({
                 <option>Buying</option>
                 <option>Property management</option>
                 <option>Renting</option>
+                <option>Commercial leasing</option>
                 <option>Something else</option>
               </select>
             </label>

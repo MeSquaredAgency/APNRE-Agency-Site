@@ -10,6 +10,7 @@ export const PAGE_LOADERS: Record<string, () => Promise<ComponentType>> = {
   buy: () => import('./Listings').then((m) => m.Buy),
   rent: () => import('./Listings').then((m) => m.Rent),
   sold: () => import('./Listings').then((m) => m.Sold),
+  commercial: () => import('./Listings').then((m) => m.Commercial),
   'office-space': () => import('./OfficeSpace').then((m) => m.default),
   appraisal: () => import('./Appraisal').then((m) => m.default),
   'appraisal-sales': () => import('./Appraisal').then((m) => m.SalesAppraisal),

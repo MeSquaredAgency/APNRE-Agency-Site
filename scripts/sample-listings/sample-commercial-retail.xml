@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SAMPLE ONLY: a made-up shop for lease, for local development. -->
+<propertyList date="2026-10-05T04:00:00">
+  <commercial modTime="2026-10-05T02:00:00" status="current">
+    <agentID>SAMPLE</agentID>
+    <uniqueID>SAMPLE-C3</uniqueID>
+    <commercialListingType value="lease"/>
+    <commercialCategory name="Retail"/>
+    <commercialRent period="annual" display="yes">16484</commercialRent>
+    <address display="yes"><streetNumber>36</streetNumber><street>Sample Street</street><suburb display="yes">Mount Gambier</suburb><state>SA</state><postcode>5290</postcode></address>
+    <headline>SAMPLE: Shopfront in the main street</headline>
+    <description>This is a made-up listing used to preview the commercial pages.</description>
+    <buildingDetails><area unit="squareMeter">120</area></buildingDetails>
+    <carSpaces>2</carSpaces>
+    <images><img id="m" url="https://images.pexels.com/photos/29012619/pexels-photo-29012619.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1200"/></images>
+  </commercial>
+</propertyList>

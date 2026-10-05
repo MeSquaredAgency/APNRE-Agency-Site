@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SAMPLE ONLY: a made-up office in APN's Blair Athol building, for local development (npm run dev:sample). -->
+<propertyList date="2026-10-05T04:00:00">
+  <rental modTime="2026-10-05T04:00:00" status="current">
+    <agentID>SAMPLE</agentID>
+    <uniqueID>SAMPLE-C1</uniqueID>
+    <rent period="weekly" display="yes">288.00</rent>
+    <dateAvailable>2026-10-12T00:00:00</dateAvailable>
+    <address display="yes"><subNumber>Suite 2</subNumber><streetNumber>420</streetNumber><street>Main N Rd</street><suburb display="yes">Blair Athol</suburb><state>SA</state><postcode>5084</postcode></address>
+    <category name="Offices"/>
+    <headline>SAMPLE: Private office with window</headline>
+    <description>This is a made-up listing used to preview the office space page.
+
+A lockable office with natural light, close to the shared kitchen.</description>
+    <images><img id="m" url="https://images.pexels.com/photos/7031581/pexels-photo-7031581.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1200"/><img id="a" url="https://images.pexels.com/photos/10628470/pexels-photo-10628470.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1200"/></images>
+  </rental>
+</propertyList>

@@ -36,6 +36,12 @@
     "description": "See properties APN Real Estate has recently sold in Adelaide and Mount Gambier, and find out what your own property could be worth with a free appraisal."
   },
   {
+    "page": "commercial",
+    "path": "/commercial/",
+    "title": "Commercial Property for Lease | APN Real Estate",
+    "description": "Offices, shops and other commercial property for lease in Adelaide and Mount Gambier from APN Real Estate, including offices in our own Blair Athol building."
+  },
+  {
     "page": "office-space",
     "path": "/office-space/",
     "title": "Office Space for Lease Blair Athol | APN Real Estate",

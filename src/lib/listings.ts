@@ -6,10 +6,9 @@
 
 import data from '../data/listings.json';
 
-/** 'office': one of the offices in APN's Blair Athol building, listed in
- *  PropertyMe as an "Office" rental. Not shown on /rent/ and no page of
- *  its own; it belongs on /office-space/. */
-export type ListingSection = 'buy' | 'rent' | 'sold' | 'office';
+/** 'commercial': a lease that isn't a home (PropertyMe's "Offices",
+ *  "Retail", "Other"...), shown on /commercial/ rather than /rent/. */
+export type ListingSection = 'buy' | 'rent' | 'sold' | 'commercial';
 
 export interface ListingAgent {
   name: string;
@@ -43,10 +42,15 @@ export interface Listing {
   carSpaces?: number;
   landArea?: string;
   buildingArea?: string;
-  /** Main photo first. PropertyMe's photos are paths on this site
-   *  (/listing-photo/...), served by functions/listing-photo/[file].ts;
-   *  any others are full https:// URLs. */
+  /** Main photo first, up to 1600px wide. PropertyMe's are paths on this
+   *  site: /listing-photos/... (the feed server's WebP copies), or
+   *  /listing-photo/... (fetched from PropertyMe by
+   *  functions/listing-photo/[file].ts) until a copy exists. Any others
+   *  are full https:// URLs. */
   photos?: string[];
+  /** The same photos, in the same order, at up to 800px for cards and
+   *  thumbnails (the same file as `photos` where there's no smaller copy). */
+  thumbs?: string[];
   floorplans?: string[];
   /** As the feed words them, e.g. "11-Oct-2026 10:00am to 10:15am".
    *  Past ones are dropped at build time. */
@@ -57,6 +61,10 @@ export interface Listing {
   agents?: ListingAgent[];
   /** Sold listings: YYYY-MM-DD. */
   soldDate?: string;
+  /** Commercial space in one of APN's own office buildings. Blair Athol's
+   *  offices are shown on /office-space/ and have no page of their own;
+   *  their cards link there. */
+  apnBuilding?: 'blair-athol' | 'mount-gambier';
   /** Last change in PropertyMe, YYYY-MM-DDTHH:MM:SS (PropertyMe sends UTC). */
   modified?: string;
 }
@@ -64,6 +72,17 @@ export interface Listing {
 export const LISTINGS = data as unknown as Listing[];
 
 export const listingsIn = (section: ListingSection) => LISTINGS.filter((l) => l.section === section);
+
+/** Photo `i` for a card or thumbnail: the 800px copy where there is one. */
+export const thumb = (l: Listing, i: number) => l.thumbs?.[i] ?? l.photos?.[i];
+
+/** srcset for photo `i` shown large: both sizes, so phones load the 800px
+ *  copy. Undefined when there's only one size. */
+export function photoSrcSet(l: Listing, i: number): string | undefined {
+  const big = l.photos?.[i];
+  const small = l.thumbs?.[i];
+  return big && small && small !== big ? `${small} 800w, ${big} 1600w` : undefined;
+}
 
 /** "2/14 Smith Street, Blair Athol", or just the suburb when the street
  *  is hidden. Matches listingAddress in scripts/routes.mjs. */

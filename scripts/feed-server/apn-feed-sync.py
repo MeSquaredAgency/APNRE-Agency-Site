@@ -43,8 +43,11 @@ LOCK = Path('/var/lib/apn-feed/lock')
 PHOTOS = Path('/var/www/feed/photos')
 MANIFEST = PHOTOS / 'manifest.json'
 PROPERTYME_MEDIA = re.compile(r'^https?://docs\.propertyme\.com/listing/([\w-]+\.(?:jpe?g|png|gif|webp))$', re.IGNORECASE)
-# PropertyMe's photos are 800px wide; floor plans can be bigger.
+# Each photo is kept at up to 1600px wide (sale photos often arrive
+# bigger) for a listing's main photo, plus an 800px copy for cards and
+# thumbnails.
 MAX_WIDTH = 1600
+SMALL_WIDTH = 800
 # Wait until nothing has changed for this long, so a burst of uploads
 # (PropertyMe updating several listings at once) becomes one rebuild.
 SETTLE_SECONDS = 120
@@ -140,26 +143,42 @@ def copy_photos(names):
     run. Returns the manifest entries for `names`."""
     from PIL import Image, ImageOps  # apt install python3-pil
 
+    def save(img, width, out):
+        if img.width > width:
+            img = img.resize((width, round(img.height * width / img.width)), Image.LANCZOS)
+        tmp = PHOTOS / (out + '.tmp')
+        img.save(tmp, 'WEBP', quality=80)
+        tmp.chmod(0o644)
+        os.replace(tmp, PHOTOS / out)
+        return img
+
     PHOTOS.mkdir(parents=True, exist_ok=True)
     manifest = json.loads(MANIFEST.read_text()) if MANIFEST.exists() else {}
     for name in sorted(names):
         entry = manifest.get(name)
-        if entry and (PHOTOS / entry['file']).exists():
-            continue
+        stem = Path(name).stem
         try:
+            if entry and (PHOTOS / entry['file']).exists():
+                if entry.get('small') and (PHOTOS / entry['small']).exists():
+                    continue
+                # Copied before small versions existed: make one from the
+                # copy rather than downloading it again.
+                save(Image.open(PHOTOS / entry['file']), SMALL_WIDTH, f'{stem}-{SMALL_WIDTH}.webp')
+                entry['small'] = f'{stem}-{SMALL_WIDTH}.webp'
+                continue
             with urllib.request.urlopen(f'http://docs.propertyme.com/listing/{name}', timeout=60) as res:
                 raw = res.read()
             img = ImageOps.exif_transpose(Image.open(io.BytesIO(raw)))
             if img.mode not in ('RGB', 'RGBA'):
                 img = img.convert('RGBA' if 'transparency' in img.info or 'A' in img.getbands() else 'RGB')
-            if img.width > MAX_WIDTH:
-                img = img.resize((MAX_WIDTH, round(img.height * MAX_WIDTH / img.width)), Image.LANCZOS)
-            out = Path(name).stem + '.webp'
-            tmp = PHOTOS / (out + '.tmp')
-            img.save(tmp, 'WEBP', quality=80)
-            tmp.chmod(0o644)
-            os.replace(tmp, PHOTOS / out)
-            manifest[name] = {'file': out, 'width': img.width, 'height': img.height}
+            big = save(img, MAX_WIDTH, f'{stem}.webp')
+            save(big, SMALL_WIDTH, f'{stem}-{SMALL_WIDTH}.webp')
+            manifest[name] = {
+                'file': f'{stem}.webp',
+                'small': f'{stem}-{SMALL_WIDTH}.webp',
+                'width': big.width,
+                'height': big.height,
+            }
         except Exception as err:  # one bad photo shouldn't stop the rest
             print(f'{datetime.now().isoformat(timespec="seconds")} photo {name} not copied: {err}')
     tmp = MANIFEST.with_suffix('.tmp')
