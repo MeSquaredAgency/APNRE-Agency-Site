@@ -50,17 +50,20 @@ Other; anything not a REAXML home type, in `RESIDENTIAL` in
 with its own page. Two addresses are APN's own buildings
 (`apnBuildingOf`):
 
-- **420 Main North Road, Blair Athol:** these offices have no page of
-  their own. They show under "Listed now" on `/office-space/`, with
-  their photos, and their cards on `/commercial/` link there. The floor
-  plan's available and occupied rooms still come from
-  `src/data/office-space.ts`, because PropertyMe's suite numbers haven't
-  been matched to the plan's office numbers yet.
+- **420 Main North Road, Blair Athol:** PropertyMe has one listing for
+  the whole floor ("Shared Office Spaces - Private Rooms"), with no page
+  of its own. Its photos are the "Take a look inside" gallery on
+  `/office-space/`, and its card on `/commercial/` links there with the
+  page's own "from" price. Each room's availability still comes from
+  `src/data/office-space.ts`.
 - **178 Commercial Street East, Mount Gambier:** listed on
   `/commercial/` like the rest, with a note that it's in APN's own
   building.
 
 Commercial property *for sale* stays on `/buy/`.
+
+PropertyMe puts a street's direction in the suburb ("Commercial St" in
+"E Mount Gambier"); `splitSuburb` moves it back onto the street.
 
 Only current listings for sale or rent and recent sales (the latest 24)
 show up. Leased, withdrawn and off-market listings drop off at the next

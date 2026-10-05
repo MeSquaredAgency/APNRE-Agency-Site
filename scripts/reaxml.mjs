@@ -72,12 +72,22 @@ function inspectionDay(s) {
   return `${m[3]}-${month}-${m[1].padStart(2, '0')}`;
 }
 
+/** PropertyMe puts a street's direction in the suburb: "Commercial St"
+ *  in "E Mount Gambier" for Commercial Street East. Splits it back out. */
+function splitSuburb(raw) {
+  const m = raw.match(/^([NSEW])\s+(\S.*)$/i);
+  return m ? { direction: m[1].toUpperCase(), suburb: m[2] } : { direction: '', suburb: raw };
+}
+
+/** "Commercial St" + "E" → "Commercial St E". */
+const streetName = (address, direction) => [titleCase(text(address.street)), direction].filter(Boolean).join(' ');
+
 /** "1/39" + "Main Road", or '' when the street address is hidden. */
-function streetLine(address) {
+function streetLine(address, direction) {
   if (!address || attr(address, 'display') === 'no') return '';
   const number = [text(address.subNumber), text(address.streetNumber)].filter(Boolean).join('/');
   const lot = !number && text(address.lotNumber) ? `Lot ${text(address.lotNumber)}` : '';
-  return [number || lot, titleCase(text(address.street))].filter(Boolean).join(' ');
+  return [number || lot, streetName(address, direction)].filter(Boolean).join(' ');
 }
 
 // PropertyMe hosts listing photos and floor plans at
@@ -203,10 +213,9 @@ const RESIDENTIAL = new Set(
 
 /** Space in one of APN's own office buildings, which APN leases out
  *  itself: Blair Athol's has its own page (/office-space/). */
-function apnBuildingOf(address) {
+function apnBuildingOf(address, street, suburbName) {
   const number = `${text(address.subNumber)} ${text(address.streetNumber)}`;
-  const street = text(address.street);
-  const suburb = text(address.suburb).toLowerCase();
+  const suburb = suburbName.toLowerCase();
   if (suburb === 'blair athol' && /\b420b?\b/i.test(number) && /main\s+n(orth|th)?\.?\s+r(oa)?d/i.test(street)) {
     return 'blair-athol';
   }
@@ -246,12 +255,14 @@ function toListing(type, node, agentId) {
 
   const address = node.address ?? {};
   const suburbHidden = attr(address.suburb, 'display') === 'no';
-  const suburb = suburbHidden ? '' : titleCase(text(address.suburb));
-  const street = streetLine(address);
+  const { direction, suburb: suburbName } = splitSuburb(text(address.suburb));
+  const suburb = suburbHidden ? '' : titleCase(suburbName);
+  const street = streetLine(address, direction);
   const state = text(address.state).toUpperCase();
   const postcode = text(address.postcode);
   if (!suburb && !street) return { skip: 'no address to show' };
-  const apnBuilding = section === 'commercial' ? apnBuildingOf(address) : undefined;
+  const apnBuilding =
+    section === 'commercial' ? apnBuildingOf(address, streetName(address, direction), suburbName) : undefined;
 
   const features = node.features ?? {};
   const land = node.landDetails ?? {};

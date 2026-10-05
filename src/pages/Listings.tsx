@@ -83,7 +83,12 @@ export function ListingCard({ listing }: { listing: Listing }) {
           {badge && <span className="listing-card__badge">{badge}</span>}
         </div>
         <div className="listing-card__body">
-          <p className="listing-card__price">{listing.price}</p>
+          <p className="listing-card__price">
+            {/* PropertyMe's price line for these is a description ("Shared
+                Office Spaces - Private Rooms"); /office-space/'s own price
+                is clearer. */}
+            {listing.apnBuilding === 'blair-athol' ? `From $${OFFICE_RENT_FROM} a week incl. GST` : listing.price}
+          </p>
           <h3 className="listing-card__address">{listing.street ?? listing.suburb}</h3>
           <p className="listing-card__meta">
             {[listing.street ? listing.suburb : '', listing.category].filter(Boolean).join(' · ')}

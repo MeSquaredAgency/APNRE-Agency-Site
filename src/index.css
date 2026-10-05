@@ -1324,60 +1324,6 @@ input, select, textarea {
   border-left: 2px solid var(--lime);
   color: var(--ink) !important;
 }
-
-/* Blair Athol offices from the PropertyMe feed (src/pages/OfficeSpace.tsx). */
-.listed-offices {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 32px;
-}
-.listed-office {
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-  gap: 32px;
-  padding: 24px;
-  background: var(--white);
-  border-top: 2px solid var(--lime);
-}
-.listed-office__main {
-  display: block;
-  width: 100%;
-  aspect-ratio: 3 / 2;
-  object-fit: cover;
-  background: var(--stone-2);
-}
-.listed-office__photos summary {
-  margin-top: 12px;
-  cursor: pointer;
-  font-weight: 600;
-}
-.listed-office__body .h-3 {
-  margin: 0 0 4px;
-}
-.listed-office__price {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: 1.4rem;
-}
-.listed-office__meta {
-  margin: 4px 0 16px;
-  color: var(--grey-700);
-}
-.listed-office__headline {
-  font-weight: 600;
-}
-.listed-office__body p:not(.listed-office__price):not(.listed-office__meta) {
-  color: var(--grey-700);
-}
-@media (max-width: 760px) {
-  .listed-office {
-    grid-template-columns: 1fr;
-    gap: 20px;
-    padding: 16px;
-  }
-}
 @media (max-width: 900px) {
   .listing__body {
     grid-template-columns: 1fr;
