@@ -105,7 +105,9 @@ export default function Listing() {
           '@type': 'RealEstateListing',
           url: `${SITE}${path}`,
           name: listing.headline ?? address,
-          ...(listing.photos?.length ? { image: listing.photos } : {}),
+          ...(listing.photos?.length
+            ? { image: listing.photos.map((src) => (src.startsWith('/') ? SITE + src : src)) }
+            : {}),
           ...(listing.description ? { description: listing.description } : {}),
         }}
       />

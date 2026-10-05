@@ -40,7 +40,9 @@ export interface Listing {
   carSpaces?: number;
   landArea?: string;
   buildingArea?: string;
-  /** Main photo first. Hosted by PropertyMe. */
+  /** Main photo first. PropertyMe's photos are paths on this site
+   *  (/listing-photo/...), served by functions/listing-photo/[file].ts;
+   *  any others are full https:// URLs. */
   photos?: string[];
   floorplans?: string[];
   /** As the feed words them, e.g. "11-Oct-2026 10:00am to 10:15am".
@@ -52,7 +54,7 @@ export interface Listing {
   agents?: ListingAgent[];
   /** Sold listings: YYYY-MM-DD. */
   soldDate?: string;
-  /** Last change in PropertyMe, YYYY-MM-DDTHH:MM:SS (Adelaide time). */
+  /** Last change in PropertyMe, YYYY-MM-DDTHH:MM:SS (PropertyMe sends UTC). */
   modified?: string;
 }
 

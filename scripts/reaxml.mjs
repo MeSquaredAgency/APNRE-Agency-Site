@@ -50,8 +50,8 @@ function titleCase(s) {
 }
 
 /** REAXML dates: "2026-10-02-14:30:00", "2026-10-02T14:30:00" or
- *  "20261002143000". Returned as "2026-10-02T14:30:00" (Adelaide time,
- *  as the feed gives it), or '' when unreadable. */
+ *  "20261002143000". Returned as "2026-10-02T14:30:00", in whatever
+ *  time zone the feed uses (PropertyMe's is UTC), or '' when unreadable. */
 export function normaliseTime(value) {
   const s = String(value ?? '').trim();
   let m = s.match(/^(\d{4})-(\d{2})-(\d{2})(?:[-T ](\d{2}):(\d{2})(?::(\d{2}))?)?/);
@@ -80,23 +80,37 @@ function streetLine(address) {
   return [number || lot, titleCase(text(address.street))].filter(Boolean).join(' ');
 }
 
-function photos(objects) {
-  const imgs = (objects?.img ?? [])
+// PropertyMe hosts listing photos and floor plans at
+// http://docs.propertyme.com/listing/<file>, which has no https. An
+// https page can't show http images (browsers block or upgrade them), so
+// the site serves them itself from /listing-photo/<file>
+// (functions/listing-photo/[file].ts), which fetches and caches them.
+const PROPERTYME_FILE = /^https?:\/\/docs\.propertyme\.com\/listing\/([\w-]+\.(?:jpe?g|png|gif|webp))$/i;
+
+/** Where the page loads a feed photo or floor plan from. */
+export function mediaUrl(url) {
+  const pm = url.match(PROPERTYME_FILE);
+  if (pm) return `/listing-photo/${pm[1]}`;
+  // Anything else: ask for https, which browsers would try anyway.
+  return url.replace(/^http:\/\//i, 'https://');
+}
+
+function photos(node) {
+  // REAXML puts photos in <objects>; PropertyMe uses <images>.
+  const imgs = [...(node.images?.img ?? []), ...(node.objects?.img ?? [])]
     .map((img) => ({ id: attr(img, 'id'), url: attr(img, 'url') }))
     // An <img> with no url is REAXML for "this photo was removed".
     .filter((img) => /^https?:\/\//i.test(img.url));
   // "m" is the main photo, then "a", "b", ... in order.
   imgs.sort((a, b) => (a.id === 'm' ? -1 : b.id === 'm' ? 1 : a.id.localeCompare(b.id, 'en', { numeric: true })));
-  // Browsers upgrade http:// images on an https:// page anyway, so ask
-  // for https:// straight away (docs/listings-feed.md: check the test feed).
-  return imgs.map((img) => img.url.replace(/^http:\/\//i, 'https://'));
+  return [...new Set(imgs.map((img) => mediaUrl(img.url)))];
 }
 
 function floorplans(objects) {
   return (objects?.floorplan ?? [])
     .map((f) => attr(f, 'url'))
     .filter((url) => /^https?:\/\//i.test(url))
-    .map((url) => url.replace(/^http:\/\//i, 'https://'));
+    .map(mediaUrl);
 }
 
 function agents(node) {
@@ -126,8 +140,10 @@ function rentPrice(node, rentEl) {
   if (view) return view;
   const rent = num(rentEl);
   if (rent && attr(rentEl, 'display') !== 'no') {
-    const period = attr(rentEl, 'period') || 'week';
-    return `${money(rent)} per ${period === 'annual' ? 'year' : period === 'monthly' ? 'month' : period}`;
+    // PropertyMe says "weekly"; REAXML also allows "week", "monthly", "annual".
+    const period = attr(rentEl, 'period').toLowerCase();
+    const per = /^month/.test(period) ? 'month' : /^(annual|year)/.test(period) ? 'year' : 'week';
+    return `${money(rent)} per ${per}`;
   }
   return 'Contact agent';
 }
@@ -206,11 +222,16 @@ function toListing(type, node, agentId) {
   const modified = normaliseTime(attr(node, 'modTime'));
   const soldDate = section === 'sold' ? normaliseTime(text(node.soldDetails?.soldDate ?? node.soldDetails?.date)).slice(0, 10) : '';
 
-  const pathSlug = slugify([street, suburb, id].filter(Boolean).join(' '));
+  // PropertyMe's IDs are 32-character GUIDs; the first 8 keep the address
+  // short and are still unique in practice (parseFeed falls back to the
+  // whole ID if two ever clash).
+  const shortId = id.length > 12 ? id.slice(0, 8) : id;
+  const pathFor = (idPart) => `/${section}/${slugify([street, suburb, idPart].filter(Boolean).join(' '))}/`;
   const listing = {
     id,
     section,
-    path: `/${section}/${pathSlug}/`,
+    path: pathFor(shortId),
+    fullPath: pathFor(id),
     category: category(type, node),
     headline: text(node.headline),
     description: text(node.description),
@@ -225,7 +246,7 @@ function toListing(type, node, agentId) {
     carSpaces: carSpaces || undefined,
     landArea: area(land.area),
     buildingArea: area(building.area),
-    photos: photos(node.objects),
+    photos: photos(node),
     floorplans: floorplans(node.objects),
     inspections,
     availableFrom: forRent ? normaliseTime(text(node.dateAvailable)).slice(0, 10) || undefined : undefined,
@@ -287,12 +308,14 @@ export function parseFeed(files, { agentId, maxSold = 24 } = {}) {
       skipped.push(`${file} (${text(node.uniqueID) || 'no id'}): ${result.skip}`);
       continue;
     }
-    if (usedPaths.has(result.listing.path)) {
-      skipped.push(`${file}: duplicate path ${result.listing.path}`);
+    const { fullPath, ...listing } = result.listing;
+    if (usedPaths.has(listing.path)) listing.path = fullPath;
+    if (usedPaths.has(listing.path)) {
+      skipped.push(`${file}: duplicate path ${listing.path}`);
       continue;
     }
-    usedPaths.add(result.listing.path);
-    listings.push(result.listing);
+    usedPaths.add(listing.path);
+    listings.push(listing);
   }
 
   // Newest first: sold by sale date, the rest by last update.
