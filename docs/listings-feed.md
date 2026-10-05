@@ -25,11 +25,16 @@ PropertyMe ──FTP──▶ feed server ──HTTPS──▶ Cloudflare Pages 
 3. The build (`scripts/fetch-listings.mjs`) downloads the bundle and turns
    it into listings (`scripts/reaxml.mjs`). Each listing then gets its
    own page alongside the rest of the site (`scripts/routes.mjs`).
-4. PropertyMe's photo server (`docs.propertyme.com`) only works over
-   plain http, which an https page can't show. So the pages load photos
-   and floor plans from `/listing-photo/<file>` on the site instead
-   (`functions/listing-photo/[file].ts`), which fetches them from
-   PropertyMe and caches them at Cloudflare.
+4. Photos. PropertyMe's (on `docs.propertyme.com`) are 800px JPEGs of
+   about 200 KB each, over plain http only, and PropertyMe deletes them
+   about a month after upload. So the feed server downloads each photo
+   and floor plan once, while it's there, and keeps a WebP copy (about
+   30 KB) in `/var/www/feed/photos/`. The build downloads the copies into
+   the site as `/listing-photos/<file>.webp`, cached for a year. A photo
+   the server hasn't copied yet loads from `/listing-photo/<file>`
+   instead (`functions/listing-photo/[file].ts`), which fetches it from
+   PropertyMe. A photo that failed to copy is retried each night; the
+   failures are in `/var/log/apn-feed.log`.
 
 A new or changed listing shows on the site about 10 minutes after it's
 saved in PropertyMe: up to 7 minutes for the server to notice, then the

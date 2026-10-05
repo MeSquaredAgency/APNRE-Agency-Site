@@ -36,6 +36,12 @@
 /og/*
   Cache-Control: public, max-age=86400
 
+# Listing photos copied from PropertyMe by the feed server
+# (docs/listings-feed.md). Each upload gets a new name, so a file never
+# changes: safe to cache for a year.
+/listing-photos/*
+  Cache-Control: public, max-age=31536000, immutable
+
 # Blog photos keep the names the post refers to, so the same rule as the
 # video: a day, then revalidate in the background.
 /blog-images/*

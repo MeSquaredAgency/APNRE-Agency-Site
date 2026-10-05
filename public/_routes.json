@@ -1,5 +1,5 @@
 {
   "version": 1,
   "include": ["/*"],
-  "exclude": ["/assets/*", "/fonts/*", "/video/*", "/og/*", "/blog-images/*"]
+  "exclude": ["/assets/*", "/fonts/*", "/video/*", "/og/*", "/blog-images/*", "/listing-photos/*"]
 }

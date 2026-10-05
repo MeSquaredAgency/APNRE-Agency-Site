@@ -5,14 +5,21 @@ inbox, it bundles them into one JSON file for the site's build to
 download (served by Caddy, behind a token) and asks Cloudflare Pages to
 rebuild the site.
 
+It also keeps WebP copies of each listing's photos and floor plans
+(copy_photos), because PropertyMe's are slow, heavy JPEGs that it
+deletes about a month after upload.
+
   apn-feed-sync.py           rebuild only if the inbox changed
-  apn-feed-sync.py --daily   rebuild anyway, so past inspection times drop off
+  apn-feed-sync.py --daily   rebuild anyway, so past inspection times drop
+                             off, and retry any photo that failed to copy
 
 Settings come from /etc/apn-feed.env (see setup step 7):
   DEPLOY_HOOK_URL   the Cloudflare Pages deploy hook
 """
 
+import fcntl
 import hashlib
+import io
 import json
 import os
 import re
@@ -29,6 +36,15 @@ BUNDLE = Path('/var/www/feed/listings.json')
 # Older versions of each listing, moved out of the inbox (see archive_old).
 ARCHIVE = Path('/srv/propertyme-archive')
 STATE = Path('/var/lib/apn-feed/last-sync')
+LOCK = Path('/var/lib/apn-feed/lock')
+# WebP copies of the feed's photos, served (behind the same token as the
+# bundle) for the site's build to download. manifest.json maps each
+# PropertyMe file name to its copy.
+PHOTOS = Path('/var/www/feed/photos')
+MANIFEST = PHOTOS / 'manifest.json'
+PROPERTYME_MEDIA = re.compile(r'^https?://docs\.propertyme\.com/listing/([\w-]+\.(?:jpe?g|png|gif|webp))$', re.IGNORECASE)
+# PropertyMe's photos are 800px wide; floor plans can be bigger.
+MAX_WIDTH = 1600
 # Wait until nothing has changed for this long, so a burst of uploads
 # (PropertyMe updating several listings at once) becomes one rebuild.
 SETTLE_SECONDS = 120
@@ -100,6 +116,59 @@ def archive_old(files):
     return left
 
 
+def media_names(files):
+    """PropertyMe file names of every photo and floor plan in the files."""
+    names = set()
+    for path in files:
+        try:
+            root = ET.parse(path).getroot()
+        except (ET.ParseError, OSError):
+            continue
+        for el in root.iter():
+            if el.tag in ('img', 'floorplan'):
+                match = PROPERTYME_MEDIA.match((el.get('url') or '').strip())
+                if match:
+                    names.add(match.group(1))
+    return names
+
+
+def copy_photos(names):
+    """Downloads each photo or floor plan not copied yet, while PropertyMe
+    still has it, and saves it as WebP (about a seventh of the size).
+    Copies are kept, so a listing keeps its photos after PropertyMe
+    deletes them. A failed download is logged and retried on a later
+    run. Returns the manifest entries for `names`."""
+    from PIL import Image, ImageOps  # apt install python3-pil
+
+    PHOTOS.mkdir(parents=True, exist_ok=True)
+    manifest = json.loads(MANIFEST.read_text()) if MANIFEST.exists() else {}
+    for name in sorted(names):
+        entry = manifest.get(name)
+        if entry and (PHOTOS / entry['file']).exists():
+            continue
+        try:
+            with urllib.request.urlopen(f'http://docs.propertyme.com/listing/{name}', timeout=60) as res:
+                raw = res.read()
+            img = ImageOps.exif_transpose(Image.open(io.BytesIO(raw)))
+            if img.mode not in ('RGB', 'RGBA'):
+                img = img.convert('RGBA' if 'transparency' in img.info or 'A' in img.getbands() else 'RGB')
+            if img.width > MAX_WIDTH:
+                img = img.resize((MAX_WIDTH, round(img.height * MAX_WIDTH / img.width)), Image.LANCZOS)
+            out = Path(name).stem + '.webp'
+            tmp = PHOTOS / (out + '.tmp')
+            img.save(tmp, 'WEBP', quality=80)
+            tmp.chmod(0o644)
+            os.replace(tmp, PHOTOS / out)
+            manifest[name] = {'file': out, 'width': img.width, 'height': img.height}
+        except Exception as err:  # one bad photo shouldn't stop the rest
+            print(f'{datetime.now().isoformat(timespec="seconds")} photo {name} not copied: {err}')
+    tmp = MANIFEST.with_suffix('.tmp')
+    tmp.write_text(json.dumps(manifest))
+    tmp.chmod(0o644)
+    os.replace(tmp, MANIFEST)
+    return {name: manifest[name] for name in names if name in manifest}
+
+
 def decode(raw):
     # REAXML is usually UTF-8, but older feeds use Windows-1252.
     try:
@@ -108,9 +177,11 @@ def decode(raw):
         return raw.decode('cp1252', errors='replace')
 
 
-def write_bundle(files):
+def write_bundle(files, photos):
     bundle = {
         'generatedAt': datetime.now(timezone.utc).isoformat(timespec='seconds'),
+        # PropertyMe file name → our copy in photos/ (copy_photos).
+        'photos': photos,
         'files': [
             {
                 'name': str(p.relative_to(INBOX)),
@@ -148,7 +219,7 @@ def main():
 
     files = archive_old(files)
     sig = signature(files)
-    write_bundle(files)
+    write_bundle(files, copy_photos(media_names(files)))
     hook = read_env().get('DEPLOY_HOOK_URL', '')
     if not hook:
         # Setup step 7 isn't done yet. The bundle is ready; the rebuild is
@@ -165,4 +236,12 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    # Copying a new listing's photos can outlast the 5 minutes between
+    # cron runs, so only one run at a time.
+    LOCK.parent.mkdir(parents=True, exist_ok=True)
+    with open(LOCK, 'w') as lock:
+        try:
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            sys.exit(0)
+        main()

@@ -20,4 +20,5 @@ public/sitemap.xml
 public/og/
 # Written by scripts/fetch-listings.mjs from the listings feed
 src/data/listings.json
+public/listing-photos/
 dist-ssr/
