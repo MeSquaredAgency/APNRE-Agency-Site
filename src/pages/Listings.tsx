@@ -235,7 +235,7 @@ export function Rent() {
         title="Properties for rent."
         lede="Rental homes available now across Adelaide and Mount Gambier."
         photo={RENT_HERO?.photo ?? interior}
-        photoAlt={RENT_HERO ? RENT_HERO.alt : 'Floor-to-ceiling corner windows in a rental property managed by APN'}
+        photoAlt={RENT_HERO ? RENT_HERO.alt : 'Floor-to-ceiling corner windows in a rental property managed by APN Real Estate'}
       />
       <ListingsGrid
         section="rent"
@@ -256,7 +256,7 @@ export function Rent() {
         <EnquiryForm kind="tenant-register" submitLabel="Get Rental Alerts" />
       </FormSection>
       <CtaBand
-        title="Already renting with APN?"
+        title="Already renting with APN Real Estate?"
         copy="Report a repair or maintenance issue with your rental property."
         href="/client-hub/tenants/#repairs"
         label="Report a Repair"
@@ -271,7 +271,7 @@ export function Sold() {
       <PageHero
         eyebrow="Sold"
         title="Recently sold."
-        lede="Properties APN has recently sold across Adelaide and Mount Gambier."
+        lede="Properties APN Real Estate has recently sold across Adelaide and Mount Gambier."
         photo={soldSign}
         photoAlt="An Adelaide Property Network SOLD sign outside a brick home"
         focalPoint="70% center"

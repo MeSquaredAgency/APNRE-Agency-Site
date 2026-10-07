@@ -11,15 +11,13 @@ import type { OfficeId } from './offices';
  *  e.g. a property manager who also sells. */
 export type TeamGroup = 'sales' | 'property-management' | 'leadership';
 
-// TODO(title-matrix): every `role` below should match the title/role
-// matrix Patrick sent for the email signatures (the source of truth). It
-// hasn't been supplied, so the titles are unchanged. Cards, profile pages
-// and structured data all read `role`.
+// Every `role` and `registration` below comes from the title matrix
+// Patrick sent for the email signatures (October 2026), which is the
+// source of truth. Cards, profile pages and structured data all read them.
 //
-// TODO(registration-numbers): each person's individual RLA/registration
-// number, as it should be shown, e.g. 'RLA 123456' or
-// 'Registration no. 123456'. Cards on /selling/ and /leasing/ and the
-// profile pages show it once it's filled in.
+// TODO(registration-numbers): Jenny's RLA number (the matrix has
+// "RLA XXXXX"). Breeanna's line in the matrix reads "Command Centre"
+// rather than a registration, so she has none here.
 
 export interface TeamMember {
   name: string;
@@ -62,17 +60,18 @@ export function teamMemberId(name: string): string {
 export const TEAM: TeamMember[] = [
   {
     name: 'Luke Whittaker',
-    role: 'Property Manager, Mount Gambier',
+    role: 'Region Manager (Mount Gambier)',
+    registration: 'Registered Sales Representative RSR 356548',
     initials: 'LW',
     photo: lukePhoto,
-    photoAlt: 'Luke Whittaker, Property Manager, Mount Gambier',
+    photoAlt: 'Luke Whittaker, Region Manager, Mount Gambier',
     // Sales and leadership too: he works across commercial sales and
     // assists with residential sales, and the director's review puts him
     // in Management alongside Brett.
     groups: ['property-management', 'sales', 'leadership'],
     office: 'mount-gambier',
     // Supplied by Luke, October 2026. "14 months" is as of then.
-    bio: 'Luke is a Property Manager at our Mount Gambier office. He has spent 14 months in property management, all of it with APN, and is known for taking on complex tenancies and difficult insurance claims with a steady, methodical approach. As well as residential property management, he works across commercial sales and leasing and assists with residential sales. Outside work, he’s a family man who spends his weekends watching F1, AFL, soccer and cricket.',
+    bio: 'Luke is APN Real Estate’s Region Manager for Mount Gambier. He has spent 14 months in property management, all of it with APN Real Estate, and is known for taking on complex tenancies and difficult insurance claims with a steady, methodical approach. As well as residential property management, he works across commercial sales and leasing and assists with residential sales. Outside work, he’s a family man who spends his weekends watching F1, AFL, soccer and cricket.',
     expertise: [
       'Complex tenancy management',
       'Insurance claims',
@@ -83,55 +82,58 @@ export const TEAM: TeamMember[] = [
   },
   {
     name: 'Marissa Bowell',
-    role: 'Property Manager / Sales Representative',
+    role: 'Property Manager (Greater Northern)',
+    registration: 'Licensed Land Agent RLA 358014',
     initials: 'MB',
     photo: marissaPhoto,
-    photoAlt: 'Marissa Bowell, Property Manager and Sales Representative, Blair Athol',
+    photoAlt: 'Marissa Bowell, Property Manager (Greater Northern), Blair Athol',
     groups: ['property-management', 'sales'],
     office: 'adelaide',
-    bio: 'Marissa is a Property Manager and Sales Representative at APN, with four years of property management experience — covering tenant screening, lease management and maintenance for landlords, as well as sales. Outside work, she’s the team manager for her son’s local footy team, alongside her husband, who coaches — and otherwise usually active or spending time with family and friends.',
+    bio: 'Marissa is a Property Manager at APN Real Estate, with four years of property management experience — covering tenant screening, lease management and maintenance for landlords, as well as sales. Outside work, she’s the team manager for her son’s local footy team, alongside her husband, who coaches — and otherwise usually active or spending time with family and friends.',
   },
   {
     name: 'Jenny Saffin',
-    role: 'Property Manager',
+    role: 'Property Manager (Leasing & Inspections)',
     initials: 'JS',
     photo: jennyPhoto,
-    photoAlt: 'Jenny Saffin, Property Manager, Mount Gambier',
+    photoAlt: 'Jenny Saffin, Property Manager (Leasing & Inspections), Mount Gambier',
     groups: ['property-management'],
     office: 'mount-gambier',
-    bio: 'Jenny is a Property Manager at APN, working with landlords and tenants for more than two years. She owns an investment property herself, so she manages other people’s properties the way she’d want her own managed. Outside work, she’s usually at the gym, spending time with family and friends, or travelling.',
+    bio: 'Jenny is a Property Manager at APN Real Estate, looking after leasing and inspections, and has been working with landlords and tenants for more than two years. She owns an investment property herself, so she manages other people’s properties the way she’d want her own managed. Outside work, she’s usually at the gym, spending time with family and friends, or travelling.',
   },
   {
     name: 'Breeanna Arney',
-    role: 'Property Management Trainee',
+    role: 'Property Manager (Trainee)',
     initials: 'BA',
     photo: breePhoto,
-    photoAlt: 'Breeanna Arney, Property Management Trainee, Mount Gambier',
+    photoAlt: 'Breeanna Arney, Property Manager (Trainee), Mount Gambier',
     groups: ['property-management'],
     office: 'mount-gambier',
-    bio: 'Breeanna joined APN in 2026 as a Property Management Trainee. She’s learning every part of the job, with a focus on clear communication, maintenance coordination and inspections, and on being helpful to landlords and tenants alike. Outside work, she runs her own cleaning business and is a mum of three, so she’s used to staying organised and on top of the detail through busy days.',
+    bio: 'Breeanna joined APN Real Estate in 2026 as a trainee property manager. She’s learning every part of the job, with a focus on clear communication, maintenance coordination and inspections, and on being helpful to landlords and tenants alike. Outside work, she runs her own cleaning business and is a mum of three, so she’s used to staying organised and on top of the detail through busy days.',
   },
   {
     name: 'Patrick Nhim',
-    role: 'Director',
+    role: 'Director & Founder',
+    registration: 'Licensed Land Agent RLA 255335',
     initials: 'PN',
     photo: patrickPhoto,
-    photoAlt: 'Patrick Nhim, Director',
+    photoAlt: 'Patrick Nhim, Director and Founder',
     groups: ['leadership', 'sales'],
     office: 'adelaide',
     bio: 'Patrick founded the business — originally Adelaide Property Network, now APN Real Estate — and leads its sales team today. Property management sits alongside that sales work rather than apart from it, so Patrick has direct oversight of how the two sides operate together, and a day-to-day view of the Adelaide and Mount Gambier markets that informs decisions made on the property management side for owners.',
   },
   {
     name: 'Brett David',
-    role: 'Regional Manager / Head of Leasing & Accounts',
+    role: 'Region Manager (Adelaide)',
+    registration: 'Licensed Land Agent RLA 357963',
     initials: 'BD',
     photo: brettPhoto,
-    photoAlt: 'Brett David, Regional Manager',
-    // Sales too: he's a licensed sales agent, and the director's review
+    photoAlt: 'Brett David, Region Manager, Adelaide',
+    // Sales too: he's a licensed land agent, and the director's review
     // lists him on the sales page.
     groups: ['leadership', 'property-management', 'sales'],
     office: 'adelaide',
-    bio: 'Brett is APN’s Regional Manager and Head of Leasing & Accounts, and a licensed sales agent. He’s worked in property management for more than six years, managing rental properties for APN landlords and looking after the accounts side of the business. Outside work, he’s usually found fishing in local club tournaments.',
+    bio: 'Brett is APN Real Estate’s Region Manager for Adelaide, and a licensed land agent. He’s worked in property management for more than six years, managing rental properties for APN Real Estate landlords and looking after the accounts side of the business. Outside work, he’s usually found fishing in local club tournaments.',
   },
 ];
 
@@ -142,8 +144,9 @@ export const SALES_PAGE_TEAM = ['Patrick Nhim', 'Brett David', 'Luke Whittaker',
  *  the same size however many are in a group, so adding a name here is
  *  all it takes. */
 export const LEADERSHIP_GROUPS: { title: string; names: string[] }[] = [
-  // TODO(fabienne): add 'Fabienne Nhim' (with her entry in TEAM, a photo
-  // and a route in routes.json) when she's due on the page; not before.
+  // TODO(fabienne): add 'Fabienne Nhim' (HR Director, People & Culture,
+  // per the title matrix) with her entry in TEAM, a photo and a route in
+  // routes.json when she's due on the page; not before.
   { title: 'Directors', names: ['Patrick Nhim'] },
   { title: 'Management', names: ['Brett David', 'Luke Whittaker'] },
 ];

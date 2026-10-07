@@ -54,8 +54,9 @@ export default function Story() {
             <p>
               The business now runs from two offices: Blair Athol in Adelaide’s
               north, and Commercial Street East in Mount Gambier. Brett David,
-              Regional Manager and Head of Leasing &amp; Accounts, looks after
-              leasing and the accounts side of the business.
+              Region Manager for Adelaide, looks after leasing and the accounts
+              side of the business, and Luke Whittaker is Region Manager for
+              Mount Gambier.
             </p>
           </div>
         </div>
@@ -91,9 +92,9 @@ export default function Story() {
         ]}
       />
 
-      <Leadership title="Who runs APN." />
+      <Leadership title="Who runs APN Real Estate." />
       <p className="wrap people__careers">
-        Want to join us? <a href="/careers/">Work with APN</a>.
+        Want to join us? <a href="/careers/">Work with APN Real Estate</a>.
       </p>
       <Offices />
       <CtaBand

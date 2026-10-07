@@ -9,7 +9,7 @@ export default function BlogIndexPage({ posts }: { posts: PostMeta[] }) {
       <PageHero
         eyebrow="Blog"
         title="Property advice."
-        lede="Practical guides on renting, selling and managing property in Adelaide and Mount Gambier, from the APN team."
+        lede="Practical guides on renting, selling and managing property in Adelaide and Mount Gambier, from the APN Real Estate team."
       />
       <section className="section section-white">
         <div className="wrap">
@@ -28,7 +28,7 @@ export default function BlogIndexPage({ posts }: { posts: PostMeta[] }) {
       </section>
       <CtaBand
         title="Got a question about your property?"
-        copy="Ask a local APN agent, or book a free sales or rental appraisal."
+        copy="Ask a local APN Real Estate agent, or book a free sales or rental appraisal."
       />
     </Layout>
   );

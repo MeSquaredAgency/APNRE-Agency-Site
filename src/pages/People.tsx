@@ -33,7 +33,7 @@ export default function People() {
       />
       <Team filterable headless />
       <p className="wrap people__careers">
-        Want to join us? <a href="/careers/">Work with APN</a>.
+        Want to join us? <a href="/careers/">Work with APN Real Estate</a>.
       </p>
       <CtaBand
         title="Want to talk to one of us?"

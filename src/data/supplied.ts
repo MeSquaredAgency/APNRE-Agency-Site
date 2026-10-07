@@ -56,17 +56,19 @@ export interface Logo {
   height: number;
 }
 
-// TODO(supplied-assets): the side-by-side (horizontal) version of the
-// Adelaide Property Network star logo, reversed (light) for the dark
-// header and footer, as a transparent PNG or WebP at
-// src/assets/logo/apn-logo-side-reversed.png. Converted to WebP (which
-// keeps the transparency) at build time. Every logo on the site sits on
-// a dark background, so there's no slot for the dark version.
+// The header and footer logo: the Adelaide and Mount Gambier Property
+// Network logos side by side, reversed (light) for the dark header and
+// footer, at src/assets/logo/apn-logo-side-reversed.png. Made in October
+// 2026 from the logo files APN supplied, with their grey turned the same
+// light tone (#E8E6E0) as adelaide-property-network-logo-reversed.png.
+// Converted to WebP (which keeps the transparency) at build time. Without
+// the file, the header and footer fall back to the Adelaide logo alone.
 const LOGOS = import.meta.glob<Logo>('../assets/logo/apn-logo-side-reversed.{png,webp}', {
   eager: true,
   import: 'default',
   query: '?format=webp&as=metadata',
 });
 
-/** The horizontal logo for dark backgrounds, once supplied. */
+/** The side-by-side logo for dark backgrounds. */
 export const SIDE_LOGO_REVERSED: Logo | undefined = Object.values(LOGOS)[0];
+export const SIDE_LOGO_ALT = 'Adelaide Property Network and Mount Gambier Property Network — APN Real Estate';

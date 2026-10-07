@@ -6,7 +6,7 @@ import { PHONE_DISPLAY, PHONE_TEL } from '../data/business';
 
 const MESSAGES: Record<string, string> = {
   'sales-appraisal': 'A member of our sales team will be in touch to arrange your appraisal.',
-  'rental-appraisal': 'A local APN property manager will review your details and contact you directly.',
+  'rental-appraisal': 'A local APN Real Estate property manager will review your details and contact you directly.',
   'buyer-register': 'We’ll let you know when a property that suits comes up.',
   'tenant-register': 'Our property management team will be in touch if something suitable comes up.',
   careers: 'We’ve got your details and will be in touch if a suitable role comes up.',

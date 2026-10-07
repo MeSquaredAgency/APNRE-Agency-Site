@@ -59,7 +59,7 @@ const FAQS = [
   },
   {
     q: 'Can I sell while the property is tenanted?',
-    a: 'Yes. Because APN does property management as well as sales, we can explain how a sale works with tenants in place, including inspections and notice.',
+    a: 'Yes. Because APN Real Estate does property management as well as sales, we can explain how a sale works with tenants in place, including inspections and notice.',
   },
   {
     q: 'How long does it take to sell?',
@@ -79,7 +79,7 @@ export default function Selling() {
         })}
       />
       <PageHero
-        eyebrow="Selling with APN"
+        eyebrow="Selling with APN Real Estate"
         title="Sell your home in Adelaide or Mount Gambier."
         lede="A clear plan, honest pricing advice and regular updates, from appraisal right through to settlement."
         photo={soldSign}
@@ -95,7 +95,7 @@ export default function Selling() {
           </a>
         </div>
       </PageHero>
-      <Reasons eyebrow="Why sellers choose APN" title="The people behind your sale." items={REASONS} />
+      <Reasons eyebrow="Why sellers choose APN Real Estate" title="The people behind your sale." items={REASONS} />
       <Process eyebrow="Our selling process" title="How a sale works with us." steps={STEPS} />
       <Team names={SALES_PAGE_TEAM} credentials eyebrow="Sales team" title="Who you’ll work with." />
       <Faq
@@ -103,7 +103,7 @@ export default function Selling() {
         items={FAQS}
         more={
           <>
-            Already selling with APN? Go to the <a href="/client-hub/sellers/">seller hub</a>, or{' '}
+            Already selling with APN Real Estate? Go to the <a href="/client-hub/sellers/">seller hub</a>, or{' '}
             <a href="/our-people/?filter=sales">meet the sales team</a>.
           </>
         }

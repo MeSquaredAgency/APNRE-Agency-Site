@@ -63,7 +63,7 @@ export interface Pillar {
   copy: string;
 }
 
-export function Pillars({ items, label = 'About APN' }: { items: Pillar[]; label?: string }) {
+export function Pillars({ items, label = 'About APN Real Estate' }: { items: Pillar[]; label?: string }) {
   return (
     <section className="pillars" aria-label={label}>
       <ul className="wrap pillars__list">
@@ -139,7 +139,7 @@ export function FollowUs({ className = '' }: { className?: string }) {
       <ul className="follow-us__links">
         {links.map((l) => (
           <li key={l.label}>
-            <a href={l.href} target="_blank" rel="noopener noreferrer" aria-label={`APN on ${l.label} (opens in a new tab)`}>
+            <a href={l.href} target="_blank" rel="noopener noreferrer" aria-label={`APN Real Estate on ${l.label} (opens in a new tab)`}>
               <Icon name={l.icon} size={20} />
             </a>
           </li>

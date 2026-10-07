@@ -81,7 +81,7 @@ export default function Home() {
           <span className="eyebrow">Selling or leasing?</span>
           <h2 className="h-1">Start with an honest appraisal.</h2>
           <p className="lede">
-            Tell us about your property and a local APN agent will give you a
+            Tell us about your property and a local APN Real Estate agent will give you a
             realistic view of what it could sell or rent for, based on recent
             results nearby. No obligation.
           </p>
@@ -94,7 +94,7 @@ export default function Home() {
             </a>
           </div>
           <p className="split-feature__more">
-            Or see how we work: <a href="/selling/">selling with APN</a> and{' '}
+            Or see how we work: <a href="/selling/">selling with APN Real Estate</a> and{' '}
             <a href="/leasing/">property management</a>.
           </p>
         </div>
@@ -156,7 +156,7 @@ export default function Home() {
       <Offices />
       <CtaBand
         title="What’s your property worth?"
-        copy="Book a free sales or rental appraisal with a local APN agent. There’s no obligation."
+        copy="Book a free sales or rental appraisal with a local APN Real Estate agent. There’s no obligation."
       />
     </Layout>
   );
