@@ -14,10 +14,8 @@ export type TeamGroup = 'sales' | 'property-management' | 'leadership';
 // Every `role` and `registration` below comes from the title matrix
 // Patrick sent for the email signatures (October 2026), which is the
 // source of truth. Cards, profile pages and structured data all read them.
-//
-// TODO(registration-numbers): Jenny's RLA number (the matrix has
-// "RLA XXXXX"). Breeanna's line in the matrix reads "Command Centre"
-// rather than a registration, so she has none here.
+// Breeanna's line in the matrix reads "Command Centre" rather than a
+// registration, so she has none here.
 
 export interface TeamMember {
   name: string;
@@ -94,6 +92,8 @@ export const TEAM: TeamMember[] = [
   {
     name: 'Jenny Saffin',
     role: 'Property Manager (Leasing & Inspections)',
+    // The matrix had "RLA XXXXX"; Elliot supplied the number on 7 Oct 2026.
+    registration: 'Licensed Property Manager RPM 327884',
     initials: 'JS',
     photo: jennyPhoto,
     photoAlt: 'Jenny Saffin, Property Manager (Leasing & Inspections), Mount Gambier',

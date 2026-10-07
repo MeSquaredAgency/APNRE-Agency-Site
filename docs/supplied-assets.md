@@ -15,7 +15,6 @@ code for `TODO(` to find each one.
 | /rent/ hero: a generic Adelaide/SA property | `src/assets/photos/supplied/rent-hero.jpg`, plus its alt text in `PHOTO_ALT` in `src/data/supplied.ts` | Corner-windows interior |
 | Mount Gambier office, 178 Commercial Street East | `src/assets/photos/supplied/mount-gambier-office.jpg` (alt text already written) | The office's logo on a plain panel |
 | Domain and commercialrealestate.com.au agency profiles (realestate.com.au, realty.com.au and realcommercial.com.au are in) | `PORTALS` in `src/data/business.ts` | Those two aren't shown |
-| Jenny's RLA number (the title matrix has "RLA XXXXX") | `registration` for Jenny in `src/data/team.ts`, written like the others, e.g. `'Licensed Property Manager RLA 123456'` | Not shown |
 | New headshots (Patrick and Brett), and one matching set for every property manager | Replace the files in `src/assets/team/` under the same names. Don't mix styles: either all the new AI-styled shots, or all the 2025 professional photos. | Current photos |
 | ABN | `ABN` in `src/data/business.ts` (footer and privacy policy) | Not shown |
 | me² logo file | `PoweredBy` in `src/components/Footer.tsx` | "me²" set in type |
