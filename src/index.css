@@ -1268,6 +1268,12 @@ input, select, textarea {
 .portal-links__groups dd {
   margin: 0;
 }
+/* Phones: each group's label on its own line, its links wrapping below. */
+@media (max-width: 600px) {
+  .portal-links__groups dt {
+    flex-basis: 100%;
+  }
+}
 .portal-links__groups a {
   display: inline-flex;
   align-items: center;

@@ -14,7 +14,6 @@ code for `TODO(` to find each one.
 | Buyer hub card photo (home) | `src/assets/photos/supplied/hub-buyers.jpg` | Stock house exterior (Pexels) |
 | /rent/ hero: a generic Adelaide/SA property | `src/assets/photos/supplied/rent-hero.jpg`, plus its alt text in `PHOTO_ALT` in `src/data/supplied.ts` | Corner-windows interior |
 | Mount Gambier office, 178 Commercial Street East | `src/assets/photos/supplied/mount-gambier-office.jpg` (alt text already written) | The office's logo on a plain panel |
-| Domain and commercialrealestate.com.au agency profiles (realestate.com.au, realty.com.au and realcommercial.com.au are in) | `PORTALS` in `src/data/business.ts` | Those two aren't shown |
 | ABN | `ABN` in `src/data/business.ts` (footer and privacy policy) | Not shown |
 | me² logo file | `PoweredBy` in `src/components/Footer.tsx` | "me²" set in type |
 | Fabienne Nhim (Directors) | Her entry in `TEAM`, a photo, a route in `src/data/routes.json`, and her name in `LEADERSHIP_GROUPS` (`src/data/team.ts`) | Directors shows Patrick only |
@@ -29,8 +28,10 @@ if it ever changes.
 
 Supplied in October 2026 and already in: the title matrix and registration
 numbers (`src/data/team.ts`), one matching set of headshots for everyone
-(`src/assets/team/`), the Facebook, Instagram, YouTube, realty.com.au
-and realcommercial.com.au links (`src/data/business.ts`), and the header
+(`src/assets/team/`), the Facebook, Instagram and YouTube links and all
+five portal profiles: realestate.com.au, Domain, realty.com.au,
+realcommercial.com.au and commercialrealestate.com.au
+(`src/data/business.ts`), and the header
 and footer logo. That logo is the Adelaide and Mount Gambier Property Network
 logos side by side (`src/assets/logo/apn-logo-side-reversed.png`), made from
 the supplied files with their grey turned light for the dark background.

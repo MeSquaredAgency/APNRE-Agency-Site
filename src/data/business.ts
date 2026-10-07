@@ -58,14 +58,12 @@ export interface ExternalLink {
 export const PORTALS: { residential: ExternalLink[]; commercial: ExternalLink[] } = {
   residential: [
     { label: 'realestate.com.au', href: REA_PROFILE_URL },
-    // TODO(portal-urls): APN's agency profile on Domain.
-    { label: 'Domain', href: '' },
+    { label: 'Domain', href: 'https://www.domain.com.au/real-estate-agencies/mountgambierpropertynetwork-28010/' },
     { label: 'realty.com.au', href: 'https://www.realty.com.au/agency/adelaide-property-network-5334' },
   ],
   commercial: [
     { label: 'realcommercial.com.au', href: 'https://www.realcommercial.com.au/agency/adelaide-property-network-blair-athol-JIASZF' },
-    // TODO(portal-urls): APN's agency profile on commercialrealestate.com.au.
-    { label: 'commercialrealestate.com.au', href: '' },
+    { label: 'commercialrealestate.com.au', href: 'https://www.commercialrealestate.com.au/real-estate-agents/mount-gambier-property-network-28010' },
   ],
 };
 
