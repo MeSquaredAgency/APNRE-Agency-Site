@@ -12,6 +12,8 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 const SECTION_LABEL = { buy: 'For Sale', rent: 'For Rent', sold: 'Sold', commercial: 'For Lease' };
 const SITE = 'https://apnre.com.au';
+/** The listings pages, each showing the listings with that `section`. */
+const LISTING_SECTIONS = Object.keys(SECTION_LABEL);
 
 /** Feed photos can be paths on this site (/listing-photo/...); link
  *  previews need a full URL. */
@@ -63,7 +65,17 @@ export function allRoutes() {
       .map((l) => (l.modified || '').slice(0, 10))
       .sort()
       .pop();
-  const fixed = routes.map((r) => (newest(r.page) ? { ...r, lastmod: newest(r.page) } : r));
+  // An empty /buy/, /rent/, /sold/ or /commercial/ is only a pointer to
+  // realestate.com.au or a "Nothing listed right now" panel, which Google
+  // reports as a soft 404. So it's noindex, and out of the sitemap, until
+  // the feed brings it a listing (each feed change rebuilds the site).
+  const isEmptySection = (page) =>
+    LISTING_SECTIONS.includes(page) && !listings.some((l) => l.section === page);
+  const fixed = routes.map((r) => ({
+    ...r,
+    ...(newest(r.page) ? { lastmod: newest(r.page) } : {}),
+    ...(isEmptySection(r.page) ? { noindex: true } : {}),
+  }));
   // Blair Athol's offices are on /office-space/, not pages of their own.
   return [...fixed, ...listings.filter((l) => l.apnBuilding !== 'blair-athol').map(listingRoute)];
 }
