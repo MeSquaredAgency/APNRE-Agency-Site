@@ -667,17 +667,29 @@ input, select, textarea {
   height: 100%;
   object-fit: cover;
 }
+/* The words sit bottom-left, often over signage, bright sky or a glass
+   wall, so the left side and the bottom are darkened most and the photo
+   shows through on the right. */
 .page-hero__scrim {
   position: absolute;
   inset: 0;
-  background: linear-gradient(0deg, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.35) 55%, rgba(0, 0, 0, 0.45) 100%);
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.68) 45%, rgba(0, 0, 0, 0.36) 75%, rgba(0, 0, 0, 0.2) 100%),
+    linear-gradient(0deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0) 55%);
 }
-/* On phones the text covers most of the photo, often over signage or a
-   busy room, so darken it more evenly behind the words. */
+/* On phones the text covers most of the photo, so darken it evenly. */
 @media (max-width: 760px) {
   .page-hero--photo .page-hero__scrim {
-    background: linear-gradient(0deg, rgba(0, 0, 0, 0.82) 0%, rgba(0, 0, 0, 0.6) 60%, rgba(0, 0, 0, 0.5) 100%);
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.86) 0%, rgba(0, 0, 0, 0.7) 60%, rgba(0, 0, 0, 0.62) 100%);
   }
+}
+/* A soft shadow keeps the edges of the letters crisp where a bright
+   patch of photo still shows through. */
+.page-hero--photo .page-hero__content > * {
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.5);
+}
+.page-hero--photo .btn {
+  text-shadow: none;
 }
 /* Crossfading hero photos (HeroSlides.tsx). Each slide drifts in a
    little as it fades up; reduced motion turns both off (see the top of
@@ -787,7 +799,7 @@ input, select, textarea {
   margin-bottom: 20px;
 }
 .page-hero .lede {
-  color: rgba(255, 255, 255, 0.86);
+  color: rgba(255, 255, 255, 0.92);
 }
 .page-hero__actions {
   display: flex;
