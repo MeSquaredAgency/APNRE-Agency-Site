@@ -2,26 +2,15 @@
 
 ## Photos
 
-The team is split into two groups: **Property Management** (Jenny, Luke,
-Breeanna, Marissa — a four-up grid, `.team__grid`, circular portraits) and
-**Leadership / Sales** (Patrick, Brett — wider "spotlight" cards,
-`.team__leader`, since one person alone in a grid tile reads as an
-accident rather than a deliberate layout).
+Everyone's headshot comes from one matching set supplied in October 2026
+(office background, city window, dark jacket), as the director's review
+asked: never mix styles. The originals were 1024×1536; each was cropped
+to the site's 4:5 frame (1024×1280) with the eyes a third of the way
+down, so faces sit level across a row of cards. The crop is baked into
+the files in `src/assets/team/`, so `focalPoint` isn't needed.
 
-The four property-management photos were originally different distances/
-zoom levels (some tightly framed close-ups, some wider with more shoulder
-and background visible), which made the row read as "not level" even
-though the four circle containers were pixel-identical. `object-position`
-(the `focalPoint` field) can't fix that on its own — it can only shift
-*which part* of an image shows, not rescale a subject who was framed
-closer or further away. The actual fix was cropping each source photo
-(`src/assets/team/*.jpg`) to a consistent head size and eye-line
-*before* it reaches the browser — see the crop commands in git history
-if a new photo needs the same treatment. All four are now pre-cropped to
-an exact 640×640 square, so `focalPoint` is unused for this group (it's a
-no-op once width/height already match the box exactly). Brett's and
-Patrick's leadership photos aren't part of this row-alignment constraint
-since each sits in its own card, not a shared row.
+To add or replace someone, use a photo from the same set (or a new set
+for everyone), crop it the same way, and save it under the same name.
 
 ## Bios
 
