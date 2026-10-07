@@ -321,6 +321,13 @@ input, select, textarea {
   height: 58px;
   width: auto;
 }
+/* The horizontal logo (src/data/supplied.ts) is wide, so it sits lower. */
+.site-header__logo--side {
+  height: 44px;
+  max-width: 260px;
+  object-fit: contain;
+  object-position: left center;
+}
 .site-header__nav {
   display: flex;
   gap: 32px;
@@ -448,6 +455,10 @@ input, select, textarea {
   .site-header__logo {
     height: 46px;
   }
+  .site-header__logo--side {
+    height: 36px;
+    max-width: 190px;
+  }
   .site-header__cta {
     display: none;
   }
@@ -510,12 +521,26 @@ input, select, textarea {
 }
 .video-hero .h-display {
   margin-bottom: 18px;
+  text-wrap: balance;
 }
-/* On phones the forced line break after "Mount Gambier" makes a ragged
-   four-line heading; let it wrap (balanced) instead. */
+.video-hero__eyebrow {
+  color: var(--white);
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.45);
+}
+.video-hero__short {
+  display: none;
+}
+/* On phones the forced line break after "real estate," makes a ragged
+   heading; let it wrap (balanced) instead. */
 @media (max-width: 600px) {
   .video-hero .h-display br {
     display: none;
+  }
+  .video-hero__long {
+    display: none;
+  }
+  .video-hero__short {
+    display: inline;
   }
 }
 .video-hero__sub {
@@ -1141,10 +1166,18 @@ input, select, textarea {
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-.listing-card__badge {
+.listing-card__badges {
   position: absolute;
   top: 12px;
   left: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+/* Lime, so it reads as a type rather than a status like "Under offer". */
+.listing-card__badge--commercial {
+  background: var(--lime);
+  color: var(--ink);
 }
 .listing-card__body {
   padding-top: 16px;
@@ -1187,6 +1220,98 @@ input, select, textarea {
 .listing-grid__more {
   margin: 40px 0 0;
   color: var(--grey-700);
+}
+/* Residential / Commercial chips on /buy/. */
+.listing-filter {
+  margin: -16px 0 32px;
+}
+
+/* ---------- Portal and social links, under the listings ---------- */
+
+.portal-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 28px 48px;
+  margin-top: 48px;
+  padding-top: 28px;
+  border-top: 1px solid var(--line);
+}
+.listings-panel + .wrap .portal-links {
+  margin-top: 40px;
+}
+.portal-links__title,
+.follow-us__title {
+  margin: 0 0 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--grey-500);
+}
+.portal-links__groups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 40px;
+  margin: 0;
+}
+.portal-links__groups > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 20px;
+}
+.portal-links__groups dt {
+  color: var(--grey-700);
+  font-size: 0.9rem;
+}
+.portal-links__groups dd {
+  margin: 0;
+}
+.portal-links__groups a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--lime);
+  text-underline-offset: 4px;
+}
+.follow-us__links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 8px;
+}
+.follow-us__links a {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  color: var(--ink);
+  transition: border-color 0.2s, background 0.2s;
+}
+.follow-us__links a:hover {
+  border-color: var(--ink);
+}
+/* In the footer. */
+.follow-us--dark {
+  margin-top: 28px;
+}
+.follow-us--dark .follow-us__title {
+  color: rgba(255, 255, 255, 0.55);
+}
+.follow-us--dark .follow-us__links a {
+  border-color: var(--line-dark);
+  color: var(--white);
+}
+.follow-us--dark .follow-us__links a:hover {
+  border-color: var(--lime);
 }
 @media (max-width: 1000px) {
   .listing-grid {
@@ -1323,60 +1448,6 @@ input, select, textarea {
   background: var(--lime-wash);
   border-left: 2px solid var(--lime);
   color: var(--ink) !important;
-}
-
-/* Blair Athol offices from the PropertyMe feed (src/pages/OfficeSpace.tsx). */
-.listed-offices {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 32px;
-}
-.listed-office {
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-  gap: 32px;
-  padding: 24px;
-  background: var(--white);
-  border-top: 2px solid var(--lime);
-}
-.listed-office__main {
-  display: block;
-  width: 100%;
-  aspect-ratio: 3 / 2;
-  object-fit: cover;
-  background: var(--stone-2);
-}
-.listed-office__photos summary {
-  margin-top: 12px;
-  cursor: pointer;
-  font-weight: 600;
-}
-.listed-office__body .h-3 {
-  margin: 0 0 4px;
-}
-.listed-office__price {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-size: 1.4rem;
-}
-.listed-office__meta {
-  margin: 4px 0 16px;
-  color: var(--grey-700);
-}
-.listed-office__headline {
-  font-weight: 600;
-}
-.listed-office__body p:not(.listed-office__price):not(.listed-office__meta) {
-  color: var(--grey-700);
-}
-@media (max-width: 760px) {
-  .listed-office {
-    grid-template-columns: 1fr;
-    gap: 20px;
-    padding: 16px;
-  }
 }
 @media (max-width: 900px) {
   .listing__body {
@@ -1558,6 +1629,18 @@ input, select, textarea {
 .person__address {
   color: var(--grey-700);
 }
+.person__expertise {
+  margin: 0;
+  padding-left: 1.2em;
+  color: var(--grey-700);
+}
+.person__expertise li::marker {
+  color: var(--lime);
+}
+.person__reg {
+  color: var(--grey-700);
+  font-size: 0.95rem;
+}
 .person__body .page-hero__actions {
   margin-top: 28px;
 }
@@ -1698,6 +1781,42 @@ input, select, textarea {
   font-size: 0.93rem;
   color: var(--grey-700);
 }
+/* Credentials cards (/selling/, /leasing/): registration number, then
+   the profile link pushed to the bottom like the "About" link. */
+.team-card__reg {
+  margin-top: 4px;
+  font-size: 0.85rem;
+  color: var(--grey-700);
+}
+.team-card__profile {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  min-height: 32px;
+  margin-top: auto;
+  padding-top: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--lime);
+  text-underline-offset: 4px;
+}
+/* "Who runs APN.": Directors, then Management. */
+.team-group + .team-group {
+  margin-top: 56px;
+}
+.team-group__title {
+  margin: 0 0 24px;
+  font-family: var(--font-sans);
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--grey-500);
+}
 .team-empty {
   color: var(--grey-700);
 }
@@ -1727,6 +1846,16 @@ input, select, textarea {
   width: 100%;
   aspect-ratio: 16 / 9;
   object-fit: cover;
+}
+/* An office without its own photo yet shows its logo instead. */
+.office-card__logo {
+  display: grid;
+  place-items: center;
+  background: var(--stone-2);
+}
+.office-card__logo img {
+  width: auto;
+  height: 42%;
 }
 .office-card__body {
   display: grid;
@@ -2072,6 +2201,10 @@ input, select, textarea {
   margin-bottom: 28px;
   color: var(--grey-500);
 }
+.legal__entity {
+  margin-top: 16px;
+  font-weight: 600;
+}
 .legal__inner h2 {
   margin: 36px 0 12px;
 }
@@ -2198,6 +2331,39 @@ input, select, textarea {
   border-top: 1px solid var(--line-dark);
   font-size: 0.8rem;
   color: rgba(255, 255, 255, 0.55);
+  /* Level text, whatever the size of the credit's "me²" mark. */
+  align-items: baseline;
+}
+/* The SA licensee line: on every page, so it's never the faintest text. */
+.site-footer__licensee {
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 600;
+}
+.site-footer__logo--side img {
+  height: 48px;
+  max-width: 260px;
+  object-fit: contain;
+  object-position: left center;
+}
+/* The site builder's credit: small, and the last thing in the footer. */
+.powered-by {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  color: inherit;
+  text-decoration: none;
+}
+.powered-by:hover {
+  color: var(--white);
+}
+.powered-by__mark {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--white);
+}
+.powered-by__mark sup {
+  color: #ff5f3c;
+  font-size: 0.7em;
 }
 @media (max-width: 1000px) {
   .site-footer__top {
@@ -2697,8 +2863,22 @@ input, select, textarea {
 .office-card__hours svg {
   color: var(--grey-500);
 }
+.site-footer__whatsapp {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  margin: -16px 0 18px;
+  color: var(--white);
+  text-decoration: none;
+}
+.site-footer__whatsapp:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--lime);
+  text-underline-offset: 4px;
+}
 .site-footer__hours {
-  margin: -12px 0 24px;
+  margin: 0 0 24px;
   font-size: 0.92rem;
   color: rgba(255, 255, 255, 0.78);
 }

@@ -121,12 +121,21 @@ export default function VideoHero() {
       <div className="video-hero__scrim" />
 
       <div className="wrap video-hero__content">
+        {/* The two towns are named here, for local search. Phones get
+            "SA" so the label stays on one line. */}
+        <p className="eyebrow video-hero__eyebrow">
+          {/* One span, so the eyebrow's flex gap doesn't split the words. */}
+          <span>
+            Adelaide · Mount Gambier · <span className="video-hero__long">South Australia</span>
+            <span className="video-hero__short">SA</span>
+          </span>
+        </p>
         <h1 className="h-display">
           {/* The space matters: phones hide the <br> (index.css), and
               without it the words would run together. */}
-          Adelaide &amp; Mount Gambier{' '}
+          South Australian real estate,{' '}
           <br />
-          real estate, done properly.
+          done properly.
         </h1>
         <p className="video-hero__sub">Sales, leasing and property management from a local team.</p>
 

@@ -11,9 +11,24 @@ import type { OfficeId } from './offices';
  *  e.g. a property manager who also sells. */
 export type TeamGroup = 'sales' | 'property-management' | 'leadership';
 
+// TODO(title-matrix): every `role` below should match the title/role
+// matrix Patrick sent for the email signatures (the source of truth). It
+// hasn't been supplied, so the titles are unchanged. Cards, profile pages
+// and structured data all read `role`.
+//
+// TODO(registration-numbers): each person's individual RLA/registration
+// number, as it should be shown, e.g. 'RLA 123456' or
+// 'Registration no. 123456'. Cards on /selling/ and /leasing/ and the
+// profile pages show it once it's filled in.
+
 export interface TeamMember {
   name: string;
   role: string;
+  /** Their own RLA or registration number, written as it should appear.
+   *  Only ever from APN's records: never guessed. */
+  registration?: string;
+  /** Short list for the profile page, in the person's own terms. */
+  expertise?: string[];
   initials: string;
   photo: Photo;
   /** Alt text for the photo: name and role, so it still says who this
@@ -51,9 +66,20 @@ export const TEAM: TeamMember[] = [
     initials: 'LW',
     photo: lukePhoto,
     photoAlt: 'Luke Whittaker, Property Manager, Mount Gambier',
-    groups: ['property-management'],
+    // Sales and leadership too: he works across commercial sales and
+    // assists with residential sales, and the director's review puts him
+    // in Management alongside Brett.
+    groups: ['property-management', 'sales', 'leadership'],
     office: 'mount-gambier',
-    bio: 'Luke is a Property Manager based in Mount Gambier, and has worked in property management at APN since 2025. He handles complex tenancies and insurance claims, and also works across commercial sales and leasing and assists with residential sales. Outside work, he’s a family man who spends weekends watching F1, AFL, soccer or cricket.',
+    // Supplied by Luke, October 2026. "14 months" is as of then.
+    bio: 'Luke is a Property Manager at our Mount Gambier office. He has spent 14 months in property management, all of it with APN, and is known for taking on complex tenancies and difficult insurance claims with a steady, methodical approach. As well as residential property management, he works across commercial sales and leasing and assists with residential sales. Outside work, he’s a family man who spends his weekends watching F1, AFL, soccer and cricket.',
+    expertise: [
+      'Complex tenancy management',
+      'Insurance claims',
+      'Commercial sales and leasing',
+      'Residential sales',
+      'Mount Gambier market knowledge',
+    ],
   },
   {
     name: 'Marissa Bowell',
@@ -101,8 +127,23 @@ export const TEAM: TeamMember[] = [
     initials: 'BD',
     photo: brettPhoto,
     photoAlt: 'Brett David, Regional Manager',
-    groups: ['leadership', 'property-management'],
+    // Sales too: he's a licensed sales agent, and the director's review
+    // lists him on the sales page.
+    groups: ['leadership', 'property-management', 'sales'],
     office: 'adelaide',
     bio: 'Brett is APN’s Regional Manager and Head of Leasing & Accounts, and a licensed sales agent. He’s worked in property management for more than six years, managing rental properties for APN landlords and looking after the accounts side of the business. Outside work, he’s usually found fishing in local club tournaments.',
   },
+];
+
+/** "Who you’ll work with." on /selling/, in this order. */
+export const SALES_PAGE_TEAM = ['Patrick Nhim', 'Brett David', 'Luke Whittaker', 'Marissa Bowell'];
+
+/** "Who runs APN." on /our-story/, in two groups. The grid keeps cards
+ *  the same size however many are in a group, so adding a name here is
+ *  all it takes. */
+export const LEADERSHIP_GROUPS: { title: string; names: string[] }[] = [
+  // TODO(fabienne): add 'Fabienne Nhim' (with her entry in TEAM, a photo
+  // and a route in routes.json) when she's due on the page; not before.
+  { title: 'Directors', names: ['Patrick Nhim'] },
+  { title: 'Management', names: ['Brett David', 'Luke Whittaker'] },
 ];

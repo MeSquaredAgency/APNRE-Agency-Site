@@ -1,5 +1,5 @@
 import type { Photo } from '../lib/photo';
-import mountGambierStreet from '../assets/photos/mount-gambier-hillside-street.jpg?photo';
+import { suppliedPhoto } from './supplied';
 // The Blair Athol office, from APN's own listing of its spare office space
 // (Mount Gambier Property Network, commercialrealestate.com.au listing
 // 17603774). They carry the Adelaide Property Network watermark.
@@ -23,12 +23,15 @@ export interface Office {
   name: string;
   logo: string;
   logoAlt: string;
+  /** The logo file's size, so the page keeps its space while it loads. */
+  logoSize: { w: number; h: number };
   addressLines: [string, string];
   /** For a "Get directions" link. */
   mapsQuery: string;
   phone: string;
-  /** Must be a real photo from this area. */
-  photo: Photo;
+  /** A real photo of the office itself. Without one, the office card
+   *  shows the office's logo instead. */
+  photo?: Photo;
   photoAlt: string;
   /** Facts APN has confirmed: who works there, where it is, what it does. */
   about: string;
@@ -40,6 +43,7 @@ export const OFFICES: Record<OfficeId, Office> = {
     name: 'Adelaide',
     logo: adelaideLogo,
     logoAlt: MAIN_LOGO_ALT,
+    logoSize: { w: 362, h: 240 },
     addressLines: ['Level 1 / 420B, Cnr Main North Road', 'and Barton Street, Blair Athol SA 5084'],
     mapsQuery: '420B Main North Road, Blair Athol SA 5084',
     phone: '1300 123 276',
@@ -53,13 +57,15 @@ export const OFFICES: Record<OfficeId, Office> = {
     name: 'Mount Gambier',
     logo: mountGambierLogo,
     logoAlt: 'Mount Gambier Property Network — APN Real Estate',
+    logoSize: { w: 369, h: 240 },
     addressLines: ['178 Commercial Street East,', 'Mount Gambier SA 5290'],
     mapsQuery: '178 Commercial Street East, Mount Gambier SA 5290',
     phone: '1300 123 276',
-    // From APN's own sales listing photography, so the alt text doesn't
-    // claim APN manages it.
-    photo: mountGambierStreet,
-    photoAlt: 'Homes on a hillside street in Mount Gambier',
+    // The hillside street photo shown here before was a property, not the
+    // office (flagged in the director's review). Until the office photo is
+    // supplied (src/data/supplied.ts), the card shows the office's logo.
+    photo: suppliedPhoto('mount-gambier-office')?.photo,
+    photoAlt: suppliedPhoto('mount-gambier-office')?.alt ?? '',
     about:
       'A local team on Commercial Street East looking after Mount Gambier landlords, tenants and their properties.',
   },
@@ -70,6 +76,7 @@ export const OFFICE_LIST: Office[] = [OFFICES.adelaide, OFFICES['mount-gambier']
 /** Inside the Blair Athol office: the contact page hero and the gallery
  *  on /our-story/. */
 export const BLAIR_ATHOL_PHOTOS = {
+  frontage: { photo: blairAtholFrontage, alt: OFFICES.adelaide.photoAlt },
   reception: { photo: blairAtholReception, alt: 'Reception at APN’s Blair Athol office, with the Adelaide Property Network logo on the wall' },
   meetingRoom: { photo: blairAtholMeetingRoom, alt: 'A glass-walled meeting room at the Blair Athol office' },
   boardroom: { photo: blairAtholBoardroom, alt: 'The boardroom at the Blair Athol office' },

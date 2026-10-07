@@ -70,3 +70,19 @@ export function trackCallClick(placement: string) {
     console.warn('Meta Pixel call event failed:', err);
   }
 }
+
+/** A tap on a "WhatsApp" link. `placement` says which one. */
+export function trackWhatsAppClick(placement: string) {
+  try {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: 'click_to_whatsapp', placement });
+  } catch (err) {
+    console.warn('dataLayer push failed:', err);
+  }
+
+  try {
+    window.fbq?.('track', 'Contact', { content_name: `whatsapp_${placement}` });
+  } catch (err) {
+    console.warn('Meta Pixel WhatsApp event failed:', err);
+  }
+}

@@ -14,7 +14,7 @@ import EnquiryForm from '../components/EnquiryForm';
 import FloorPlan from '../components/FloorPlan';
 import Icon from '../components/Icon';
 import { CtaBand, Faq, FormSection, Gallery, PageHero, Pillars, SectionHead } from '../components/sections';
-import { BLAIR_ATHOL_PHOTOS, OFFICES } from '../data/offices';
+import { BLAIR_ATHOL_PHOTOS } from '../data/offices';
 import {
   ANY_OFFICE,
   CONSUMABLES_PER_WEEK,
@@ -42,78 +42,55 @@ import {
   isBookableDate,
   latestLeaseStart,
 } from '../lib/bookings';
-import { formatDay, LISTINGS, photoSrcSet, thumb, type Listing } from '../lib/listings';
+import { LISTINGS, thumb } from '../lib/listings';
 
-/** The Blair Athol offices APN has listed in PropertyMe (its feed:
- *  docs/listings-feed.md), with their photos. Shown alongside the floor
- *  plan, which still takes each room's status from office-space.ts until
- *  PropertyMe's suite numbers are matched to the plan's. */
-const LISTED_OFFICES = LISTINGS.filter((l) => l.apnBuilding === 'blair-athol');
+/** Photos of the Blair Athol offices, from APN's listing for them in
+ *  PropertyMe (one listing covers the whole floor; docs/listings-feed.md).
+ *  Hidden until the feed has one. Thumbnails open the full-size photo. */
+const OFFICE_PHOTOS = LISTINGS.filter((l) => l.apnBuilding === 'blair-athol').flatMap((l) =>
+  (l.photos ?? []).map((src, i) => ({ src, small: thumb(l, i) ?? src })),
+);
+/** Shown before "Show all photos". */
+const FIRST_PHOTOS = 8;
 
-function ListedOffices({ onRequest }: { onRequest: () => void }) {
-  if (LISTED_OFFICES.length === 0) return null;
+function OfficePhotos({ onRequest }: { onRequest: () => void }) {
+  if (OFFICE_PHOTOS.length === 0) return null;
+  const tile = (photo: (typeof OFFICE_PHOTOS)[number], i: number) => (
+    <li key={photo.src}>
+      <a href={photo.src} target="_blank" rel="noopener">
+        <img
+          src={photo.small}
+          alt={`Inside the Blair Athol offices, photo ${i + 1} of ${OFFICE_PHOTOS.length}`}
+          loading="lazy"
+          decoding="async"
+        />
+      </a>
+    </li>
+  );
   return (
+    // #listed: where the office cards on /commercial/ link to.
     <section className="section section-paper" id="listed">
       <div className="wrap">
-        <SectionHead eyebrow="Listed now" title="Offices available to lease." />
-        <ul className="listed-offices">
-          {LISTED_OFFICES.map((office) => (
-            <ListedOffice key={office.id} office={office} onRequest={onRequest} />
-          ))}
-        </ul>
+        <SectionHead
+          eyebrow="Photos"
+          title="Take a look inside."
+          action={
+            <a href="#book" className="btn btn-outline-dark btn-sm" onClick={onRequest}>
+              Request an Office
+            </a>
+          }
+        />
+        <ul className="listing-photos__grid">{OFFICE_PHOTOS.slice(0, FIRST_PHOTOS).map(tile)}</ul>
+        {OFFICE_PHOTOS.length > FIRST_PHOTOS && (
+          <details className="listing-photos__more">
+            <summary>Show all {OFFICE_PHOTOS.length} photos</summary>
+            <ul className="listing-photos__grid">
+              {OFFICE_PHOTOS.slice(FIRST_PHOTOS).map((photo, i) => tile(photo, i + FIRST_PHOTOS))}
+            </ul>
+          </details>
+        )}
       </div>
     </section>
-  );
-}
-
-function ListedOffice({ office, onRequest }: { office: Listing; onRequest: () => void }) {
-  const name = office.street ?? office.headline ?? 'Office';
-  const photos = office.photos ?? [];
-  const alt = (i: number) => `${name}, photo ${i + 1} of ${photos.length}`;
-  const intro = office.description?.split(/\n\s*\n/)[0];
-  return (
-    <li className="listed-office">
-      {photos.length > 0 && (
-        <div className="listed-office__photos">
-          <img
-            className="listed-office__main"
-            src={photos[0]}
-            srcSet={photoSrcSet(office, 0)}
-            sizes="(max-width: 760px) 100vw, 55vw"
-            alt={alt(0)}
-            loading="lazy"
-            decoding="async"
-          />
-          {photos.length > 1 && (
-            <details>
-              <summary>Show all {photos.length} photos</summary>
-              <ul className="listing-photos__grid">
-                {photos.slice(1).map((src, i) => (
-                  <li key={src}>
-                    <a href={src} target="_blank" rel="noopener">
-                      <img src={thumb(office, i + 1)} alt={alt(i + 1)} loading="lazy" decoding="async" />
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </details>
-          )}
-        </div>
-      )}
-      <div className="listed-office__body">
-        <h3 className="h-3">{name}</h3>
-        <p className="listed-office__price">{office.price}</p>
-        <p className="listed-office__meta">
-          {office.availableFrom ? `Available from ${formatDay(office.availableFrom)}` : 'Available now'}
-          {office.buildingArea ? ` · ${office.buildingArea}` : ''}
-        </p>
-        {office.headline && office.headline !== name && <p className="listed-office__headline">{office.headline}</p>}
-        {intro && <p>{intro}</p>}
-        <a href="#book" className="btn btn-primary" onClick={onRequest}>
-          Request This Office <Icon name="arrow" />
-        </a>
-      </div>
-    </li>
   );
 }
 
@@ -583,7 +560,7 @@ export default function OfficeSpace() {
         </div>
       </section>
 
-      <ListedOffices onRequest={() => setMode('lease')} />
+      <OfficePhotos onRequest={() => setMode('lease')} />
 
       <section className="section section-white">
         <div className="wrap">
@@ -661,7 +638,7 @@ export default function OfficeSpace() {
         copy="The building, reception, boardrooms and shared spaces at 420B Main North Road."
         photos={[
           BLAIR_ATHOL_PHOTOS.reception,
-          { photo: OFFICES.adelaide.photo, alt: OFFICES.adelaide.photoAlt },
+          BLAIR_ATHOL_PHOTOS.frontage,
           BLAIR_ATHOL_PHOTOS.boardroom,
           BLAIR_ATHOL_PHOTOS.meetingRoom,
           BLAIR_ATHOL_PHOTOS.lounge,

@@ -21,6 +21,7 @@ apart.
 | `generate_lead` | landlord page (`src/funnels/landlords/lib/analytics.ts`) | The appraisal form on `go.apnre.com.au/landlords/` accepted by `/api/lead` | `event_category` (`appraisal_form`), `event_label` (`Free Rental Appraisal`), `office` (`home`), `currently_managed` (`agent`, `self`, `not-rented`, `not_answered`) |
 | `appraisal_form_submit` | landlord page | Straight after its `generate_lead`, just before the redirect to `/landlords/thank-you/` | `form_name` (`landlord_appraisal`) |
 | `click_to_call` | both | A tap on a Call button | `placement` (where the button is, e.g. `header`, `menu`, `sticky_bar`, `footer`, `cta_band`) |
+| `click_to_whatsapp` | main site | A tap on a WhatsApp link | `placement` (`footer` or `contact_hero`) |
 
 ## Setting it up in GTM
 
@@ -31,6 +32,7 @@ apart.
 2. **Triggers → New → Custom Event**:
    - `CE - generate_lead`, event name `generate_lead`
    - `CE - click_to_call`, event name `click_to_call`
+   - `CE - click_to_whatsapp`, event name `click_to_whatsapp`
 3. **Tags → New → Google Analytics: GA4 Event**. Set the Measurement ID
    to `G-WDLJLYGJCY`, or pick the existing Google tag.
    - `GA4 - generate_lead`: event name `generate_lead`. Event parameters:
@@ -39,6 +41,8 @@ apart.
      form doesn't send are simply left out. Trigger: `CE - generate_lead`.
    - `GA4 - click_to_call`: event name `click_to_call`. Event parameter:
      `placement` = `{{DLV - placement}}`. Trigger: `CE - click_to_call`.
+   - `GA4 - click_to_whatsapp`: the same, with event name
+     `click_to_whatsapp` and trigger `CE - click_to_whatsapp`.
 4. Check both in **Preview** mode (Tag Assistant) on the live domain,
    then **Submit** to publish the container.
 5. In GA4, go to **Admin → Custom definitions** and add event-scoped

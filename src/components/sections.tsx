@@ -3,8 +3,8 @@
 
 import { useEffect, useState, type ReactNode } from 'react';
 import { OFFICE_LIST } from '../data/offices';
-import { TEAM, teamMemberId, type TeamGroup, type TeamMember } from '../data/team';
-import { OPENING_HOURS, PHONE_DISPLAY, PHONE_TEL } from '../data/business';
+import { LEADERSHIP_GROUPS, TEAM, teamMemberId, type TeamGroup, type TeamMember } from '../data/team';
+import { OPENING_HOURS, PHONE_DISPLAY, PHONE_TEL, PORTALS, SOCIAL_LINKS } from '../data/business';
 import { trackCallClick } from '../lib/analytics';
 import { faqPage } from '../structured-data';
 import HeroSlides, { type HeroSlide } from './HeroSlides';
@@ -122,6 +122,64 @@ export function ImageCards({ items }: { items: ImageCard[] }) {
           </span>
         </a>
       ))}
+    </div>
+  );
+}
+
+/* ---------- Social links ---------- */
+
+/** Facebook, Instagram and YouTube: only the ones with a link in
+ *  src/data/business.ts, and nothing at all until there's one. */
+export function FollowUs({ className = '' }: { className?: string }) {
+  const links = SOCIAL_LINKS.filter((l) => l.href);
+  if (links.length === 0) return null;
+  return (
+    <div className={`follow-us ${className}`}>
+      <p className="follow-us__title">Follow us</p>
+      <ul className="follow-us__links">
+        {links.map((l) => (
+          <li key={l.label}>
+            <a href={l.href} target="_blank" rel="noopener noreferrer" aria-label={`APN on ${l.label} (opens in a new tab)`}>
+              <Icon name={l.icon} size={20} />
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/* ---------- Portal links, under the listings ---------- */
+
+/** APN's pages on the main portals (only those with a link), then the
+ *  social links. */
+export function PortalLinks() {
+  const groups = [
+    { title: 'Residential', links: PORTALS.residential.filter((l) => l.href) },
+    { title: 'Commercial', links: PORTALS.commercial.filter((l) => l.href) },
+  ].filter((g) => g.links.length > 0);
+  return (
+    <div className="portal-links">
+      {groups.length > 0 && (
+        <div>
+          <p className="portal-links__title">You can also see our listings on</p>
+          <dl className="portal-links__groups">
+            {groups.map((g) => (
+              <div key={g.title}>
+                <dt>{g.title}</dt>
+                {g.links.map((l) => (
+                  <dd key={l.label}>
+                    <a href={l.href} target="_blank" rel="noopener noreferrer">
+                      {l.label} <Icon name="external" size={14} />
+                    </a>
+                  </dd>
+                ))}
+              </div>
+            ))}
+          </dl>
+        </div>
+      )}
+      <FollowUs />
     </div>
   );
 }
@@ -258,12 +316,25 @@ export function Offices({ title = 'Two offices, one team.' }: { title?: ReactNod
         <div className="offices">
           {OFFICE_LIST.map((office) => (
             <article className="office-card" key={office.id} id={office.id}>
-              <Picture
-                photo={office.photo}
-                alt={office.photoAlt}
-                className="office-card__photo"
-                sizes="(max-width: 900px) 100vw, 50vw"
-              />
+              {office.photo ? (
+                <Picture
+                  photo={office.photo}
+                  alt={office.photoAlt}
+                  className="office-card__photo"
+                  sizes="(max-width: 900px) 100vw, 50vw"
+                />
+              ) : (
+                <div className="office-card__photo office-card__logo">
+                  <img
+                    src={office.logo}
+                    alt={office.logoAlt}
+                    width={office.logoSize.w}
+                    height={office.logoSize.h}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+              )}
               <div className="office-card__body">
                 <h3 className="h-2">{office.name}</h3>
                 <p className="office-card__address">
@@ -306,8 +377,19 @@ const GROUP_LABELS: Record<TeamGroup, string> = {
   leadership: 'Leadership',
 };
 
-function TeamCard({ member, linked }: { member: TeamMember; linked: boolean }) {
+interface TeamCardProps {
+  member: TeamMember;
+  linked: boolean;
+  /** Registration number and a profile link in place of the bio, for
+   *  the sales and property management pages. */
+  credentials?: boolean;
+  /** h4 when the cards sit under group headings. */
+  nameAs?: 'h3' | 'h4';
+}
+
+function TeamCard({ member, linked, credentials = false, nameAs: Name = 'h3' }: TeamCardProps) {
   const office = OFFICE_LIST.find((o) => o.id === member.office);
+  const profile = `/our-people/${teamMemberId(member.name)}/`;
   return (
     <article className="team-card" id={teamMemberId(member.name)}>
       <div className="team-card__photo">
@@ -318,12 +400,18 @@ function TeamCard({ member, linked }: { member: TeamMember; linked: boolean }) {
           sizes="(max-width: 560px) 50vw, 25vw"
         />
       </div>
-      <h3 className="team-card__name">
-        {linked ? <a href={`/our-people/${teamMemberId(member.name)}/`}>{member.name}</a> : member.name}
-      </h3>
+      <Name className="team-card__name">
+        {linked ? <a href={profile}>{member.name}</a> : member.name}
+      </Name>
       <p className="team-card__role">{member.role}</p>
       {office && <p className="team-card__office">{office.name}</p>}
-      {member.bio && (
+      {credentials && member.registration && <p className="team-card__reg">{member.registration}</p>}
+      {credentials && linked ? (
+        <a className="team-card__profile" href={profile}>
+          View profile <Icon name="arrow" size={16} />
+          <span className="visually-hidden"> of {member.name}</span>
+        </a>
+      ) : member.bio && (
         <details className="team-card__bio">
           <summary>About {member.name.split(' ')[0]}</summary>
           <p>{member.bio}</p>
@@ -336,6 +424,11 @@ function TeamCard({ member, linked }: { member: TeamMember; linked: boolean }) {
 interface TeamProps {
   /** Show only one group, with no filter. */
   group?: TeamGroup;
+  /** Show exactly these people, in this order, instead of a group. */
+  names?: string[];
+  /** Each card shows the person's registration number and a link to
+   *  their profile (see TeamCard). */
+  credentials?: boolean;
   /** Show the group filter and name search. The starting filter comes
    *  from ?filter= in the URL, so menu links like "Sales Team" land
    *  pre-filtered. */
@@ -363,6 +456,8 @@ type Filter = (typeof FILTERS)[number];
 
 export function Team({
   group,
+  names,
+  credentials = false,
   filterable = false,
   limit,
   eyebrow = 'Our people',
@@ -389,7 +484,9 @@ export function Team({
     [m.name, m.role, OFFICE_LIST.find((o) => o.id === m.office)?.name ?? ''].some((text) =>
       text.toLowerCase().includes(q),
     );
-  const members = TEAM.filter((m) => (active === 'all' || m.groups.includes(active)) && (!q || matches(m)));
+  const members = names
+    ? names.map((n) => TEAM.find((m) => m.name === n)).filter((m): m is TeamMember => Boolean(m))
+    : TEAM.filter((m) => (active === 'all' || m.groups.includes(active)) && (!q || matches(m)));
   const shown = limit ? members.slice(0, limit) : members;
 
   function reset() {
@@ -459,7 +556,7 @@ export function Team({
         {shown.length > 0 ? (
           <div className="team-grid" style={{ ['--team-cols' as string]: teamColumns(shown.length) }}>
             {shown.map((m) => (
-              <TeamCard key={m.name} member={m} linked={linkNames} />
+              <TeamCard key={m.name} member={m} linked={linkNames} credentials={credentials} />
             ))}
           </div>
         ) : (
@@ -471,6 +568,38 @@ export function Team({
             </button>
           </p>
         )}
+      </div>
+    </section>
+  );
+}
+
+/* ---------- Leadership, in groups ---------- */
+
+/** "Who runs APN.": one heading per group (LEADERSHIP_GROUPS in
+ *  src/data/team.ts). Every group uses the same four-column grid, so a
+ *  group of one doesn't stretch its card, and a second director just
+ *  takes the next column. */
+export function Leadership({ eyebrow = 'Leadership', title }: { eyebrow?: string; title: ReactNode }) {
+  return (
+    <section className="section section-white" id="team">
+      <div className="wrap">
+        <SectionHead eyebrow={eyebrow} title={title} />
+        {LEADERSHIP_GROUPS.map((g) => {
+          const members = g.names
+            .map((n) => TEAM.find((m) => m.name === n))
+            .filter((m): m is TeamMember => Boolean(m));
+          if (members.length === 0) return null;
+          return (
+            <div className="team-group" key={g.title}>
+              <h3 className="team-group__title">{g.title}</h3>
+              <div className="team-grid" style={{ ['--team-cols' as string]: 4 }}>
+                {members.map((m) => (
+                  <TeamCard key={m.name} member={m} linked nameAs="h4" />
+                ))}
+              </div>
+            </div>
+          );
+        })}
       </div>
     </section>
   );
