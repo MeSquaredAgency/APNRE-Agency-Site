@@ -4,12 +4,14 @@
 // nothing in it, /buy/, /rent/ and /sold/ point to APN's
 // realestate.com.au profile instead, which is always current.
 
+import { useState } from 'react';
 import Layout from '../components/Layout';
 import EnquiryForm from '../components/EnquiryForm';
 import Icon from '../components/Icon';
-import { CtaBand, FormSection, PageHero, SectionHead } from '../components/sections';
+import { CtaBand, FormSection, PageHero, PortalLinks, SectionHead } from '../components/sections';
 import { LISTINGS_LINKS } from '../data/nav';
 import { BLAIR_ATHOL_PHOTOS } from '../data/offices';
+import { suppliedPhoto } from '../data/supplied';
 import { OFFICE_RENT_FROM } from '../data/office-space';
 import { listingsIn, thumb, type Listing, type ListingSection } from '../lib/listings';
 import mountGambier from '../assets/photos/mount-gambier-hillside-street.jpg?photo';
@@ -33,6 +35,9 @@ function ListingsPanel({ link, title, copy }: ListingsPanelProps) {
         <a href={link.href} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
           {link.label} <Icon name="external" />
         </a>
+      </div>
+      <div className="wrap">
+        <PortalLinks />
       </div>
     </section>
   );
@@ -66,7 +71,11 @@ export function ListingFeatures({ listing }: { listing: Listing }) {
 
 export function ListingCard({ listing }: { listing: Listing }) {
   const photo = thumb(listing, 0);
-  const badge = listing.underOffer ? 'Under offer' : listing.section === 'sold' ? 'Sold' : '';
+  const badges = [
+    listing.underOffer ? 'Under offer' : listing.section === 'sold' ? 'Sold' : '',
+    // Everything on /commercial/ is commercial, so it needs no badge there.
+    listing.propertyType === 'commercial' && listing.section !== 'commercial' ? 'Commercial' : '',
+  ].filter(Boolean);
   return (
     <li>
       {/* Blair Athol's offices have no page of their own: they're on
@@ -80,7 +89,15 @@ export function ListingCard({ listing }: { listing: Listing }) {
           ) : (
             <span className="listing-card__no-photo">Photos coming soon</span>
           )}
-          {badge && <span className="listing-card__badge">{badge}</span>}
+          {badges.length > 0 && (
+            <span className="listing-card__badges">
+              {badges.map((b) => (
+                <span key={b} className={`listing-card__badge${b === 'Commercial' ? ' listing-card__badge--commercial' : ''}`}>
+                  {b}
+                </span>
+              ))}
+            </span>
+          )}
         </div>
         <div className="listing-card__body">
           <p className="listing-card__price">
@@ -108,28 +125,57 @@ interface ListingsGridProps {
   title: (n: number) => string;
   /** The page's usual copy, shown when the section is empty. */
   fallback: { title: string; copy: string };
+  /** Residential / Commercial chips, shown when there's some of each. */
+  filterable?: boolean;
 }
 
+const TYPE_FILTERS = [
+  { key: 'all', label: 'All' },
+  { key: 'residential', label: 'Residential' },
+  { key: 'commercial', label: 'Commercial' },
+] as const;
+type TypeFilter = (typeof TYPE_FILTERS)[number]['key'];
+
 /** The section's listings, or the realestate.com.au panel when there are none. */
-function ListingsGrid({ section, link, eyebrow, title, fallback }: ListingsGridProps) {
+function ListingsGrid({ section, link, eyebrow, title, fallback, filterable = false }: ListingsGridProps) {
+  const [type, setType] = useState<TypeFilter>('all');
   const listings = listingsIn(section);
   if (listings.length === 0) return <ListingsPanel link={link} {...fallback} />;
+  const commercialCount = listings.filter((l) => l.propertyType === 'commercial').length;
+  const showFilter = filterable && commercialCount > 0 && commercialCount < listings.length;
+  const shown = listings.filter(
+    (l) => type === 'all' || (l.propertyType ?? 'residential') === type,
+  );
   return (
     <section className="section section-white">
       <div className="wrap">
         <SectionHead eyebrow={eyebrow} title={title(listings.length)} />
+        {showFilter && (
+          <>
+            <div className="chips listing-filter" role="group" aria-label="Filter by property type">
+              {TYPE_FILTERS.map((f) => (
+                <button
+                  type="button"
+                  key={f.key}
+                  className="chip"
+                  aria-pressed={type === f.key}
+                  onClick={() => setType(f.key)}
+                >
+                  {f.label}
+                </button>
+              ))}
+            </div>
+            <p className="visually-hidden" role="status">
+              {shown.length === 1 ? 'Showing 1 property' : `Showing ${shown.length} properties`}
+            </p>
+          </>
+        )}
         <ul className="listing-grid">
-          {listings.map((l) => (
+          {shown.map((l) => (
             <ListingCard key={l.id} listing={l} />
           ))}
         </ul>
-        <p className="listing-grid__more">
-          You can also see our listings on{' '}
-          <a href={link.href} target="_blank" rel="noopener noreferrer">
-            realestate.com.au
-          </a>
-          .
-        </p>
+        <PortalLinks />
       </div>
     </section>
   );
@@ -153,6 +199,7 @@ export function Buy() {
         link={LISTINGS_LINKS.buy}
         eyebrow="On the market"
         title={(n) => `${plural(n, 'property', 'properties')} for sale.`}
+        filterable
         fallback={{
           title: 'See everything we have on the market.',
           copy: 'Our current listings, with photos, inspection times and price guides, are on our realestate.com.au agency page.',
@@ -176,6 +223,10 @@ export function Buy() {
   );
 }
 
+/** The better hero photo asked for in the director's review, once it's
+ *  added (src/data/supplied.ts). */
+const RENT_HERO = suppliedPhoto('rent-hero');
+
 export function Rent() {
   return (
     <Layout>
@@ -183,8 +234,8 @@ export function Rent() {
         eyebrow="Rent"
         title="Properties for rent."
         lede="Rental homes available now across Adelaide and Mount Gambier."
-        photo={interior}
-        photoAlt="Floor-to-ceiling corner windows in a rental property managed by APN"
+        photo={RENT_HERO?.photo ?? interior}
+        photoAlt={RENT_HERO ? RENT_HERO.alt : 'Floor-to-ceiling corner windows in a rental property managed by APN'}
       />
       <ListingsGrid
         section="rent"

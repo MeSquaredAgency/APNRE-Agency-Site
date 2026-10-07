@@ -3,8 +3,8 @@ import EnquiryForm from '../components/EnquiryForm';
 import Icon from '../components/Icon';
 import { FormSection, Offices, PageHero } from '../components/sections';
 import { BLAIR_ATHOL_PHOTOS } from '../data/offices';
-import { PHONE_DISPLAY, PHONE_TEL } from '../data/business';
-import { trackCallClick } from '../lib/analytics';
+import { PHONE_DISPLAY, PHONE_TEL, WHATSAPP_URL } from '../data/business';
+import { trackCallClick, trackWhatsAppClick } from '../lib/analytics';
 
 export default function Contact() {
   return (
@@ -19,6 +19,15 @@ export default function Contact() {
         <div className="page-hero__actions">
           <a href={PHONE_TEL} className="btn btn-primary" onClick={() => trackCallClick('contact_hero')}>
             <Icon name="phone" /> {PHONE_DISPLAY}
+          </a>
+          <a
+            href={WHATSAPP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-outline-light"
+            onClick={() => trackWhatsAppClick('contact_hero')}
+          >
+            <Icon name="whatsapp" /> WhatsApp Us
           </a>
           <a href="#enquiry" className="btn btn-outline-light">
             Send an Enquiry

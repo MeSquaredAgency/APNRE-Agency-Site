@@ -1,6 +1,6 @@
 import Layout from '../components/Layout';
 import Icon from '../components/Icon';
-import { CtaBand, Gallery, Offices, PageHero, SectionHead, Team } from '../components/sections';
+import { CtaBand, Gallery, Leadership, Offices, PageHero, SectionHead } from '../components/sections';
 import { BLAIR_ATHOL_PHOTOS } from '../data/offices';
 import soldSticker from '../assets/photos/agent-placing-sold-sticker.jpg?photo';
 
@@ -91,7 +91,7 @@ export default function Story() {
         ]}
       />
 
-      <Team group="leadership" eyebrow="Leadership" title="Who runs APN." />
+      <Leadership title="Who runs APN." />
       <p className="wrap people__careers">
         Want to join us? <a href="/careers/">Work with APN</a>.
       </p>

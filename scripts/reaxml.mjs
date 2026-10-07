@@ -245,9 +245,14 @@ function toListing(type, node, agentId) {
 
   const commercialType = attr(node.commercialListingType, 'value').toLowerCase();
   const forRent = type === 'rental' || (type === 'commercial' && commercialType === 'lease');
-  // Leases that aren't homes (PropertyMe types like "Offices", "Retail"
-  // and "Other") go on /commercial/, not /rent/.
-  const commercial = forRent && (type === 'commercial' || !RESIDENTIAL.has(categoryKey(category(type, node))));
+  // Not a home: a <commercial> listing, or a sale or lease of a type
+  // PropertyMe doesn't count as a home ("Offices", "Retail", "Other"...).
+  // Land and rural listings count as residential.
+  const isCommercial =
+    type === 'commercial' ||
+    ((type === 'residential' || type === 'rental') && !RESIDENTIAL.has(categoryKey(category(type, node))));
+  // Commercial leases go on /commercial/, not /rent/.
+  const commercial = forRent && isCommercial;
   let section;
   if (status === 'current') section = commercial ? 'commercial' : forRent ? 'rent' : 'buy';
   else if (status === 'sold' && !forRent) section = 'sold';
@@ -292,6 +297,7 @@ function toListing(type, node, agentId) {
     path: pathFor(shortId),
     fullPath: pathFor(id),
     category: category(type, node),
+    propertyType: isCommercial ? 'commercial' : 'residential',
     headline: text(node.headline),
     description: text(node.description),
     street,

@@ -1,15 +1,17 @@
 import logoReversed from '../../../assets/logo/adelaide-property-network-logo-reversed.png';
 import Icon from '../../../components/Icon';
+import { PoweredBy } from '../../../components/Footer';
+import { SIDE_LOGO_REVERSED } from '../../../data/supplied';
 import { OFFICE_LIST } from '../../../data/offices';
 import {
   ABN,
   ACN,
   BUSINESS_NAME,
   LEGAL_ENTITY_NAME,
+  LICENSEE_LINE,
   OPENING_HOURS,
   PHONE_DISPLAY,
   PHONE_TEL,
-  RLA_NUMBER,
 } from '../../../data/business';
 import { trackCallClick } from '../../../lib/analytics';
 
@@ -18,23 +20,19 @@ import { trackCallClick } from '../../../lib/analytics';
 // No stock-imagery note, since every photo on these pages is APN's own.
 export default function Footer({ ctaHref }: { ctaHref: string }) {
   // Only details that are actually filled in (src/data/business.ts).
-  const registration = [
-    LEGAL_ENTITY_NAME,
-    ABN && `ABN ${ABN}`,
-    ACN && `ACN ${ACN}`,
-    RLA_NUMBER && `RLA ${RLA_NUMBER}`,
-  ].filter(Boolean);
+  const registration = [LEGAL_ENTITY_NAME, ABN && `ABN ${ABN}`, ACN && `ACN ${ACN}`].filter(Boolean);
+  const logo = SIDE_LOGO_REVERSED ?? { src: logoReversed, width: 448, height: 300 };
 
   return (
     <footer className="site-footer">
       <div className="wrap site-footer__top funnel-footer">
         <div className="site-footer__brand">
-          <a href="/" className="site-footer__logo">
+          <a href="/" className={`site-footer__logo${SIDE_LOGO_REVERSED ? ' site-footer__logo--side' : ''}`}>
             <img
-              src={logoReversed}
+              src={logo.src}
               alt="Adelaide Property Network — APN Real Estate"
-              width={448}
-              height={300}
+              width={logo.width}
+              height={logo.height}
               loading="lazy"
               decoding="async"
             />
@@ -70,11 +68,12 @@ export default function Footer({ ctaHref }: { ctaHref: string }) {
 
       <div className="wrap site-footer__legal">
         <p>
-          © {new Date().getFullYear()} {BUSINESS_NAME}
-          {registration.length > 0 && <> · {registration.join(' · ')}</>}. Formerly Adelaide
-          Property Network.
+          <span className="site-footer__licensee">{LICENSEE_LINE}</span>
+          {registration.length > 0 && <> · {registration.join(' · ')}</>} · © {new Date().getFullYear()}{' '}
+          {BUSINESS_NAME}
         </p>
         <a href="/privacy/">Privacy Policy</a>
+        <PoweredBy />
       </div>
     </footer>
   );

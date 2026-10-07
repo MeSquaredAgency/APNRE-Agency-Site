@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SAMPLE ONLY: made-up listing for local development (npm run dev:sample).
+     A commercial sale sent the way PropertyMe sends one: a <residential>
+     listing with the category "Other". -->
+<propertyList date="2026-10-06-10:00:00">
+  <residential modTime="2026-10-06-10:00:00" status="current">
+    <agentID>SAMPLE</agentID>
+    <uniqueID>SAMPLE-S2</uniqueID>
+    <authority value="exclusive"/>
+    <underOffer value="yes"/>
+    <listingAgent id="1"><name>Sample Agent</name><telephone type="mobile">0400 000 000</telephone></listingAgent>
+    <price display="no">480000</price>
+    <priceView>Contact agent</priceView>
+    <address display="yes">
+      <streetNumber>3</streetNumber>
+      <street>Sample Street</street>
+      <suburb display="yes">MOUNT GAMBIER</suburb>
+      <state>SA</state>
+      <postcode>5290</postcode>
+    </address>
+    <category name="Other"/>
+    <headline>SAMPLE: Workshop and yard</headline>
+    <description>This is a made-up listing used to preview the site's listing pages.
+
+A commercial workshop with a sealed yard and parking for five cars.</description>
+    <carSpaces>5</carSpaces>
+    <objects>
+      <img id="m" modTime="2026-10-06-10:00:00" url="https://images.pexels.com/photos/10628470/pexels-photo-10628470.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1200" format="jpg"/>
+    </objects>
+  </residential>
+</propertyList>

@@ -25,6 +25,9 @@ export interface Listing {
   path: string;
   /** "House", "Unit", "Land", ... */
   category: string;
+  /** From the listing type and category (scripts/reaxml.mjs): drives the
+   *  Residential / Commercial filter on /buy/. */
+  propertyType?: 'residential' | 'commercial';
   headline?: string;
   /** Plain text: blank lines between paragraphs. */
   description?: string;

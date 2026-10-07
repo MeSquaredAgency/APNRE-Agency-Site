@@ -1,6 +1,6 @@
 import Layout from '../components/Layout';
 import { OFFICE_LIST } from '../data/offices';
-import { BUSINESS_NAME, PHONE_DISPLAY, PHONE_TEL, PRIVACY_EMAIL } from '../data/business';
+import { ABN, ACN, BUSINESS_NAME, LICENSEE_LINE, PHONE_DISPLAY, PHONE_TEL, PRIVACY_EMAIL } from '../data/business';
 import { MAPS_API_KEY } from '../lib/places';
 import { TURNSTILE_SITE_KEY } from '../lib/turnstile';
 
@@ -27,6 +27,13 @@ export default function Privacy() {
             this website, why, and what we do with it. We handle personal
             information in line with the Australian Privacy Principles in
             the <em>Privacy Act 1988</em> (Cth).
+          </p>
+          {/* TODO(abn): no ABN has been supplied; it shows here and in the
+              footer once ABN is set in src/data/business.ts. */}
+          <p className="legal__entity">
+            {LICENSEE_LINE}
+            {ABN && <> · ABN {ABN}</>}
+            {ACN && <> · ACN {ACN}</>}
           </p>
 
           <h2 className="h-3">What we collect</h2>

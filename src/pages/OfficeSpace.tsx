@@ -14,7 +14,7 @@ import EnquiryForm from '../components/EnquiryForm';
 import FloorPlan from '../components/FloorPlan';
 import Icon from '../components/Icon';
 import { CtaBand, Faq, FormSection, Gallery, PageHero, Pillars, SectionHead } from '../components/sections';
-import { BLAIR_ATHOL_PHOTOS, OFFICES } from '../data/offices';
+import { BLAIR_ATHOL_PHOTOS } from '../data/offices';
 import {
   ANY_OFFICE,
   CONSUMABLES_PER_WEEK,
@@ -638,7 +638,7 @@ export default function OfficeSpace() {
         copy="The building, reception, boardrooms and shared spaces at 420B Main North Road."
         photos={[
           BLAIR_ATHOL_PHOTOS.reception,
-          { photo: OFFICES.adelaide.photo, alt: OFFICES.adelaide.photoAlt },
+          BLAIR_ATHOL_PHOTOS.frontage,
           BLAIR_ATHOL_PHOTOS.boardroom,
           BLAIR_ATHOL_PHOTOS.meetingRoom,
           BLAIR_ATHOL_PHOTOS.lounge,

@@ -137,7 +137,7 @@ export default function Leasing() {
       />
       <Process eyebrow="Our leasing process" title="From appraisal to a tenant in place." steps={STEPS} />
       <Switching />
-      <Team group="property-management" eyebrow="Property management" title="Your property managers." />
+      <Team group="property-management" credentials eyebrow="Property management" title="Your property managers." />
       <Faq
         title="Questions landlords ask us."
         items={FAQS}

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { MAIN_LOGO_ALT } from '../data/offices';
 import logoReversed from '../assets/logo/adelaide-property-network-logo-reversed.png';
+import { SIDE_LOGO_REVERSED } from '../data/supplied';
 import { PHONE_DISPLAY, PHONE_TEL } from '../data/business';
 import { NAV_GROUPS, PRIMARY_NAV, type NavLink } from '../data/nav';
 import { trackCallClick } from '../lib/analytics';
@@ -25,6 +26,11 @@ export interface FunnelNav {
 }
 
 const MAIN_CTA: NavLink = { href: '/appraisal/', label: 'Book a Free Appraisal' };
+
+/** The horizontal logo once it's supplied (src/data/supplied.ts),
+ *  otherwise the stacked one. The header is always dark, so both are the
+ *  reversed (light) versions. */
+const LOGO = SIDE_LOGO_REVERSED ?? { src: logoReversed, width: 448, height: 300 };
 
 export default function Header({ current, overlay = false, funnel }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false);
@@ -92,7 +98,13 @@ export default function Header({ current, overlay = false, funnel }: HeaderProps
         <a href={funnel ? funnel.home : '/'} className="site-header__brand" aria-label="APN Real Estate — home">
           {/* width/height are the file's own size, so the browser keeps
               the space before it loads; CSS sets the displayed height. */}
-          <img src={logoReversed} alt={MAIN_LOGO_ALT} className="site-header__logo" width={448} height={300} />
+          <img
+            src={LOGO.src}
+            alt={MAIN_LOGO_ALT}
+            className={`site-header__logo${SIDE_LOGO_REVERSED ? ' site-header__logo--side' : ''}`}
+            width={LOGO.width}
+            height={LOGO.height}
+          />
         </a>
 
         <nav className="site-header__nav" aria-label="Primary">

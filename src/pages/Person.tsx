@@ -38,6 +38,7 @@ export default function Person() {
           worksFor: { '@id': OFFICE_SCHEMA_IDS[member.office] },
           memberOf: { '@id': ORGANIZATION_ID },
           ...(member.bio ? { description: member.bio } : {}),
+          ...(member.expertise ? { knowsAbout: member.expertise } : {}),
         }}
       />
       <JsonLd
@@ -75,6 +76,17 @@ export default function Person() {
                 <p className="lede">{member.bio}</p>
               </>
             )}
+            {member.expertise && (
+              <>
+                <h2 className="h-3 person__contact-title">Expertise</h2>
+                <ul className="person__expertise">
+                  {member.expertise.map((e) => (
+                    <li key={e}>{e}</li>
+                  ))}
+                </ul>
+              </>
+            )}
+            {member.registration && <p className="person__reg">{member.registration}</p>}
             <h2 className="h-3 person__contact-title">Talk to {first}</h2>
             <p>
               Call the {office.name} office on{' '}

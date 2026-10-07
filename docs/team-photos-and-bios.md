@@ -29,11 +29,10 @@ since each sits in its own card, not a shared row.
 Breeanna Arney (Property Management Trainee, Mount Gambier) supplied hers
 in September 2026; she was previously listed as reception with no bio.
 
-Jenny, Marissa, Brett and Patrick have real supplied bios. Luke's is still
-the original short, factual, role-based stand-in (what he manages, not a
-personal biography) — fine to ship as-is, but worth the same treatment
-the others got. To get a real one, the fastest path is a short async
-brief to him — something like:
+Everyone shown has a real supplied bio; Luke sent his in October 2026,
+with an expertise list that his profile page shows (`expertise` in
+`src/data/team.ts`). For anyone new, the fastest path is a short async
+brief — something like:
 
 > For the new website, we're adding a two-to-three sentence intro under
 > your photo. Could you send me:

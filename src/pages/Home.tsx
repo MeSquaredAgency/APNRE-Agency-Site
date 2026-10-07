@@ -5,14 +5,24 @@ import Picture from '../components/Picture';
 import { CtaBand, ImageCards, Offices, Pillars, SectionHead, Team } from '../components/sections';
 import { LISTINGS_LINKS, REVIEWS_URL } from '../data/nav';
 import { STOCK } from '../data/media';
+import { suppliedPhoto } from '../data/supplied';
 import soldSticker from '../assets/photos/agent-placing-sold-sticker.jpg?photo';
 import soldSign from '../assets/photos/sold-sign-ridley.jpg?photo';
+import soldSignSalisbury from '../assets/photos/sold-sign-fenden-rd.jpg?photo';
 import mountGambierStreet from '../assets/photos/mount-gambier-hillside-street.jpg?photo';
 import interior from '../assets/photos/interior-corner-windows.jpg?photo';
 
 // Pillars are facts APN can stand behind today. Swap in figures (years
 // in business, sales volumes, review scores) only once they're verified
 // and there's a plan to keep them current.
+// The better photos asked for in the director's review replace these as
+// soon as they're added (src/data/supplied.ts). Until then the hub cards
+// use photos not already in the tiles above them.
+const TILE_FOR_SALE = suppliedPhoto('home-tile-for-sale')?.photo ?? mountGambierStreet;
+const TILE_FOR_RENT = suppliedPhoto('home-tile-for-rent')?.photo ?? interior;
+const HUB_SELLERS = suppliedPhoto('hub-sellers')?.photo ?? soldSignSalisbury;
+const HUB_BUYERS = suppliedPhoto('hub-buyers')?.photo ?? STOCK.houseExterior.photo;
+
 const PILLARS = [
   { title: 'Two offices', copy: 'Blair Athol in Adelaide’s north, and Commercial Street East in Mount Gambier.' },
   { title: 'One team', copy: 'Sales and property management working side by side, not in separate silos.' },
@@ -34,7 +44,7 @@ export default function Home() {
               {
                 href: LISTINGS_LINKS.buy.href,
                 external: true,
-                image: mountGambierStreet,
+                image: TILE_FOR_SALE,
                 alt: '',
                 kicker: 'Buy',
                 title: 'Properties for sale',
@@ -42,7 +52,7 @@ export default function Home() {
               {
                 href: LISTINGS_LINKS.rent.href,
                 external: true,
-                image: interior,
+                image: TILE_FOR_RENT,
                 alt: '',
                 kicker: 'Rent',
                 title: 'Properties for rent',
@@ -136,8 +146,8 @@ export default function Home() {
             items={[
               { href: '/client-hub/landlords/', image: STOCK.openPlan.photo, alt: '', kicker: 'I own a rental', title: 'Landlord hub' },
               { href: '/client-hub/tenants/', image: STOCK.keysHand.photo, alt: '', kicker: 'I’m renting', title: 'Tenant hub' },
-              { href: '/client-hub/sellers/', image: soldSign, alt: '', kicker: 'I’m selling', title: 'Seller hub' },
-              { href: '/client-hub/buyers/', image: mountGambierStreet, alt: '', kicker: 'I’m buying', title: 'Buyer hub' },
+              { href: '/client-hub/sellers/', image: HUB_SELLERS, alt: '', kicker: 'I’m selling', title: 'Seller hub' },
+              { href: '/client-hub/buyers/', image: HUB_BUYERS, alt: '', kicker: 'I’m buying', title: 'Buyer hub' },
             ]}
           />
         </div>

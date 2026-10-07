@@ -4,6 +4,7 @@ import Icon from '../components/Icon';
 import JsonLd from '../components/JsonLd';
 import { CtaBand, Faq, FormSection, PageHero, Process, Reasons, Team } from '../components/sections';
 import { service } from '../structured-data';
+import { SALES_PAGE_TEAM } from '../data/team';
 import soldSign from '../assets/photos/sold-sign-fenden-rd.jpg?photo';
 
 // Keep every claim here to something APN can stand behind: no sales
@@ -96,7 +97,7 @@ export default function Selling() {
       </PageHero>
       <Reasons eyebrow="Why sellers choose APN" title="The people behind your sale." items={REASONS} />
       <Process eyebrow="Our selling process" title="How a sale works with us." steps={STEPS} />
-      <Team group="sales" eyebrow="Sales team" title="Who you’ll work with." />
+      <Team names={SALES_PAGE_TEAM} credentials eyebrow="Sales team" title="Who you’ll work with." />
       <Faq
         title="Questions sellers ask us."
         items={FAQS}
