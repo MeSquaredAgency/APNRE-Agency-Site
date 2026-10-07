@@ -77,7 +77,7 @@ export const OFFICE_LIST: Office[] = [OFFICES.adelaide, OFFICES['mount-gambier']
  *  on /our-story/. */
 export const BLAIR_ATHOL_PHOTOS = {
   frontage: { photo: blairAtholFrontage, alt: OFFICES.adelaide.photoAlt },
-  reception: { photo: blairAtholReception, alt: 'Reception at APN’s Blair Athol office, with the Adelaide Property Network logo on the wall' },
+  reception: { photo: blairAtholReception, alt: 'Reception at APN Real Estate’s Blair Athol office, with the Adelaide Property Network logo on the wall' },
   meetingRoom: { photo: blairAtholMeetingRoom, alt: 'A glass-walled meeting room at the Blair Athol office' },
   boardroom: { photo: blairAtholBoardroom, alt: 'The boardroom at the Blair Athol office' },
   lounge: { photo: blairAtholLounge, alt: 'A meeting table looking out over the Blair Athol office' },

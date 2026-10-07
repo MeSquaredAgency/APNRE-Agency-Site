@@ -321,10 +321,10 @@ input, select, textarea {
   height: 58px;
   width: auto;
 }
-/* The horizontal logo (src/data/supplied.ts) is wide, so it sits lower. */
+/* Two logos side by side (src/data/supplied.ts): the same height as the
+   single logo, so each logo keeps its size. */
 .site-header__logo--side {
-  height: 44px;
-  max-width: 260px;
+  max-width: 220px;
   object-fit: contain;
   object-position: left center;
 }
@@ -456,8 +456,7 @@ input, select, textarea {
     height: 46px;
   }
   .site-header__logo--side {
-    height: 36px;
-    max-width: 190px;
+    max-width: 170px;
   }
   .site-header__cta {
     display: none;
@@ -2340,8 +2339,7 @@ input, select, textarea {
   font-weight: 600;
 }
 .site-footer__logo--side img {
-  height: 48px;
-  max-width: 260px;
+  max-width: 240px;
   object-fit: contain;
   object-position: left center;
 }

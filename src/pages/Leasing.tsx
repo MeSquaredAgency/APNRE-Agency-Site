@@ -17,7 +17,7 @@ import balconyWide from '../assets/photos/balcony-view-wide.jpg?photo';
 const REASONS = [
   {
     title: 'People on the ground',
-    copy: 'APN operates across Adelaide and Mount Gambier, with people on the ground in both markets.',
+    copy: 'APN Real Estate operates across Adelaide and Mount Gambier, with people on the ground in both markets.',
   },
   {
     title: 'Know who’s looking after it',
@@ -50,7 +50,7 @@ const STEPS = [
 
 const FAQS = [
   {
-    q: 'What does APN’s property management service include?',
+    q: 'What does APN Real Estate’s property management service include?',
     a: 'Finding and screening tenants, collecting rent, routine and entry/exit inspections, coordinating maintenance and repairs, and keeping you informed about your property. Get in touch and your property manager can walk you through what that looks like for your specific property.',
   },
   {
@@ -117,7 +117,7 @@ export default function Leasing() {
         title="Property management in Adelaide & Mount Gambier."
         lede="Your property is an asset, and we treat it like one, with a named property manager you can reach directly."
         photo={heroPhoto}
-        photoAlt="View across the Adelaide hills from one of the properties APN manages"
+        photoAlt="View across the Adelaide hills from one of the properties APN Real Estate manages"
         focalPoint="center 78%"
       >
         <div className="page-hero__actions">
@@ -130,7 +130,7 @@ export default function Leasing() {
         </div>
       </PageHero>
       <Reasons
-        eyebrow="Why landlords choose APN"
+        eyebrow="Why landlords choose APN Real Estate"
         title="A property manager you can actually reach."
         items={REASONS}
         dark
@@ -144,7 +144,7 @@ export default function Leasing() {
         more={
           <>
             More detail: <a href="/blog/what-does-a-property-manager-do/">what does a property manager do?</a> Already
-            with APN? Go to the <a href="/client-hub/landlords/">landlord hub</a>, or{' '}
+            with APN Real Estate? Go to the <a href="/client-hub/landlords/">landlord hub</a>, or{' '}
             <a href="/our-people/?filter=property-management">meet our property managers</a>.
           </>
         }
@@ -153,8 +153,8 @@ export default function Leasing() {
         id="appraisal"
         eyebrow="Free rental appraisal"
         title="What could your property rent for?"
-        copy="Tell us about your property. A local APN property manager will review the details and contact you directly."
-        steps={['We review your property', 'An APN property manager contacts you', 'You decide, with no obligation to appoint APN']}
+        copy="Tell us about your property. A local APN Real Estate property manager will review the details and contact you directly."
+        steps={['We review your property', 'An APN Real Estate property manager contacts you', 'You decide, with no obligation to appoint APN Real Estate']}
       >
         <EnquiryForm kind="rental-appraisal" submitLabel="Get My Free Rental Appraisal" />
       </FormSection>

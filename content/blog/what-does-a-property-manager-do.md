@@ -176,6 +176,6 @@ At **APN Real Estate**, our approach is simple:
 
 **Your property is an asset. We treat it like one.**
 
-If you're considering [changing property managers](/leasing/#switch), renting out an investment property for the first time, or simply want to understand how your property is currently performing, see [how property management with APN works](/leasing/) or speak with the team at our [Adelaide](/contact/#adelaide) or [Mount Gambier](/contact/#mount-gambier) office.
+If you're considering [changing property managers](/leasing/#switch), renting out an investment property for the first time, or simply want to understand how your property is currently performing, see [how property management with APN Real Estate works](/leasing/) or speak with the team at our [Adelaide](/contact/#adelaide) or [Mount Gambier](/contact/#mount-gambier) office.
 
 **Thinking about your property differently? [Book a free rental appraisal](/appraisal/rental/) and an APN property manager will talk you through it.**

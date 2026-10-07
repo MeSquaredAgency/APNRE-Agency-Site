@@ -41,7 +41,7 @@ export const NAV_GROUPS: NavGroup[] = [
     title: 'Sell',
     href: '/selling/',
     links: [
-      { href: '/selling/', label: 'Selling With APN' },
+      { href: '/selling/', label: 'Selling With APN Real Estate' },
       { href: '/appraisal/sales/', label: 'Sales Appraisal' },
       { href: '/sold/', label: 'Recent Sales' },
       { href: '/client-hub/sellers/', label: 'Seller Hub' },

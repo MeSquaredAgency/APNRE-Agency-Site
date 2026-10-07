@@ -27,9 +27,9 @@ export const OG_DEFAULT = {
 export const OG_PHOTOS = {
   home: OG_DEFAULT,
   selling: { file: photo('sold-sign-fenden-rd.jpg'), alt: 'An Adelaide Property Network SOLD sign outside a home in Salisbury', position: 'left', logo: false },
-  leasing: { file: photo('balcony-view-hills.jpg'), alt: 'View across the Adelaide hills from one of the properties APN manages' },
+  leasing: { file: photo('balcony-view-hills.jpg'), alt: 'View across the Adelaide hills from one of the properties APN Real Estate manages' },
   buy: { file: photo('mount-gambier-hillside-street.jpg'), alt: 'Homes on a hillside street in Mount Gambier' },
-  rent: { file: photo('interior-corner-windows.jpg'), alt: 'Floor-to-ceiling corner windows in a property managed by APN' },
+  rent: { file: photo('interior-corner-windows.jpg'), alt: 'Floor-to-ceiling corner windows in a property managed by APN Real Estate' },
   sold: { file: photo('sold-sign-ridley.jpg'), alt: 'An Adelaide Property Network SOLD sign outside a brick home', position: 'right', logo: false },
   'office-space': { file: photo('office/blair-athol-hallway.jpg'), alt: 'A hallway in the Adelaide Property Network office at 420B Main North Road, Blair Athol', logo: false },
   contact: { file: photo('office/blair-athol-frontage.jpg'), alt: 'The Adelaide Property Network office at 420B Main North Road, Blair Athol', logo: false },

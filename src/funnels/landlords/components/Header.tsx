@@ -4,7 +4,7 @@ import SiteHeader from '../../../components/Header';
 // appraisal button, so ad visitors stay on the page (src/components/Header.tsx).
 
 const PAGE_LINKS = [
-  { href: '#why-apn', label: 'Why APN' },
+  { href: '#why-apn', label: 'Why APN Real Estate' },
   { href: '#team', label: 'The Team' },
   { href: '#switch', label: 'Switching?' },
   { href: '#faq', label: 'FAQ' },

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { MAIN_LOGO_ALT } from '../data/offices';
 import logoReversed from '../assets/logo/adelaide-property-network-logo-reversed.png';
-import { SIDE_LOGO_REVERSED } from '../data/supplied';
+import { SIDE_LOGO_ALT, SIDE_LOGO_REVERSED } from '../data/supplied';
 import { PHONE_DISPLAY, PHONE_TEL } from '../data/business';
 import { NAV_GROUPS, PRIMARY_NAV, type NavLink } from '../data/nav';
 import { trackCallClick } from '../lib/analytics';
@@ -27,9 +27,9 @@ export interface FunnelNav {
 
 const MAIN_CTA: NavLink = { href: '/appraisal/', label: 'Book a Free Appraisal' };
 
-/** The horizontal logo once it's supplied (src/data/supplied.ts),
- *  otherwise the stacked one. The header is always dark, so both are the
- *  reversed (light) versions. */
+/** The Adelaide and Mount Gambier logos side by side
+ *  (src/data/supplied.ts), or the Adelaide one alone without that file.
+ *  The header is always dark, so both are the reversed (light) versions. */
 const LOGO = SIDE_LOGO_REVERSED ?? { src: logoReversed, width: 448, height: 300 };
 
 export default function Header({ current, overlay = false, funnel }: HeaderProps) {
@@ -100,7 +100,7 @@ export default function Header({ current, overlay = false, funnel }: HeaderProps
               the space before it loads; CSS sets the displayed height. */}
           <img
             src={LOGO.src}
-            alt={MAIN_LOGO_ALT}
+            alt={SIDE_LOGO_REVERSED ? SIDE_LOGO_ALT : MAIN_LOGO_ALT}
             className={`site-header__logo${SIDE_LOGO_REVERSED ? ' site-header__logo--side' : ''}`}
             width={LOGO.width}
             height={LOGO.height}

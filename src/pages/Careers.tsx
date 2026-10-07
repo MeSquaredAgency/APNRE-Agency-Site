@@ -11,7 +11,7 @@ export default function Careers() {
     <Layout>
       <PageHero
         eyebrow="Careers"
-        title="Work with APN."
+        title="Work with APN Real Estate."
         lede="We’re a local team across sales, leasing and property management in Adelaide and Mount Gambier."
         photo={BLAIR_ATHOL_PHOTOS.lounge.photo}
         photoAlt={BLAIR_ATHOL_PHOTOS.lounge.alt}

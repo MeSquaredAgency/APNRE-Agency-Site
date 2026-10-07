@@ -146,7 +146,7 @@ export default function Listing() {
               {listing.headline && <h2 className="h-2">{listing.headline}</h2>}
               {listing.apnBuilding === 'mount-gambier' && (
                 <p className="listing__note">
-                  This space is in APN’s own Mount Gambier office building.
+                  This space is in APN Real Estate’s own Mount Gambier office building.
                 </p>
               )}
               {listing.description && <Description text={listing.description} />}

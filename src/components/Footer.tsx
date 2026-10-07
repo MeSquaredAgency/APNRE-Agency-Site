@@ -1,7 +1,7 @@
 import logoReversed from '../assets/logo/adelaide-property-network-logo-reversed.png';
 import { OFFICE_LIST } from '../data/offices';
 import { NAV_GROUPS } from '../data/nav';
-import { SIDE_LOGO_REVERSED } from '../data/supplied';
+import { SIDE_LOGO_ALT, SIDE_LOGO_REVERSED } from '../data/supplied';
 import {
   ABN,
   ACN,
@@ -30,7 +30,7 @@ export default function Footer() {
           <a href="/" className={`site-footer__logo${SIDE_LOGO_REVERSED ? ' site-footer__logo--side' : ''}`}>
             <img
               src={logo.src}
-              alt="Adelaide Property Network — APN Real Estate"
+              alt={SIDE_LOGO_REVERSED ? SIDE_LOGO_ALT : 'Adelaide Property Network — APN Real Estate'}
               width={logo.width}
               height={logo.height}
               loading="lazy"

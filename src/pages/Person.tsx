@@ -114,10 +114,10 @@ export default function Person() {
         title={sells && !manages ? 'Thinking of selling?' : 'What’s your property worth?'}
         copy={
           sells && !manages
-            ? 'Book a free sales appraisal with the APN sales team. There’s no obligation.'
+            ? 'Book a free sales appraisal with the APN Real Estate sales team. There’s no obligation.'
             : manages && !sells
-              ? 'Book a free rental appraisal with an APN property manager. There’s no obligation.'
-              : 'Book a free sales or rental appraisal with a local APN agent. There’s no obligation.'
+              ? 'Book a free rental appraisal with an APN Real Estate property manager. There’s no obligation.'
+              : 'Book a free sales or rental appraisal with a local APN Real Estate agent. There’s no obligation.'
         }
         href={sells && !manages ? '/appraisal/sales/' : manages && !sells ? '/appraisal/rental/' : '/appraisal/'}
       />

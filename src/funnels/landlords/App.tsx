@@ -26,7 +26,7 @@ const PILLARS = [
   { title: 'Two local offices', copy: 'Blair Athol in Adelaide’s north, and Commercial Street East in Mount Gambier.' },
   { title: 'A named manager', copy: 'You’ll know who’s looking after your property and how to reach them directly.' },
   { title: 'Switching managers', copy: 'A straightforward process that doesn’t need to disrupt an existing tenancy.' },
-  { title: 'Free appraisal', copy: 'Find out what your property could rent for, with no obligation to appoint APN.' },
+  { title: 'Free appraisal', copy: 'Find out what your property could rent for, with no obligation to appoint APN Real Estate.' },
 ];
 
 const PROBLEMS = [
@@ -47,7 +47,7 @@ const PROBLEMS = [
 const REASONS = [
   {
     title: 'People on the ground. Local property knowledge.',
-    copy: 'APN operates across Adelaide and Mount Gambier, with people on the ground in both markets.',
+    copy: 'APN Real Estate operates across Adelaide and Mount Gambier, with people on the ground in both markets.',
   },
   {
     title: 'Know exactly who’s looking after it.',
@@ -61,7 +61,7 @@ const REASONS = [
 
 const FAQS = [
   {
-    q: 'What does APN’s property management service include?',
+    q: 'What does APN Real Estate’s property management service include?',
     a: 'Finding and screening tenants, collecting rent, routine and entry/exit inspections, coordinating maintenance and repairs, and keeping you informed about your property. Get in touch and your property manager can walk you through what that looks like for your specific property.',
   },
   {
@@ -81,7 +81,7 @@ const FAQS = [
     a: 'A named property manager from our team. You’ll know who they are and be able to reach them directly.',
   },
   {
-    q: 'Can APN manage my property if I live interstate?',
+    q: 'Can APN Real Estate manage my property if I live interstate?',
     a: 'Get in touch with the details of your property and where you’re based, and we’ll let you know how we can help.',
   },
   {
@@ -121,7 +121,7 @@ function WhyApn() {
     <section className="section section-dark" id="why-apn">
       <div className="wrap story__grid funnel-why">
         <div>
-          <span className="eyebrow">Why landlords choose APN</span>
+          <span className="eyebrow">Why landlords choose APN Real Estate</span>
           <h2 className="h-1">A property manager you can actually reach.</h2>
           <ol className="reasons">
             {REASONS.map((r, i) => (
@@ -143,7 +143,7 @@ function WhyApn() {
         <figure className="funnel-why__media">
           <Picture
             photo={interiorPhoto}
-            alt="Interior of a property managed by APN, with floor-to-ceiling windows"
+            alt="Interior of a property managed by APN Real Estate, with floor-to-ceiling windows"
             sizes="(max-width: 900px) 100vw, 50vw"
           />
           <figcaption>Real properties, looked after by a local team.</figcaption>
@@ -193,7 +193,7 @@ function Switching() {
         </p>
         <div className="page-hero__actions">
           <a href={FORM_HREF} className="btn btn-primary" onClick={pickSwitching}>
-            Talk to APN About Switching <Icon name="arrow" />
+            Talk to APN Real Estate About Switching <Icon name="arrow" />
           </a>
           <a href={PHONE_TEL} className="btn btn-outline-light" onClick={() => trackCallClick('switch_section')}>
             Or call {PHONE_DISPLAY}
@@ -221,7 +221,7 @@ export default function App() {
           }
           lede="Professional property management for landlords across Adelaide and Mount Gambier — with a team that treats your property as an investment, not just another rental to manage."
           photo={heroPhoto}
-          photoAlt="View across the Adelaide hills from one of the properties APN manages"
+          photoAlt="View across the Adelaide hills from one of the properties APN Real Estate manages"
           focalPoint="center 78%"
         >
           <div className="page-hero__actions">
@@ -233,7 +233,7 @@ export default function App() {
             </a>
           </div>
         </PageHero>
-        <Pillars items={PILLARS} label="Why APN, in short" />
+        <Pillars items={PILLARS} label="Why APN Real Estate, in short" />
         <Problem />
         <WhyApn />
         <Team eyebrow="Meet the team" title="Know who’s looking after your property." linkNames={false} />
@@ -244,8 +244,8 @@ export default function App() {
           id="appraisal"
           eyebrow="Free rental appraisal"
           title="What is your property really worth to rent?"
-          copy="Tell us about your property. A local APN property manager will review the details and contact you directly."
-          steps={['We review your property', 'An APN property manager contacts you directly', 'You decide, with no obligation to appoint APN']}
+          copy="Tell us about your property. A local APN Real Estate property manager will review the details and contact you directly."
+          steps={['We review your property', 'An APN Real Estate property manager contacts you directly', 'You decide, with no obligation to appoint APN Real Estate']}
         >
           <AppraisalForm />
         </FormSection>
@@ -262,7 +262,7 @@ export default function App() {
         />
         <CtaBand
           title="Ready for property management that feels more straightforward?"
-          copy="Tell us about your property and we’ll talk through what APN could do for you."
+          copy="Tell us about your property and we’ll talk through what APN Real Estate could do for you."
           href={FORM_HREF}
           label="Get My Free Rental Appraisal"
         />

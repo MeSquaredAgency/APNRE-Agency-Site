@@ -26,8 +26,8 @@ const COPY: Record<
   },
   rental: {
     title: 'Free rental appraisal in Adelaide & Mount Gambier.',
-    copy: 'What could your property rent for? Tell us about it and a local APN property manager will review the details and contact you directly.',
-    steps: ['We review your property', 'An APN property manager contacts you', 'You decide, with no obligation to appoint APN'],
+    copy: 'What could your property rent for? Tell us about it and a local APN Real Estate property manager will review the details and contact you directly.',
+    steps: ['We review your property', 'An APN Real Estate property manager contacts you', 'You decide, with no obligation to appoint APN Real Estate'],
     submit: 'Get My Free Rental Appraisal',
     service: { href: '/leasing/', label: 'How we manage rentals' },
   },

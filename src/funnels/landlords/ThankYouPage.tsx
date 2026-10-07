@@ -12,8 +12,8 @@ const FORM = `/landlords/${FORM_HREF}`;
 
 const NEXT_STEPS = [
   { title: 'We review your property', copy: 'We look over the details you’ve given us and assess the property.' },
-  { title: 'We contact you', copy: 'An APN property manager gets in touch directly.' },
-  { title: 'You decide', copy: 'There’s no obligation to appoint APN.' },
+  { title: 'We contact you', copy: 'An APN Real Estate property manager gets in touch directly.' },
+  { title: 'You decide', copy: 'There’s no obligation to appoint APN Real Estate.' },
 ];
 
 export default function ThankYouPage() {
@@ -27,7 +27,7 @@ export default function ThankYouPage() {
         <PageHero
           eyebrow="Thank you"
           title="We’ve got your details."
-          lede="Your free rental appraisal request has been received. A local APN property manager will review your property and be in touch directly."
+          lede="Your free rental appraisal request has been received. A local APN Real Estate property manager will review your property and be in touch directly."
         >
           <div className="page-hero__actions">
             <a href={PHONE_TEL} className="btn btn-primary" onClick={() => trackCallClick('thank_you')}>

@@ -179,13 +179,13 @@ export function LandlordHub() {
         eyebrow: 'Landlords',
         path: '/client-hub/landlords/',
         title: 'Landlord hub.',
-        lede: 'For owners whose property APN manages, or who are thinking about it: reach your property manager, get an appraisal, or talk to us about changing over.',
+        lede: 'For owners whose property APN Real Estate manages, or who are thinking about it: reach your property manager, get an appraisal, or talk to us about changing over.',
         photo: STOCK.openPlan.photo,
         photoAlt: STOCK.openPlan.alt,
         actions: [
           { icon: 'users', title: 'Talk to your property manager', copy: `Call ${PHONE_DISPLAY} and ask for them by name, or send a message below.`, ...CALL, call: 'hub_landlord' },
           { icon: 'chart', title: 'Get a rental appraisal', copy: 'What your property, or your next one, should lease for today.', href: '/appraisal/rental/' },
-          { icon: 'swap', title: 'Switch to APN', copy: 'How switching property managers works, even with tenants in place.', href: '/leasing/#switch' },
+          { icon: 'swap', title: 'Switch to APN Real Estate', copy: 'How switching property managers works, even with tenants in place.', href: '/leasing/#switch' },
           { icon: 'tag', title: 'Thinking of selling?', copy: 'Sales and property management work together, including for tenanted sales.', href: '/appraisal/sales/' },
         ],
         team: 'property-management',
@@ -194,7 +194,7 @@ export function LandlordHub() {
         faqMore: (
           <>
             More detail: <a href="/blog/what-does-a-property-manager-do/">a guide to what your property manager does</a>,
-            or <a href="/leasing/">how property management with APN works</a>.
+            or <a href="/leasing/">how property management with APN Real Estate works</a>.
           </>
         ),
         faqs: [
@@ -203,7 +203,7 @@ export function LandlordHub() {
             a: 'Your property manager. Call the office on 1300 123 276 and ask for them by name, or send a message below and it will reach the property management team.',
           },
           {
-            q: 'What does APN’s property management include?',
+            q: 'What does APN Real Estate’s property management include?',
             a: 'Finding and screening tenants, collecting rent, routine and entry/exit inspections, coordinating maintenance and repairs, and keeping you informed about your property.',
           },
           {
@@ -211,7 +211,7 @@ export function LandlordHub() {
             a: 'Your property manager coordinates qualified tradespeople to get it sorted and keeps you informed about what’s happening and why.',
           },
           {
-            q: 'Can I move my property to APN if it’s tenanted?',
+            q: 'Can I move my property to APN Real Estate if it’s tenanted?',
             a: 'Yes. Changing property managers is a normal process and doesn’t need to disrupt the tenancy. Tell us about your property and we’ll explain how it would work.',
           },
         ],
@@ -235,7 +235,7 @@ export function TenantHub() {
         eyebrow: 'Tenants',
         path: '/client-hub/tenants/',
         title: 'Tenant hub.',
-        lede: 'Renting with APN, or looking for a place? Report a repair, find a rental, or get in touch with your property manager.',
+        lede: 'Renting with APN Real Estate, or looking for a place? Report a repair, find a rental, or get in touch with your property manager.',
         photo: STOCK.keysHand.photo,
         photoAlt: STOCK.keysHand.alt,
         actions: [
@@ -290,13 +290,13 @@ export function SellerHub() {
         eyebrow: 'Sellers',
         path: '/client-hub/sellers/',
         title: 'Seller hub.',
-        lede: 'Thinking of selling, or already selling with APN? Get an appraisal, see recent results, or talk to the sales team.',
+        lede: 'Thinking of selling, or already selling with APN Real Estate? Get an appraisal, see recent results, or talk to the sales team.',
         photo: soldSign,
         photoAlt: 'An Adelaide Property Network SOLD sign outside a brick home',
         focalPoint: '70% center',
         actions: [
           { icon: 'chart', title: 'Get a sales appraisal', copy: 'A realistic price guide based on recent sales nearby. No obligation.', href: '/appraisal/sales/' },
-          { icon: 'tag', title: 'See recent sales', copy: 'What APN has sold recently.', href: '/sold/' },
+          { icon: 'tag', title: 'See recent sales', copy: 'What APN Real Estate has sold recently.', href: '/sold/' },
           { icon: 'users', title: 'Talk to the sales team', copy: `Call ${PHONE_DISPLAY} about your sale.`, ...CALL, call: 'hub_seller' },
           { icon: 'key', title: 'Selling a tenanted property', copy: 'Our sales and property management teams work together on it.', href: '/selling/#appraisal' },
         ],
@@ -305,7 +305,7 @@ export function SellerHub() {
         faqTitle: 'Questions from sellers.',
         faqMore: (
           <>
-            See <a href="/selling/">how a sale works with APN</a>, or{' '}
+            See <a href="/selling/">how a sale works with APN Real Estate</a>, or{' '}
             <a href="/our-people/?filter=sales">meet the sales team</a>.
           </>
         ),
@@ -324,7 +324,7 @@ export function SellerHub() {
           },
           {
             q: 'Can I sell while the property is tenanted?',
-            a: 'Yes. Because APN does property management as well as sales, we can explain how a sale works with tenants in place, including inspections and notice.',
+            a: 'Yes. Because APN Real Estate does property management as well as sales, we can explain how a sale works with tenants in place, including inspections and notice.',
           },
         ],
         form: {

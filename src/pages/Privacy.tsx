@@ -22,7 +22,7 @@ export default function Privacy() {
           <p className="legal__updated">Last updated {LAST_UPDATED}</p>
 
           <p className="lede">
-            {BUSINESS_NAME} (“APN”, “we”, “us”) respects your privacy. This
+            {BUSINESS_NAME} (“we”, “us”) respects your privacy. This
             policy explains what personal information we collect through
             this website, why, and what we do with it. We handle personal
             information in line with the Australian Privacy Principles in
@@ -134,7 +134,7 @@ export default function Privacy() {
           <p>
             We take reasonable steps to protect personal information from
             misuse, loss and unauthorised access. Access to enquiries is
-            limited to APN staff who need it. When we no longer need
+            limited to APN Real Estate staff who need it. When we no longer need
             information, we take reasonable steps to delete it or
             de-identify it.
           </p>
