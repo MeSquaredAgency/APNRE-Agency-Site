@@ -98,15 +98,14 @@ export default function Footer() {
   );
 }
 
-/** The site builder's credit. There's no Me² logo file yet, so the mark
- *  is set in type: "me" plus a coral "²", as on Me²'s own site.
- *  TODO(supplied-assets): swap in the me² logo file once there is one. */
+/** The site builder's credit. The me² mark is a light version of Me²'s
+ *  logo (navy "me" made light for the dark footer, coral "2" kept), in
+ *  public/ so the static 404 page can use the same file. The words say
+ *  who it is, so the mark itself is decorative. */
 export function PoweredBy() {
   return (
     <a className="powered-by" href="https://mesquaredagency.com" target="_blank" rel="noopener">
-      <span className="powered-by__mark" aria-hidden="true">
-        me<sup>²</sup>
-      </span>
+      <img className="powered-by__mark" src="/me2-mark.webp" alt="" width={86} height={48} loading="lazy" decoding="async" />
       Powered by Me² Agency
       <span className="visually-hidden"> (opens in a new tab)</span>
     </a>
