@@ -6,7 +6,23 @@ declare global {
   interface Window {
     fbq?: (...args: unknown[]) => void;
     dataLayer?: unknown[];
+    gtag?: (...args: unknown[]) => void;
   }
+}
+
+/** The site loads GTM, not gtag.js, so there's no `gtag` until we make
+ *  one. This is Google's standard stub: it queues the command on the
+ *  dataLayer, where the Google tag that GTM loads picks it up. */
+function gtag(...args: unknown[]) {
+  window.dataLayer = window.dataLayer || [];
+  window.gtag =
+    window.gtag ||
+    function () {
+      // Must be the `arguments` object, not an array, or the Google tag
+      // ignores it.
+      window.dataLayer!.push(arguments);
+    };
+  window.gtag(...args);
 }
 
 /** Fire after a successful form submission, then call `onDone` (normally
@@ -20,7 +36,11 @@ declare global {
  *  (src/funnels/landlords/lib/analytics.ts) sends, so one GTM trigger and GA4 tag
  *  cover every form on the site. `event_category` tells the two apart
  *  ('enquiry_form' here, 'appraisal_form' there) and `form_name` is the
- *  enquiry type, e.g. 'sales-appraisal'. See docs/gtm-events.md. */
+ *  enquiry type, e.g. 'sales-appraisal'. See docs/gtm-events.md.
+ *
+ *  On the /appraisal/ pages it also sends the Google Ads conversion event
+ *  `conversion_event_submit_lead_form`, and the redirect waits for that
+ *  too (same fallback). */
 export function trackFormSubmit(formName: string, onDone: () => void) {
   let done = false;
   const finish = () => {
@@ -28,6 +48,20 @@ export function trackFormSubmit(formName: string, onDone: () => void) {
     done = true;
     onDone();
   };
+
+  // Each event sent below holds the redirect until it calls back.
+  let pending = 0;
+  const hold = () => {
+    pending++;
+    let called = false;
+    return () => {
+      if (called) return;
+      called = true;
+      if (--pending === 0) finish();
+    };
+  };
+  const gtmDone = hold();
+  const adsDone = window.location.pathname.startsWith('/appraisal') ? hold() : undefined;
 
   // Appraisals are the leads worth optimising ads for; everything else
   // is a plain Contact.
@@ -43,13 +77,24 @@ export function trackFormSubmit(formName: string, onDone: () => void) {
       event: 'generate_lead',
       event_category: 'enquiry_form',
       form_name: formName,
-      eventCallback: finish,
+      eventCallback: gtmDone,
       eventTimeout: 1500,
     });
   } catch (err) {
     console.warn('dataLayer push failed:', err);
-    finish();
-    return;
+    gtmDone();
+  }
+
+  if (adsDone) {
+    try {
+      gtag('event', 'conversion_event_submit_lead_form', {
+        event_callback: adsDone,
+        event_timeout: 1500,
+      });
+    } catch (err) {
+      console.warn('Google Ads conversion event failed:', err);
+      adsDone();
+    }
   }
 
   setTimeout(finish, 1500);

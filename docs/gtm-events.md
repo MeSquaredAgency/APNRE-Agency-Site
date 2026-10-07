@@ -20,6 +20,7 @@ apart.
 | `generate_lead` | main site (`src/lib/analytics.ts`) | Any enquiry form accepted by `/api/enquiry`, just before the redirect to `/thank-you/` | `event_category` (`enquiry_form`), `form_name` (`sales-appraisal`, `rental-appraisal`, `buyer-register`, `tenant-register`, `general`, `careers`, `maintenance`, `listing`, `office-lease`, `podcast-hire`) |
 | `generate_lead` | landlord page (`src/funnels/landlords/lib/analytics.ts`) | The appraisal form on `go.apnre.com.au/landlords/` accepted by `/api/lead` | `event_category` (`appraisal_form`), `event_label` (`Free Rental Appraisal`), `office` (`home`), `currently_managed` (`agent`, `self`, `not-rented`, `not_answered`) |
 | `appraisal_form_submit` | landlord page | Straight after its `generate_lead`, just before the redirect to `/landlords/thank-you/` | `form_name` (`landlord_appraisal`) |
+| `conversion_event_submit_lead_form` | main site (`src/lib/analytics.ts`), as a `gtag('event', …)` command rather than a plain dataLayer event | An appraisal form on `/appraisal/`, `/appraisal/sales/` or `/appraisal/rental/` accepted by `/api/enquiry`, alongside its `generate_lead`. Not sent by the same form on other pages | none |
 | `click_to_call` | both | A tap on a Call button | `placement` (where the button is, e.g. `header`, `menu`, `sticky_bar`, `footer`, `cta_band`) |
 | `click_to_whatsapp` | main site | A tap on a WhatsApp link | `placement` (`footer` or `contact_hero`) |
 
@@ -55,6 +56,16 @@ apart.
 `generate_lead`. If the container already has a GA4 tag on it, count only
 one of the two as a key event, or every landlord lead will be counted
 twice.
+
+## Google Ads lead form conversion
+
+`conversion_event_submit_lead_form` is the event from Google Ads' "Google
+tag event" conversion setup. The site loads GTM, not gtag.js, so the
+page queues it on the dataLayer with Google's `gtag()` stub, and only the
+**Google tag** (the one with the Google Ads `AW-` ID, or a `GT-` tag that
+includes it) loaded through GTM picks it up. GTM triggers don't see it.
+If the Ads conversion shows no data, check that the container has that
+Google tag firing on All Pages.
 
 ## Ad conversions that use a page URL
 
