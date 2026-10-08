@@ -8,13 +8,13 @@ import Layout from '../components/Layout';
 import EnquiryForm from '../components/EnquiryForm';
 import Icon from '../components/Icon';
 import JsonLd from '../components/JsonLd';
-import { CtaBand, FormSection, PageHero } from '../components/sections';
+import { CtaBand, FormSection, PageHero, SectionHead } from '../components/sections';
 import { TEAM, teamMemberId } from '../data/team';
 import { linkParts, parseDescription, splitLabel } from '../lib/description';
-import { formatDay, LISTINGS, listingAddress, photoSrcSet, thumb, type Listing as ListingData } from '../lib/listings';
+import { formatDay, LISTINGS, listingAddress, listingsIn, photoSrcSet, thumb, type Listing as ListingData } from '../lib/listings';
 import { usePath } from '../lib/route';
 import { breadcrumbList, SITE } from '../structured-data';
-import { ListingFeatures } from './Listings';
+import { ListingCard, ListingFeatures } from './Listings';
 
 const SECTIONS = {
   buy: { name: 'Buy', path: '/buy/', eyebrow: 'For sale' },
@@ -22,6 +22,46 @@ const SECTIONS = {
   sold: { name: 'Sold', path: '/sold/', eyebrow: 'Sold' },
   commercial: { name: 'Commercial', path: '/commercial/', eyebrow: 'For lease' },
 };
+
+/** Other listings shown under each one, in the same section. */
+const MORE_LISTINGS = 3;
+const MORE_TITLE = {
+  buy: 'More properties for sale.',
+  rent: 'More properties for rent.',
+  sold: 'More recent sales.',
+  commercial: 'More commercial property for lease.',
+};
+
+/** A few of the section's other listings: the ones after this one,
+ *  wrapping round, so every listing is linked from other listings' pages
+ *  as well as from /buy/, /rent/ or /commercial/. */
+function MoreListings({ listing }: { listing: ListingData }) {
+  const all = listingsIn(listing.section);
+  const i = all.findIndex((l) => l.id === listing.id);
+  const more = [...all.slice(i + 1), ...all.slice(0, i)].slice(0, MORE_LISTINGS);
+  if (more.length === 0) return null;
+  const section = SECTIONS[listing.section];
+  return (
+    <section className="section section-white">
+      <div className="wrap">
+        <SectionHead
+          eyebrow={section.eyebrow}
+          title={MORE_TITLE[listing.section]}
+          action={
+            <a href={section.path} className="btn btn-outline-dark">
+              See them all <Icon name="arrow" />
+            </a>
+          }
+        />
+        <ul className="listing-grid">
+          {more.map((l) => (
+            <ListingCard key={l.id} listing={l} />
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
 
 /** Photos shown straight away under the main one; the rest sit behind
  *  "Show all photos". */
@@ -65,15 +105,18 @@ function Photos({ listing, address }: { listing: ListingData; address: string })
   );
 }
 
-/** Text with its web and email addresses as links. */
-function Linked({ text }: { text: string }) {
+type LinkTargets = Record<string, string> | undefined;
+
+/** Text with its web and email addresses as links; a short link goes
+ *  straight to its target when the build has looked it up. */
+function Linked({ text, targets }: { text: string; targets: LinkTargets }) {
   return (
     <>
       {linkParts(text).map((part, i) =>
         part.href ? (
           <a
             key={i}
-            href={part.href}
+            href={targets?.[part.href] ?? part.href}
             {...(part.href.startsWith('mailto:') ? {} : { target: '_blank', rel: 'noopener noreferrer' })}
           >
             {part.text}
@@ -88,7 +131,7 @@ function Linked({ text }: { text: string }) {
 
 /** The feed's plain-text description, with the headings, lists and
  *  paragraphs read back out of it (src/lib/description.ts). */
-function Description({ text }: { text: string }) {
+function Description({ text, targets }: { text: string; targets: LinkTargets }) {
   return (
     <div className="listing__description">
       {parseDescription(text).map((block, i) => {
@@ -102,10 +145,10 @@ function Description({ text }: { text: string }) {
                   <li key={j}>
                     {labelled ? (
                       <>
-                        <strong>{labelled.label}</strong> <Linked text={labelled.rest} />
+                        <strong>{labelled.label}</strong> <Linked text={labelled.rest} targets={targets} />
                       </>
                     ) : (
-                      <Linked text={item} />
+                      <Linked text={item} targets={targets} />
                     )}
                   </li>
                 );
@@ -118,7 +161,7 @@ function Description({ text }: { text: string }) {
             {block.lines.map((line, j) => (
               <span key={j}>
                 {j > 0 && <br />}
-                <Linked text={line} />
+                <Linked text={line} targets={targets} />
               </span>
             ))}
           </p>
@@ -194,7 +237,7 @@ export default function Listing() {
                   This space is in APN Real Estate’s own Mount Gambier office building.
                 </p>
               )}
-              {listing.description && <Description text={listing.description} />}
+              {listing.description && <Description text={listing.description} targets={listing.linkTargets} />}
               {facts.length > 0 && (
                 <dl className="listing__facts">
                   {facts.map(([term, value]) => (
@@ -278,6 +321,8 @@ export default function Listing() {
           </div>
         </div>
       </section>
+
+      <MoreListings listing={listing} />
 
       {listing.section === 'sold' ? (
         <CtaBand

@@ -27,6 +27,29 @@ function clip(s, max) {
   return `${s.slice(0, max - 1).replace(/\s+\S*$/, '')}…`;
 }
 
+/** Under this, a meta description says too little to fill a search
+ *  result (Ahrefs flags "Meta description too short" below 110). */
+const MIN_DESCRIPTION = 110;
+
+/** The listing's own opening words, for padding out a short meta
+ *  description: its first line that reads like a sentence (not a
+ *  heading such as "Property Features:", not the headline again). */
+function openingLine(l) {
+  const lines = (l.description || '')
+    .split(/\r?\n/)
+    .map((line) => line.replace(/^[-–—•*·]+\s*/, '').replace(/\s+/g, ' ').trim());
+  return lines.find((line) => line.length >= 40 && !/:$/.test(line) && line !== l.headline);
+}
+
+function listingDescription(l, summary) {
+  let text = l.headline ? `${l.headline}. ${summary}.` : `${summary}.`;
+  if (text.length < MIN_DESCRIPTION) {
+    const opening = openingLine(l);
+    text += opening ? ` ${opening}` : ' See the photos, inspection times and agent details at APN Real Estate.';
+  }
+  return clip(text, 160);
+}
+
 function listingRoute(l) {
   const address = listingAddress(l);
   const rooms = [
@@ -41,7 +64,7 @@ function listingRoute(l) {
     page: 'listing',
     path: l.path,
     title: `${address} | ${SECTION_LABEL[l.section]} | APN Real Estate`,
-    description: clip(l.headline ? `${l.headline}. ${summary}.` : `${summary}.`, 160),
+    description: listingDescription(l, summary),
     // The main photo is the link preview, hosted wherever the feed's
     // photos are (scripts/build-pages.mjs).
     ...(l.photos?.[0] ? { ogImage: absolute(l.photos[0]), ogAlt: `${address}: main photo` } : {}),

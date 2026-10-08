@@ -31,6 +31,10 @@ export interface Listing {
   headline?: string;
   /** Plain text: blank lines between paragraphs. */
   description?: string;
+  /** Where the description's short links (goo.gl/..., youtu.be/...) go,
+   *  looked up at build time (scripts/fetch-listings.mjs) so the page
+   *  links there directly instead of through a redirect. */
+  linkTargets?: Record<string, string>;
   /** Missing when the agent has hidden the street address. */
   street?: string;
   suburb?: string;

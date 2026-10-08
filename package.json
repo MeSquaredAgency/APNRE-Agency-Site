@@ -9,7 +9,8 @@
     "dev:sample": "node scripts/fetch-listings.mjs --sample && node scripts/build-pages.mjs && vite",
     "build": "npm run pages && tsc -b && tsc -p functions && vite build && vite build --ssr src/server.tsx --outDir dist-ssr && node scripts/prerender.mjs",
     "preview": "vite preview",
-    "typecheck:functions": "tsc -p functions"
+    "typecheck:functions": "tsc -p functions",
+    "indexnow": "node scripts/indexnow.mjs"
   },
   "dependencies": {
     "react": "^18.3.1",
