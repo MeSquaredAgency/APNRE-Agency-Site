@@ -1387,6 +1387,50 @@ input, select, textarea {
 .listing__copy p {
   color: var(--grey-700);
 }
+.listing__copy .h-2 + .listing__note,
+.listing__copy .h-2 + .listing__description,
+.listing__note + .listing__description {
+  margin-top: 20px;
+}
+/* The description, laid out by src/lib/description.ts. */
+.listing__description {
+  color: var(--grey-700);
+  line-height: 1.7;
+}
+.listing__description > * + * {
+  margin-top: 1em;
+}
+.listing__description > :first-child {
+  margin-top: 0;
+}
+.listing__description h3 {
+  margin-top: 1.8em;
+  font-size: 1.25rem;
+  line-height: 1.25;
+  color: var(--ink);
+}
+.listing__description h3 + * {
+  margin-top: 0.5em;
+}
+.listing__description ul {
+  margin-bottom: 0;
+  padding-left: 1.2em;
+}
+.listing__description li + li {
+  margin-top: 0.35em;
+}
+.listing__description li::marker {
+  color: var(--lime);
+}
+.listing__description strong {
+  font-weight: 600;
+  color: var(--ink);
+}
+.listing__description a {
+  overflow-wrap: anywhere;
+  text-decoration-color: var(--lime);
+  text-underline-offset: 3px;
+}
 .listing__facts {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));

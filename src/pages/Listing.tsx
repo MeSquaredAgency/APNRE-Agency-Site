@@ -10,6 +10,7 @@ import Icon from '../components/Icon';
 import JsonLd from '../components/JsonLd';
 import { CtaBand, FormSection, PageHero } from '../components/sections';
 import { TEAM, teamMemberId } from '../data/team';
+import { linkParts, parseDescription, splitLabel } from '../lib/description';
 import { formatDay, LISTINGS, listingAddress, photoSrcSet, thumb, type Listing as ListingData } from '../lib/listings';
 import { usePath } from '../lib/route';
 import { breadcrumbList, SITE } from '../structured-data';
@@ -64,22 +65,66 @@ function Photos({ listing, address }: { listing: ListingData; address: string })
   );
 }
 
-/** The feed's plain-text description: blank lines between paragraphs,
- *  single line breaks kept. */
-function Description({ text }: { text: string }) {
+/** Text with its web and email addresses as links. */
+function Linked({ text }: { text: string }) {
   return (
     <>
-      {text.split(/\n\s*\n/).map((para, i) => (
-        <p key={i}>
-          {para.split('\n').map((line, j) => (
-            <span key={j}>
-              {j > 0 && <br />}
-              {line}
-            </span>
-          ))}
-        </p>
-      ))}
+      {linkParts(text).map((part, i) =>
+        part.href ? (
+          <a
+            key={i}
+            href={part.href}
+            {...(part.href.startsWith('mailto:') ? {} : { target: '_blank', rel: 'noopener noreferrer' })}
+          >
+            {part.text}
+          </a>
+        ) : (
+          part.text
+        ),
+      )}
     </>
+  );
+}
+
+/** The feed's plain-text description, with the headings, lists and
+ *  paragraphs read back out of it (src/lib/description.ts). */
+function Description({ text }: { text: string }) {
+  return (
+    <div className="listing__description">
+      {parseDescription(text).map((block, i) => {
+        if (block.type === 'heading') return <h3 key={i}>{block.text}</h3>;
+        if (block.type === 'list') {
+          return (
+            <ul key={i}>
+              {block.items.map((item, j) => {
+                const labelled = splitLabel(item);
+                return (
+                  <li key={j}>
+                    {labelled ? (
+                      <>
+                        <strong>{labelled.label}</strong> <Linked text={labelled.rest} />
+                      </>
+                    ) : (
+                      <Linked text={item} />
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          );
+        }
+        return (
+          <p key={i}>
+            {block.lines.map((line, j) => (
+              <span key={j}>
+                {j > 0 && <br />}
+                <Linked text={line} />
+              </span>
+            ))}
+          </p>
+        );
+      })}
+    </div>
   );
 }
 

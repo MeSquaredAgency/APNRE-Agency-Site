@@ -18,9 +18,24 @@
     </address>
     <category name="House"/>
     <headline>SAMPLE: Family home on a big block</headline>
-    <description>This is a made-up listing used to preview the site's listing pages.
-
-Three bedrooms, two living areas and a double garage on a 720 m² block.</description>
+    <description>This is a made-up listing used to preview the site's listing pages, written the way PropertyMe sends them: one line per point, no blank lines.
+Property Features:
+Three bedrooms, two living areas
+Double garage with workshop space
+720 m² block, fully fenced
+Location:
+Close to everything you need:
+- Example Primary School – approx. 0.5km
+- Shops and cafes – approx. 1.2km
+Extra Information:
+Council Rates: $1,500.00 p/a approx
+Emergency Services Levy: $90.00 p/a approx
+Make an offer online -
+https://example.com/offer
+Have a property to sell?
+Call us for an appraisal.
+Sample Agent 0400 000 000
+Sales Agent - APN Real Estate</description>
     <features><bedrooms>3</bedrooms><bathrooms>2</bathrooms><garages>2</garages></features>
     <landDetails><area unit="squareMeter">720</area></landDetails>
     <inspectionTimes><inspection>12-Oct-2026 1:00pm to 1:30pm</inspection></inspectionTimes>
