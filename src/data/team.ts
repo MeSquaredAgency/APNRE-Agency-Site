@@ -91,15 +91,15 @@ export const TEAM: TeamMember[] = [
   },
   {
     name: 'Jenny Saffin',
-    role: 'Property Manager (Leasing & Inspections)',
+    role: 'Property Manager',
     // The matrix had "RLA XXXXX"; Elliot supplied the number on 7 Oct 2026.
     registration: 'Licensed Property Manager RPM 327884',
     initials: 'JS',
     photo: jennyPhoto,
-    photoAlt: 'Jenny Saffin, Property Manager (Leasing & Inspections), Mount Gambier',
+    photoAlt: 'Jenny Saffin, Property Manager, Mount Gambier',
     groups: ['property-management'],
     office: 'mount-gambier',
-    bio: 'Jenny is a Property Manager at APN Real Estate, looking after leasing and inspections, and has been working with landlords and tenants for more than two years. She owns an investment property herself, so she manages other people’s properties the way she’d want her own managed. Outside work, she’s usually at the gym, spending time with family and friends, or travelling.',
+    bio: 'Jenny is a Property Manager at APN Real Estate, and has been working with landlords and tenants for more than two years. She owns an investment property herself, so she manages other people’s properties the way she’d want her own managed. Outside work, she’s usually at the gym, spending time with family and friends, or travelling.',
   },
   {
     name: 'Breeanna Arney',
