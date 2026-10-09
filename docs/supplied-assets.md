@@ -12,6 +12,7 @@ code for `TODO(` to find each one.
 | Buyer hub card photo (home) | `src/assets/photos/supplied/hub-buyers.jpg` | Stock house exterior (Pexels) |
 | /rent/ hero: a generic Adelaide/SA property | `src/assets/photos/supplied/rent-hero.jpg`, plus its alt text in `PHOTO_ALT` in `src/data/supplied.ts` | Corner-windows interior |
 | Mount Gambier office, 178 Commercial Street East | `src/assets/photos/supplied/mount-gambier-office.jpg` (alt text already written) | The office's logo on a plain panel |
+| New logo (Patrick's website notes, 9 Oct 2026) | Send the file (SVG or a large transparent PNG, plus a light version for the dark header if there is one); it replaces `src/assets/logo/apn-logo-side-reversed.png` in the header and footer | The Adelaide and Mount Gambier Property Network logos side by side |
 | ABN | `ABN` in `src/data/business.ts` (footer and privacy policy) | Not shown |
 | Fabienne Nhim (Directors) | Her entry in `TEAM`, a photo, a route in `src/data/routes.json`, and her name in `LEADERSHIP_GROUPS` (`src/data/team.ts`) | Directors shows Patrick only |
 
