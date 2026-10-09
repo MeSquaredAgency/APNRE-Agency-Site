@@ -66,3 +66,44 @@ picking one looks up the full address. Google groups those into one
 session per address entered, with a debounce so it doesn't send a
 request on every keystroke. Check current pricing on Google's Places API
 page; the budget alert above is the safety net.
+
+## Google reviews (/landlords/)
+
+The reviews section on `/landlords/` (`src/components/GoogleReviews.tsx`)
+shows the latest Google reviews for both offices, with each office's live
+rating and review count. It gets them from `/api/reviews`
+(`functions/api/reviews.ts`), which asks Google's Places API and caches
+the answer at Cloudflare for a day.
+
+This needs a **separate, server-side key**. The address-search key above
+is locked to the site's domains, so it can't be used from Cloudflare's
+servers.
+
+1. Google Cloud Console (same project) → **APIs & Services →
+   Credentials → Create credentials → API key**.
+2. Edit the key: **API restrictions → Restrict key → Places API (New)**
+   only. Leave **Application restrictions** as None: the key never
+   reaches the browser.
+3. Cloudflare → Workers & Pages → the site → **Settings → Variables and
+   Secrets → Add**: `GOOGLE_PLACES_API_KEY`, type **Secret**, for
+   Production and Preview. Then redeploy.
+
+Until the key is set, or if Google doesn't answer, the section shows a
+line of copy and buttons to each office's Google reviews and the
+realestate.com.au profile, so it never looks broken.
+
+- **Which places:** `src/data/google-places.json` has each office's
+  Google Place ID and listing link (Adelaide `ChIJNz8CKfnIsGoRzHWww3xul3A`,
+  Mount Gambier `ChIJvxIIZhEnnqoRwqvaZwpi9yc`, found 9 Oct 2026). If a
+  Business Profile is ever replaced, look the new one up with Google's
+  Place ID Finder and update the file.
+- **Which reviews:** Google returns up to five per place, its "most
+  relevant", so up to ten in all, newest first. They're shown as written,
+  whatever the star rating: no editing and no picking (Google's terms and
+  the ACCC both rule that out). To change what shows, get more reviews.
+- **Cost:** reviews are a Place Details Enterprise + Atmosphere field.
+  With the day-long cache it's a few hundred requests a month at most,
+  inside Google's free monthly credit. Check current pricing if traffic
+  grows a lot.
+- No review or rating markup goes into the structured data: Google
+  ignores self-published review stars for local businesses.

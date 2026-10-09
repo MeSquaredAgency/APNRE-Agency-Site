@@ -6,7 +6,7 @@ import Picture from '../../components/Picture';
 import StickyActions from '../../components/StickyActions';
 import { CtaBand, Faq, FormSection, Offices, PageHero, Pillars, SectionHead, Team } from '../../components/sections';
 import { PHONE_DISPLAY, PHONE_TEL } from '../../data/business';
-import { REVIEWS_URL } from '../../data/nav';
+import GoogleReviews from '../../components/GoogleReviews';
 import { trackCallClick } from '../../lib/analytics';
 import heroPhoto from '../../assets/photos/balcony-view-hills.jpg?photo';
 import balconyWide from '../../assets/photos/balcony-view-wide.jpg?photo';
@@ -159,32 +159,6 @@ function WhyApn() {
   );
 }
 
-// Reviews change over time, and a stale number on a live campaign page is
-// worse than none, so this links to the live profile rather than quoting
-// a rating or count.
-function Proof() {
-  return (
-    <section className="section section-paper" id="proof">
-      <div className="wrap prose-grid">
-        <span className="eyebrow">Proof, not promises</span>
-        <div className="prose">
-          <h2 className="h-1">Real people. Real properties. Real accountability.</h2>
-          <p className="lede">
-            You’ll know the name of the property manager looking after your property, and how to reach them directly.
-            For feedback on our service specifically, the most current source is our reviews — not a number quoted
-            on this page.
-          </p>
-          <p>
-            <a href={REVIEWS_URL} className="btn btn-outline-dark" target="_blank" rel="noopener noreferrer">
-              See Our Reviews on realestate.com.au <Icon name="external" />
-            </a>
-          </p>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function Switching() {
   return (
     <section className="photo-band" id="switch">
@@ -255,7 +229,7 @@ export default function App() {
           </p>
         </PageHero>
         <Pillars items={PILLARS} label="Why APN Real Estate, in short" />
-        <Proof />
+        <GoogleReviews id="proof" />
         <Problem />
         <WhyApn />
         <Team eyebrow="Meet the team" title="Know who’s looking after your property." linkNames={false} />
