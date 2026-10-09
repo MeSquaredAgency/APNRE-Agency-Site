@@ -37,6 +37,8 @@ interface GooglePlace {
   reviews?: {
     rating?: number;
     text?: { text?: string };
+    /** In the reviewer's own language, when it differs from the one asked for. */
+    originalText?: { text?: string };
     relativePublishTimeDescription?: string;
     publishTime?: string;
     googleMapsUri?: string;
@@ -47,7 +49,9 @@ interface GooglePlace {
 export interface ReviewsResponse {
   ok: true;
   live: boolean;
-  offices?: { id: OfficeId; name: string; rating: number; count: number; url: string }[];
+  /** `received` is how many reviews Google sent for the office, before
+   *  any without text are dropped: there for checking, not shown. */
+  offices?: { id: OfficeId; name: string; rating: number; count: number; url: string; received: number }[];
   reviews?: {
     office: OfficeId;
     rating: number;
@@ -79,6 +83,7 @@ async function load(key: string): Promise<ReviewsResponse> {
     rating: results[i].rating ?? 0,
     count: results[i].userRatingCount ?? 0,
     url: results[i].googleMapsUri ?? places[id].url,
+    received: results[i].reviews?.length ?? 0,
   }));
 
   const reviews = ids
@@ -86,7 +91,7 @@ async function load(key: string): Promise<ReviewsResponse> {
       (results[i].reviews ?? []).map((r) => ({
         office: id,
         rating: r.rating ?? 0,
-        text: (r.text?.text ?? '').trim(),
+        text: (r.text?.text || r.originalText?.text || '').trim(),
         when: r.relativePublishTimeDescription ?? '',
         publishTime: r.publishTime ?? '',
         author: r.authorAttribution?.displayName ?? 'A Google user',
@@ -106,14 +111,22 @@ export const onRequestGet: PagesFunction<Env> = async ({ request, env, waitUntil
   if (!env.GOOGLE_PLACES_API_KEY) return json({ ok: true, live: false } satisfies ReviewsResponse);
 
   const cache = caches.default;
-  const cacheKey = new Request(new URL('/api/reviews', request.url).toString(), { method: 'GET' });
+  // Bump the version to drop what's cached after changing the response.
+  const cacheKey = new Request(new URL('/api/reviews?v=2', request.url).toString(), { method: 'GET' });
   const cached = await cache.match(cacheKey);
   if (cached) return cached;
 
   try {
-    const res = json(await load(env.GOOGLE_PLACES_API_KEY));
-    res.headers.set('Cache-Control', `public, max-age=${CACHE_SECONDS}`);
-    waitUntil(cache.put(cacheKey, res.clone()));
+    const body = await load(env.GOOGLE_PLACES_API_KEY);
+    const res = json(body);
+    // Only keep an answer that has reviews in it, so a bad answer from
+    // Google is retried on the next visit rather than kept for a day.
+    if (body.reviews?.length) {
+      res.headers.set('Cache-Control', `public, max-age=${CACHE_SECONDS}`);
+      waitUntil(cache.put(cacheKey, res.clone()));
+    } else {
+      console.warn('Google sent no reviews with text:', JSON.stringify(body.offices));
+    }
     return res;
   } catch (err) {
     // The page falls back to links to the Google listings.
