@@ -1,6 +1,6 @@
 import Header, { FORM_HREF } from './components/Header';
 import Footer from './components/Footer';
-import AppraisalForm, { SWITCHING_EVENT } from './components/AppraisalForm';
+import AppraisalForm, { pickPropertyType, SWITCHING_EVENT } from './components/AppraisalForm';
 import Icon from '../../components/Icon';
 import Picture from '../../components/Picture';
 import StickyActions from '../../components/StickyActions';
@@ -99,7 +99,7 @@ function Problem() {
       <div className="wrap">
         <SectionHead
           eyebrow="The landlord experience"
-          title="You didn’t buy an investment property to manage it yourself."
+          title="You didn’t buy an investment property to consume more of your time."
         />
         <ol className="reasons">
           {PROBLEMS.map((p, i) => (
@@ -110,7 +110,13 @@ function Problem() {
             </li>
           ))}
         </ol>
-        <p className="funnel-bridge">That’s what professional property management is supposed to take off your plate.</p>
+        {/* Patrick's words, 9 Oct 2026. */}
+        <div className="funnel-bridge">
+          <p>We make your active investment passive income.</p>
+          <p className="funnel-bridge__sub">
+            Our professional property managers will present you with choices, so you can make an informed decision.
+          </p>
+        </div>
       </div>
     </section>
   );
@@ -158,7 +164,7 @@ function WhyApn() {
 // a rating or count.
 function Proof() {
   return (
-    <section className="section section-white" id="proof">
+    <section className="section section-paper" id="proof">
       <div className="wrap prose-grid">
         <span className="eyebrow">Proof, not promises</span>
         <div className="prose">
@@ -225,20 +231,35 @@ export default function App() {
           focalPoint="center 78%"
         >
           <div className="page-hero__actions">
-            <a href={FORM_HREF} className="btn btn-primary">
-              Get My Free Rental Appraisal <Icon name="arrow" />
+            <a href={FORM_HREF} className="btn btn-primary" onClick={() => pickPropertyType('residential')}>
+              Residential Appraisal <Icon name="arrow" />
             </a>
-            <a href="#switch" className="btn btn-outline-light" onClick={pickSwitching}>
-              Thinking of Switching?
+            <a href={FORM_HREF} className="btn btn-outline-light" onClick={() => pickPropertyType('commercial')}>
+              Commercial Appraisal <Icon name="arrow" />
             </a>
           </div>
+          {/* For a landlord with a problem right now: straight to a person. */}
+          <a href={PHONE_TEL} className="funnel-urgent" onClick={() => trackCallClick('urgent_help')}>
+            <span className="funnel-urgent__icon">
+              <Icon name="phone" />
+            </span>
+            <span>
+              <strong>I need help with a situation now!</strong>
+              <span className="funnel-urgent__line">Call {PHONE_DISPLAY}</span>
+            </span>
+          </a>
+          <p className="funnel-hero-switch">
+            <a href="#switch" onClick={pickSwitching}>
+              Already with another manager? Thinking of switching?
+            </a>
+          </p>
         </PageHero>
         <Pillars items={PILLARS} label="Why APN Real Estate, in short" />
+        <Proof />
         <Problem />
         <WhyApn />
         <Team eyebrow="Meet the team" title="Know who’s looking after your property." linkNames={false} />
         <Offices title="Two offices. A local team in each." />
-        <Proof />
         <Switching />
         <FormSection
           id="appraisal"

@@ -21,21 +21,42 @@ const MANAGED_OPTIONS = [
   { value: 'not-rented', label: 'No, it isn’t rented yet' },
 ] as const;
 
+// Values must match PROPERTY_TYPE_LABELS in functions/api/lead.ts.
+const PROPERTY_TYPE_OPTIONS = [
+  { value: 'residential', label: 'Residential' },
+  { value: 'commercial', label: 'Commercial' },
+] as const;
+export type PropertyType = (typeof PROPERTY_TYPE_OPTIONS)[number]['value'];
+
 /** Dispatched by the "switching" buttons so the form arrives with "Yes,
  *  by another agent" already picked. */
 export const SWITCHING_EVENT = 'apn:switching';
 
+/** Dispatched by the hero's Residential / Commercial Appraisal buttons,
+ *  with the type as `detail`, so the form arrives with it picked. */
+export const PROPERTY_TYPE_EVENT = 'apn:property-type';
+
+export function pickPropertyType(type: PropertyType) {
+  window.dispatchEvent(new CustomEvent<PropertyType>(PROPERTY_TYPE_EVENT, { detail: type }));
+}
+
 export default function AppraisalForm() {
   const [status, setStatus] = useState<Status>('idle');
   const [managed, setManaged] = useState('');
+  const [propertyType, setPropertyType] = useState('');
   // Errors only show after a send attempt; from then on, each field is
   // re-checked as it's corrected.
   const [tried, setTried] = useState(false);
 
   useEffect(() => {
     const onSwitching = () => setManaged('agent');
+    const onPropertyType = (e: Event) => setPropertyType((e as CustomEvent<PropertyType>).detail);
     window.addEventListener(SWITCHING_EVENT, onSwitching);
-    return () => window.removeEventListener(SWITCHING_EVENT, onSwitching);
+    window.addEventListener(PROPERTY_TYPE_EVENT, onPropertyType);
+    return () => {
+      window.removeEventListener(SWITCHING_EVENT, onSwitching);
+      window.removeEventListener(PROPERTY_TYPE_EVENT, onPropertyType);
+    };
   }, []);
 
   // Turnstile spam check, when a site key is configured: the same widget
@@ -77,7 +98,7 @@ export default function AppraisalForm() {
         throw new Error(`Submission not confirmed (${res.status}): ${JSON.stringify(body)}`);
       }
 
-      trackAppraisalLead(undefined, managed);
+      trackAppraisalLead(undefined, managed, propertyType);
       // The redirect happens inside this callback, once GTM's tags for
       // this event have fired (or ~1.5s elapses, whichever's first); see
       // trackAppraisalFormSubmit.
@@ -145,6 +166,24 @@ export default function AppraisalForm() {
       </label>
 
       <fieldset className="form__choice">
+        <legend>Residential or commercial?</legend>
+        <div className="form__choice-options">
+          {PROPERTY_TYPE_OPTIONS.map((option) => (
+            <label key={option.value}>
+              <input
+                type="radio"
+                name="propertyType"
+                value={option.value}
+                checked={propertyType === option.value}
+                onChange={() => setPropertyType(option.value)}
+              />
+              <span>{option.label}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      <fieldset className="form__choice">
         <legend>Is the property currently managed?</legend>
         <div className="form__choice-options">
           {MANAGED_OPTIONS.map((option) => (
@@ -180,7 +219,11 @@ export default function AppraisalForm() {
       )}
 
       <button type="submit" className="btn btn-primary btn-block" disabled={status === 'submitting'}>
-        {status === 'submitting' ? 'Sending…' : 'Get My Free Rental Appraisal'}
+        {status === 'submitting'
+          ? 'Sending…'
+          : propertyType === 'commercial'
+            ? 'Get My Free Commercial Appraisal'
+            : 'Get My Free Rental Appraisal'}
       </button>
       <p className="form__fineprint">
         We use your details to prepare your appraisal and contact you about it. See our{' '}

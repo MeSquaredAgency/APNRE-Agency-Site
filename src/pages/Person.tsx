@@ -37,7 +37,7 @@ export default function Person() {
           jobTitle: member.role,
           worksFor: { '@id': OFFICE_SCHEMA_IDS[member.office] },
           memberOf: { '@id': ORGANIZATION_ID },
-          ...(member.bio ? { description: member.bio } : {}),
+          ...(member.bio ? { description: member.bio.join(' ') } : {}),
           ...(member.expertise ? { knowsAbout: member.expertise } : {}),
         }}
       />
@@ -73,8 +73,20 @@ export default function Person() {
             {member.bio && (
               <>
                 <h2 className="h-2">About {first}</h2>
-                <p className="lede">{member.bio}</p>
+                {member.bio.map((para, i) => (
+                  <p className={i === 0 ? 'lede' : undefined} key={i}>
+                    {para}
+                  </p>
+                ))}
               </>
+            )}
+            {/* Patrick's own story, in his words, is on /our-story/. */}
+            {id === 'patrick-nhim' && (
+              <p>
+                <a href="/our-story/#patricks-story">
+                  Read Patrick’s story <Icon name="arrow" size={16} />
+                </a>
+              </p>
             )}
             {member.expertise && (
               <>

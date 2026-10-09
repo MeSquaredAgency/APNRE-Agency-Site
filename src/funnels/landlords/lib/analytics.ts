@@ -20,14 +20,16 @@ function pushEvent(event: string, params: Record<string, unknown>) {
 
 /** Fire once, right after a successful appraisal-form submission.
  *  `office` is set when the form was on an office page; `managed` is the
- *  answer to "is it currently managed?" (empty if skipped). */
-export function trackAppraisalLead(office?: string, managed?: string) {
+ *  answer to "is it currently managed?" and `propertyType` to
+ *  "residential or commercial?" (each empty if skipped). */
+export function trackAppraisalLead(office?: string, managed?: string, propertyType?: string) {
   try {
     pushEvent('generate_lead', {
       event_category: 'appraisal_form',
       event_label: 'Free Rental Appraisal',
       office: office ?? 'home',
       currently_managed: managed || 'not_answered',
+      property_type: propertyType || 'not_answered',
     });
   } catch (err) {
     console.warn('dataLayer lead event failed:', err);

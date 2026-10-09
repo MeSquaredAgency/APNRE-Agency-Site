@@ -47,6 +47,13 @@ const MANAGED_LABELS: Record<string, string> = {
   'not-rented': 'Not rented yet',
 };
 
+// Answers to "Residential or commercial?" (PROPERTY_TYPE_OPTIONS in the
+// same form), first in the Message column so commercial leads stand out.
+const PROPERTY_TYPE_LABELS: Record<string, string> = {
+  residential: 'Residential property',
+  commercial: 'Commercial property',
+};
+
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   const { request, env } = context;
 
@@ -89,9 +96,16 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     ? `apnre-website / ${office} page / appraisal form`
     : 'apnre-website / appraisal form';
 
-  const managed = MANAGED_LABELS[get('managed')];
-  if (managed) {
-    payload.message = payload.message ? `[${managed}] ${payload.message}` : `[${managed}]`;
+  // Known answers only, so a tampered form can't write arbitrary text
+  // (own keys only, so "constructor" and the like don't match).
+  const label = (labels: Record<string, string>, key: string) =>
+    Object.prototype.hasOwnProperty.call(labels, key) ? labels[key] : '';
+  const tags = [label(PROPERTY_TYPE_LABELS, get('propertyType')), label(MANAGED_LABELS, get('managed'))]
+    .filter(Boolean)
+    .map((label) => `[${label}]`)
+    .join(' ');
+  if (tags) {
+    payload.message = payload.message ? `${tags} ${payload.message}` : tags;
   }
 
   const missing = REQUIRED_FIELDS.filter((field) => !payload[field]);

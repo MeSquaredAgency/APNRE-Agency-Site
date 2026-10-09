@@ -82,6 +82,9 @@ const JSON_LD = {
       alternateName: ['Adelaide Property Network', 'Mount Gambier Property Network', 'APN'],
       url: `${SITE}/`,
       logo: { '@type': 'ImageObject', url: `${SITE}/apple-touch-icon.png` },
+      // Founded in 2013 by Patrick (his story on /our-story/).
+      foundingDate: '2013',
+      founder: { '@type': 'Person', name: 'Patrick Nhim', url: `${SITE}/our-people/patrick-nhim/` },
       telephone: '+61-1300-123-276',
       identifier: [
         { '@type': 'PropertyValue', propertyID: 'ACN', value: '164 181 971' },

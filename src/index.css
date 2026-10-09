@@ -2295,6 +2295,59 @@ input, select, textarea {
   }
 }
 
+/* Patrick's letter on /our-story/: his photo stays in view beside the
+   text on wide screens, and sits above it on phones. */
+.founder-letter {
+  display: grid;
+  grid-template-columns: minmax(0, 0.4fr) minmax(0, 1fr);
+  gap: clamp(32px, 5vw, 72px);
+  align-items: start;
+}
+.founder-letter__photo {
+  margin: 0;
+  position: sticky;
+  top: calc(var(--header-h) + 32px);
+}
+.founder-letter__photo img {
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+}
+.founder-letter__photo figcaption {
+  margin-top: 12px;
+  font-size: 0.85rem;
+  color: var(--grey-700);
+}
+.founder-letter .prose a {
+  text-decoration: underline;
+  text-decoration-color: var(--lime);
+  text-underline-offset: 4px;
+}
+.founder-letter .prose .founder-letter__tagline {
+  margin-top: 8px;
+  font-family: var(--font-serif);
+  font-size: clamp(1.3rem, 2vw, 1.6rem);
+  color: inherit;
+}
+.founder-letter .prose .founder-letter__signoff {
+  display: grid;
+  gap: 4px;
+  font-style: italic;
+}
+.founder-letter__signoff strong {
+  font-style: normal;
+  color: var(--ink);
+}
+@media (max-width: 760px) {
+  .founder-letter {
+    grid-template-columns: 1fr;
+  }
+  .founder-letter__photo {
+    position: static;
+    max-width: 280px;
+  }
+}
+
 .legal {
   padding-top: calc(var(--header-h) + 56px);
 }

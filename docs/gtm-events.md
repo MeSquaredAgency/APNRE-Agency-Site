@@ -18,7 +18,7 @@ apart.
 | dataLayer `event` | Sent by | When | Parameters |
 | --- | --- | --- | --- |
 | `generate_lead` | main site (`src/lib/analytics.ts`) | Any enquiry form accepted by `/api/enquiry`, just before the redirect to `/thank-you/` | `event_category` (`enquiry_form`), `form_name` (`sales-appraisal`, `rental-appraisal`, `buyer-register`, `tenant-register`, `general`, `careers`, `maintenance`, `listing`, `office-lease`, `podcast-hire`) |
-| `generate_lead` | landlord page (`src/funnels/landlords/lib/analytics.ts`) | The appraisal form on `apnre.com.au/landlords/` accepted by `/api/lead` | `event_category` (`appraisal_form`), `event_label` (`Free Rental Appraisal`), `office` (`home`), `currently_managed` (`agent`, `self`, `not-rented`, `not_answered`) |
+| `generate_lead` | landlord page (`src/funnels/landlords/lib/analytics.ts`) | The appraisal form on `apnre.com.au/landlords/` accepted by `/api/lead` | `event_category` (`appraisal_form`), `event_label` (`Free Rental Appraisal`), `office` (`home`), `currently_managed` (`agent`, `self`, `not-rented`, `not_answered`), `property_type` (`residential`, `commercial`, `not_answered`) |
 | `appraisal_form_submit` | landlord page | Straight after its `generate_lead`, just before the redirect to `/landlords/thank-you/` | `form_name` (`landlord_appraisal`) |
 | `conversion_event_submit_lead_form` | main site (`src/lib/analytics.ts`), as a `gtag('event', …)` command rather than a plain dataLayer event | An appraisal form on `/appraisal/`, `/appraisal/sales/` or `/appraisal/rental/` accepted by `/api/enquiry`, alongside its `generate_lead`. Not sent by the same form on other pages | none |
 | `click_to_call` | both | A tap on a Call button | `placement` (where the button is, e.g. `header`, `menu`, `sticky_bar`, `footer`, `cta_band`) |
@@ -28,7 +28,7 @@ apart.
 
 1. **Variables → User-Defined → New → Data Layer Variable**, one for
    each of `event_category`, `event_label`, `form_name`, `office`,
-   `currently_managed`, `placement`. Use the parameter name as the Data
+   `currently_managed`, `property_type`, `placement`. Use the parameter name as the Data
    Layer Variable Name, and name the variables `DLV - office` and so on.
 2. **Triggers → New → Custom Event**:
    - `CE - generate_lead`, event name `generate_lead`
@@ -37,8 +37,8 @@ apart.
 3. **Tags → New → Google Analytics: GA4 Event**. Set the Measurement ID
    to `G-WDLJLYGJCY`, or pick the existing Google tag.
    - `GA4 - generate_lead`: event name `generate_lead`. Event parameters:
-     `event_category`, `event_label`, `form_name`, `office` and
-     `currently_managed`, each set to its `DLV -` variable. Parameters a
+     `event_category`, `event_label`, `form_name`, `office`,
+     `currently_managed` and `property_type`, each set to its `DLV -` variable. Parameters a
      form doesn't send are simply left out. Trigger: `CE - generate_lead`.
    - `GA4 - click_to_call`: event name `click_to_call`. Event parameter:
      `placement` = `{{DLV - placement}}`. Trigger: `CE - click_to_call`.
@@ -47,8 +47,8 @@ apart.
 4. Check both in **Preview** mode (Tag Assistant) on the live domain,
    then **Submit** to publish the container.
 5. In GA4, go to **Admin → Custom definitions** and add event-scoped
-   custom dimensions for `form_name`, `office`, `currently_managed` and
-   `placement`. Without them the values are collected but can't be used
+   custom dimensions for `form_name`, `office`, `currently_managed`,
+   `property_type` and `placement`. Without them the values are collected but can't be used
    in reports. Then mark `generate_lead` (and `click_to_call` if you want
    it) as a key event under **Admin → Events**.
 

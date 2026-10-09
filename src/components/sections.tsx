@@ -417,7 +417,9 @@ function TeamCard({ member, linked, credentials = false, nameAs: Name = 'h3' }: 
       ) : member.bio && (
         <details className="team-card__bio">
           <summary>About {member.name.split(' ')[0]}</summary>
-          <p>{member.bio}</p>
+          {member.bio.map((para, i) => (
+            <p key={i}>{para}</p>
+          ))}
         </details>
       )}
     </article>
