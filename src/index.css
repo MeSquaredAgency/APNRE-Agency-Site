@@ -1869,10 +1869,44 @@ input, select, textarea {
   text-decoration-color: var(--lime);
   text-underline-offset: 4px;
 }
-.team-card__bio p {
+/* Every open bio shows the same number of lines (BIO_LINES), so the
+   bios in a row end level with each other; "Read more" shows the rest.
+   The gap between paragraphs is exactly one line, so the cut always
+   falls between lines, and the last line fades out to show there's
+   more. */
+.team-card__bio-text {
+  --bio-lines: 8; /* BIO_LINES */
   margin-top: 8px;
   font-size: 0.93rem;
+  line-height: 1.6;
   color: var(--grey-700);
+  max-height: calc(var(--bio-lines) * 1.6em);
+  overflow: hidden;
+}
+/* Only when something is actually hidden. */
+.team-card__bio-text.is-clamped {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 1.6em), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 1.6em), transparent);
+}
+.team-card__bio-text.is-expanded {
+  max-height: none;
+}
+.team-card__bio-text p + p {
+  margin-top: 1.6em;
+}
+.team-card__more {
+  margin-top: 6px;
+  padding: 6px 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: var(--lime);
+  text-underline-offset: 4px;
 }
 /* Justified, at Pat's request, with hyphenation so the columns don't
    open up wide gaps between words. Not on phones: the two cards per row
