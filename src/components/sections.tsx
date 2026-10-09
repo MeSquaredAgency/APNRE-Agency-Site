@@ -87,6 +87,8 @@ export interface ImageCard {
   kicker: string;
   title: string;
   external?: boolean;
+  /** CSS object-position for the photo, when the subject isn't central. */
+  focalPoint?: string;
 }
 
 export function ImageCards({ items }: { items: ImageCard[] }) {
@@ -103,6 +105,7 @@ export function ImageCards({ items }: { items: ImageCard[] }) {
           <Picture
             photo={c.image}
             alt={c.alt}
+            style={c.focalPoint ? { objectPosition: c.focalPoint } : undefined}
             sizes={
               items.length >= 4
                 ? '(max-width: 900px) 100vw, (max-width: 1100px) 50vw, 25vw'

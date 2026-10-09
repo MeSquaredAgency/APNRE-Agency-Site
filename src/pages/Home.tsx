@@ -16,8 +16,9 @@ import interior from '../assets/photos/interior-corner-windows.jpg?photo';
 // in business, sales volumes, review scores) only once they're verified
 // and there's a plan to keep them current.
 // The better photos asked for in the director's review replace these as
-// soon as they're added (src/data/supplied.ts). Until then the hub cards
-// use photos not already in the tiles above them.
+// soon as they're added (src/data/supplied.ts). The two listing tiles now
+// use APN's own listing photography of 6B and 6C East Way, Darlington
+// (Oct 2026). The hub cards use photos not already in the tiles above them.
 const TILE_FOR_SALE = suppliedPhoto('home-tile-for-sale')?.photo ?? mountGambierStreet;
 const TILE_FOR_RENT = suppliedPhoto('home-tile-for-rent')?.photo ?? interior;
 const HUB_SELLERS = suppliedPhoto('hub-sellers')?.photo ?? soldSignSalisbury;
@@ -61,6 +62,8 @@ export default function Home() {
                 href: '/sold/',
                 image: soldSign,
                 alt: '',
+                // The board is on the right of the photo; keep all of it in frame.
+                focalPoint: '85% center',
                 kicker: 'Sold',
                 title: 'Recent sales',
               },
