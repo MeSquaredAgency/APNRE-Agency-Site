@@ -1871,10 +1871,9 @@ input, select, textarea {
 }
 /* Every open bio shows the same number of lines (BIO_LINES), so the
    bios in a row end level with each other; "Read more" shows the rest.
-   While it's cut short, the paragraphs run on as one block, so every
-   cut bio fills all its lines (a paragraph break inside the cut would
-   leave a gap and end that card early). The last line fades out to
-   show there's more. Expanded, the paragraphs separate again. */
+   The gap between paragraphs is exactly one line, so the cut always
+   falls between lines, and the last line fades out to show there's
+   more. */
 .team-card__bio-text {
   --bio-lines: 8; /* BIO_LINES */
   margin-top: 8px;
@@ -1884,12 +1883,6 @@ input, select, textarea {
   max-height: calc(var(--bio-lines) * 1.6em);
   overflow: hidden;
 }
-.team-card__bio-text:not(.is-expanded) p {
-  display: inline;
-}
-.team-card__bio-text:not(.is-expanded) p + p::before {
-  content: ' ';
-}
 /* Only when something is actually hidden. */
 .team-card__bio-text.is-clamped {
   -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 1.6em), transparent);
@@ -1898,8 +1891,8 @@ input, select, textarea {
 .team-card__bio-text.is-expanded {
   max-height: none;
 }
-.team-card__bio-text.is-expanded p + p {
-  margin-top: 0.8em;
+.team-card__bio-text p + p {
+  margin-top: 1.6em;
 }
 .team-card__more {
   margin-top: 6px;
@@ -3500,4 +3493,234 @@ input, select, textarea {
   color: var(--grey-500);
   text-decoration: line-through;
   cursor: not-allowed;
+}
+
+/* ---------- Google reviews (src/components/GoogleReviews.tsx) ---------- */
+
+.reviews__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px 48px;
+  margin-bottom: clamp(32px, 4vw, 48px);
+}
+/* One sentence per line where there's room. */
+.reviews__title span {
+  display: inline-block;
+}
+@media (min-width: 641px) {
+  .reviews__title span {
+    display: block;
+  }
+}
+.reviews__ratings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 32px;
+}
+.reviews__rating {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+}
+.reviews__score {
+  font-family: var(--font-serif);
+  font-size: clamp(2.2rem, 3.5vw, 2.8rem);
+  line-height: 1;
+}
+.reviews__count {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.85rem;
+  color: var(--grey-700);
+}
+.reviews__rating:hover .reviews__count {
+  text-decoration: underline;
+  text-decoration-color: var(--lime);
+  text-underline-offset: 4px;
+}
+.stars {
+  display: inline-flex;
+  gap: 2px;
+  vertical-align: middle;
+}
+.stars svg {
+  fill: var(--grey-300);
+}
+.stars svg.is-on {
+  fill: var(--ink);
+}
+
+/* A row of cards that scrolls sideways: swipe on phones, arrow buttons
+   on wider screens. Three cards show on wide screens, two on tablets,
+   and a bit over one on phones so it's clear there are more. */
+.reviews__track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: calc((100% - 2 * 20px) / 3);
+  gap: 20px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+}
+.reviews__track::-webkit-scrollbar {
+  display: none;
+}
+.reviews__track:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 4px;
+}
+@media (max-width: 999px) {
+  .reviews__track {
+    grid-auto-columns: calc((100% - 20px) / 2);
+  }
+}
+@media (max-width: 640px) {
+  .reviews__track {
+    grid-auto-columns: 85%;
+    gap: 14px;
+  }
+}
+.review-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0;
+  padding: clamp(22px, 2.5vw, 30px);
+  background: var(--white);
+  border: 1px solid var(--line);
+  scroll-snap-align: start;
+}
+.review-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.review-card__office {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--grey-500);
+}
+/* Cut to seven lines; "Read more" shows the rest. pre-line keeps the
+   reviewer's own line breaks. */
+.review-card__text {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.6;
+  color: var(--charcoal);
+  white-space: pre-line;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 7;
+  line-clamp: 7;
+  overflow: hidden;
+}
+.review-card__text.is-expanded {
+  display: block;
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+}
+.review-card__more {
+  align-self: flex-start;
+  margin-top: -8px;
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: var(--lime);
+  text-underline-offset: 4px;
+}
+.review-card__author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+.review-card__author img {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.review-card__author a {
+  color: inherit;
+  text-decoration: none;
+}
+.review-card__author a:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--lime);
+  text-underline-offset: 4px;
+}
+.review-card__when {
+  display: block;
+  font-weight: 400;
+  font-size: 0.82rem;
+  color: var(--grey-500);
+}
+.reviews__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 32px;
+  margin-top: 28px;
+}
+.reviews__source {
+  font-size: 0.88rem;
+  color: var(--grey-700);
+}
+.reviews__source a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--lime);
+  text-underline-offset: 4px;
+}
+.reviews__arrows {
+  display: flex;
+  gap: 10px;
+}
+.reviews__arrows button {
+  display: inline-grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  background: none;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.reviews__arrows button:first-child svg {
+  transform: rotate(180deg);
+}
+.reviews__arrows button:hover:not(:disabled) {
+  background: var(--ink);
+  color: var(--white);
+}
+.reviews__arrows button:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+.reviews__fallback {
+  display: grid;
+  gap: 18px;
+  max-width: 44em;
 }
