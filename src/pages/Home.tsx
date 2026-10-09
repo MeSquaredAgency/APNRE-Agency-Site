@@ -2,7 +2,7 @@ import Layout from '../components/Layout';
 import Icon from '../components/Icon';
 import VideoHero from '../components/VideoHero';
 import Picture from '../components/Picture';
-import { CtaBand, ImageCards, Offices, Pillars, SectionHead, Team } from '../components/sections';
+import { CtaBand, ImageCards, Offices, Pillars, SectionHead, Team, type ImageCard } from '../components/sections';
 import { REVIEWS_URL } from '../data/nav';
 import { listingsIn } from '../lib/listings';
 import { STOCK } from '../data/media';
@@ -25,12 +25,12 @@ const TILE_FOR_RENT = suppliedPhoto('home-tile-for-rent')?.photo ?? interior;
 const HUB_SELLERS = suppliedPhoto('hub-sellers')?.photo ?? soldSignSalisbury;
 const HUB_BUYERS = suppliedPhoto('hub-buyers')?.photo ?? STOCK.houseExterior.photo;
 
-// The third tile shows recent sales, or commercial property for lease
-// while the feed has no sold listings (an empty /sold/ is just a pointer
-// to realestate.com.au).
-const THIRD_TILE = listingsIn('sold').length
-  ? { href: '/sold/', image: soldSign, alt: '', kicker: 'Sold', title: 'Recent sales' }
-  : { href: '/commercial/', image: officeFrontage, alt: '', kicker: 'Lease', title: 'Commercial property' };
+// While the feed has no sold listings (an empty /sold/ is just a pointer
+// to realestate.com.au), the Sold tile shows commercial property for
+// lease instead.
+const COMMERCIAL_TILE: ImageCard = { href: '/commercial/', image: officeFrontage, alt: '', kicker: 'Lease', title: 'Commercial property' };
+const withSoldFallback = (cards: ImageCard[]) =>
+  listingsIn('sold').length ? cards : cards.map((c) => (c.href === '/sold/' ? COMMERCIAL_TILE : c));
 
 const PILLARS = [
   { title: 'Two offices', copy: 'Blair Athol in Adelaide’s north, and Commercial Street East in Mount Gambier.' },
@@ -49,7 +49,7 @@ export default function Home() {
         <div className="wrap">
           <SectionHead eyebrow="Explore" title="Find your next move." />
           <ImageCards
-            items={[
+            items={withSoldFallback([
               {
                 href: '/buy/',
                 image: TILE_FOR_SALE,
@@ -64,8 +64,14 @@ export default function Home() {
                 kicker: 'Rent',
                 title: 'Properties for rent',
               },
-              THIRD_TILE,
-            ]}
+              {
+                href: '/sold/',
+                image: soldSign,
+                alt: '',
+                kicker: 'Sold',
+                title: 'Recent sales',
+              },
+            ])}
           />
         </div>
       </section>
