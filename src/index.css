@@ -1871,9 +1871,10 @@ input, select, textarea {
 }
 /* Every open bio shows the same number of lines (BIO_LINES), so the
    bios in a row end level with each other; "Read more" shows the rest.
-   The gap between paragraphs is exactly one line, so the cut always
-   falls between lines, and the last line fades out to show there's
-   more. */
+   While it's cut short, the paragraphs run on as one block, so every
+   cut bio fills all its lines (a paragraph break inside the cut would
+   leave a gap and end that card early). The last line fades out to
+   show there's more. Expanded, the paragraphs separate again. */
 .team-card__bio-text {
   --bio-lines: 8; /* BIO_LINES */
   margin-top: 8px;
@@ -1883,6 +1884,12 @@ input, select, textarea {
   max-height: calc(var(--bio-lines) * 1.6em);
   overflow: hidden;
 }
+.team-card__bio-text:not(.is-expanded) p {
+  display: inline;
+}
+.team-card__bio-text:not(.is-expanded) p + p::before {
+  content: ' ';
+}
 /* Only when something is actually hidden. */
 .team-card__bio-text.is-clamped {
   -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 1.6em), transparent);
@@ -1891,8 +1898,8 @@ input, select, textarea {
 .team-card__bio-text.is-expanded {
   max-height: none;
 }
-.team-card__bio-text p + p {
-  margin-top: 1.6em;
+.team-card__bio-text.is-expanded p + p {
+  margin-top: 0.8em;
 }
 .team-card__more {
   margin-top: 6px;
@@ -1912,7 +1919,7 @@ input, select, textarea {
    open up wide gaps between words. Not on phones: the two cards per row
    are too narrow to justify without big holes in the text. */
 @media (min-width: 561px) {
-  .team-card__bio p {
+  .team-card__bio-text {
     text-align: justify;
     hyphens: auto;
     text-wrap: pretty;
