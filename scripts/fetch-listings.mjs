@@ -102,8 +102,49 @@ async function useCopies(listings, photos) {
   return wanted.size;
 }
 
+/** Short links agents paste into descriptions (goo.gl/..., youtu.be/...)
+ *  only redirect, which site audits report on every listing that has
+ *  one. Same trailing-punctuation rule as linkParts in
+ *  src/lib/description.ts, so the keys match its hrefs. */
+const SHORT_LINK = /\bhttps?:\/\/(?:goo\.gl|forms\.gle|bit\.ly|tinyurl\.com|youtu\.be|ow\.ly)\/[^\s<>"]+/gi;
+
+/** Where a short link ends up, or undefined if it can't be followed. */
+async function linkTarget(url) {
+  let current = url;
+  try {
+    for (let hop = 0; hop < 5; hop++) {
+      const res = await fetch(current, { redirect: 'manual', signal: AbortSignal.timeout(8000) });
+      const next = res.headers.get('location');
+      if (res.status < 300 || res.status >= 400 || !next) return res.ok && current !== url ? current : undefined;
+      current = new URL(next, current).href;
+    }
+  } catch {
+    // Offline or timed out: keep linking to the short link.
+  }
+  return undefined;
+}
+
+/** Gives each listing with short links a `linkTargets` map, so its page
+ *  links straight to where they go (the text still shows the short link). */
+async function resolveShortLinks(listings) {
+  let resolved = 0;
+  for (const listing of listings) {
+    const urls = new Set(
+      [...(listing.description ?? '').matchAll(SHORT_LINK)].map((m) => m[0].replace(/[.,;:!?)\]'’]+$/, '')),
+    );
+    for (const url of urls) {
+      const target = await linkTarget(url);
+      if (!target) continue;
+      listing.linkTargets = { ...listing.linkTargets, [url]: target };
+      resolved++;
+    }
+  }
+  return resolved;
+}
+
 const { source, files, photos, agentId } = await feedFiles();
 const { listings, skipped } = parseFeed(files, { agentId });
+const shortLinks = await resolveShortLinks(listings);
 
 // Start empty each time, so photos of listings that have gone don't ship.
 rmSync(PHOTO_DIR, { recursive: true, force: true });
@@ -121,3 +162,4 @@ console.log(
 // rest are worth a look in the build log.
 for (const reason of skipped) console.log(`  skipped ${reason}`);
 if (photos) console.log(`  ${copied} photo(s) and floor plan(s) from the feed server's copies`);
+if (shortLinks) console.log(`  ${shortLinks} short link(s) in descriptions now link straight to where they go`);

@@ -12,6 +12,8 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 const SECTION_LABEL = { buy: 'For Sale', rent: 'For Rent', sold: 'Sold', commercial: 'For Lease' };
 const SITE = 'https://apnre.com.au';
+/** The listings pages, each showing the listings with that `section`. */
+const LISTING_SECTIONS = Object.keys(SECTION_LABEL);
 
 /** Feed photos can be paths on this site (/listing-photo/...); link
  *  previews need a full URL. */
@@ -23,6 +25,29 @@ export const listingAddress = (l) => [l.street, l.suburb].filter(Boolean).join('
 function clip(s, max) {
   if (s.length <= max) return s;
   return `${s.slice(0, max - 1).replace(/\s+\S*$/, '')}…`;
+}
+
+/** Under this, a meta description says too little to fill a search
+ *  result (Ahrefs flags "Meta description too short" below 110). */
+const MIN_DESCRIPTION = 110;
+
+/** The listing's own opening words, for padding out a short meta
+ *  description: its first line that reads like a sentence (not a
+ *  heading such as "Property Features:", not the headline again). */
+function openingLine(l) {
+  const lines = (l.description || '')
+    .split(/\r?\n/)
+    .map((line) => line.replace(/^[-–—•*·]+\s*/, '').replace(/\s+/g, ' ').trim());
+  return lines.find((line) => line.length >= 40 && !/:$/.test(line) && line !== l.headline);
+}
+
+function listingDescription(l, summary) {
+  let text = l.headline ? `${l.headline}. ${summary}.` : `${summary}.`;
+  if (text.length < MIN_DESCRIPTION) {
+    const opening = openingLine(l);
+    text += opening ? ` ${opening}` : ' See the photos, inspection times and agent details at APN Real Estate.';
+  }
+  return clip(text, 160);
 }
 
 function listingRoute(l) {
@@ -39,7 +64,7 @@ function listingRoute(l) {
     page: 'listing',
     path: l.path,
     title: `${address} | ${SECTION_LABEL[l.section]} | APN Real Estate`,
-    description: clip(l.headline ? `${l.headline}. ${summary}.` : `${summary}.`, 160),
+    description: listingDescription(l, summary),
     // The main photo is the link preview, hosted wherever the feed's
     // photos are (scripts/build-pages.mjs).
     ...(l.photos?.[0] ? { ogImage: absolute(l.photos[0]), ogAlt: `${address}: main photo` } : {}),
@@ -63,7 +88,17 @@ export function allRoutes() {
       .map((l) => (l.modified || '').slice(0, 10))
       .sort()
       .pop();
-  const fixed = routes.map((r) => (newest(r.page) ? { ...r, lastmod: newest(r.page) } : r));
+  // An empty /buy/, /rent/, /sold/ or /commercial/ is only a pointer to
+  // realestate.com.au or a "Nothing listed right now" panel, which Google
+  // reports as a soft 404. So it's noindex, and out of the sitemap, until
+  // the feed brings it a listing (each feed change rebuilds the site).
+  const isEmptySection = (page) =>
+    LISTING_SECTIONS.includes(page) && !listings.some((l) => l.section === page);
+  const fixed = routes.map((r) => ({
+    ...r,
+    ...(newest(r.page) ? { lastmod: newest(r.page) } : {}),
+    ...(isEmptySection(r.page) ? { noindex: true } : {}),
+  }));
   // Blair Athol's offices are on /office-space/, not pages of their own.
   return [...fixed, ...listings.filter((l) => l.apnBuilding !== 'blair-athol').map(listingRoute)];
 }

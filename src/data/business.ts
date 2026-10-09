@@ -69,7 +69,7 @@ export const PORTALS: { residential: ExternalLink[]; commercial: ExternalLink[] 
 
 /** "Follow us" links, in the footer and under the listings. */
 export const SOCIAL_LINKS: (ExternalLink & { icon: 'facebook' | 'instagram' | 'youtube' })[] = [
-  { label: 'Facebook', icon: 'facebook', href: 'https://www.facebook.com/adelaidepropertynetwork' },
+  { label: 'Facebook', icon: 'facebook', href: 'https://www.facebook.com/adelaidepropertynetwork/' },
   { label: 'Instagram', icon: 'instagram', href: 'https://www.instagram.com/apn.realestate/' },
   { label: 'YouTube', icon: 'youtube', href: 'https://www.youtube.com/@AdelaidepropertynetworkAu' },
 ];

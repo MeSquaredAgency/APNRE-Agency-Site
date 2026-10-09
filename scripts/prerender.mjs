@@ -89,8 +89,11 @@ for (const route of routes) {
   // Funnel pages have their own entry, which imports its page directly.
   if (!route.funnel) html = html.replace('</head>', () => `${preloadTags(route.page)}  </head>`);
   // Function replacement, so a "$" in the content can't be read as a
-  // replacement pattern.
-  writeFileSync(file, html.replace('<!-- app -->', () => markup));
+  // replacement pattern. The email_off comments stop Cloudflare's Email
+  // Obfuscation rewriting the agents' mailto: links on listing pages to
+  // /cdn-cgi/l/email-protection, a 404 that site audits report as a
+  // broken link on every listing. (React's hydration skips comments.)
+  writeFileSync(file, html.replace('<!-- app -->', () => `<!--email_off-->${markup}<!--/email_off-->`));
 }
 
 const templateFile = join(dist, 'blog', 'index.html');

@@ -36,6 +36,7 @@ export default function Story() {
         photo={soldSticker}
         photoAlt="A SOLD sticker going up on an Adelaide Property Network auction sign"
         focalPoint="35% center"
+        quiet
       />
 
       <section className="section section-white">

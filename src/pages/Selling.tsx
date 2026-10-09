@@ -85,6 +85,7 @@ export default function Selling() {
         photo={soldSign}
         photoAlt="An Adelaide Property Network SOLD sign outside a home in Salisbury"
         focalPoint="30% center"
+        quiet
       >
         <div className="page-hero__actions">
           <a href="#appraisal" className="btn btn-primary">

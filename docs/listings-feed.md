@@ -69,6 +69,26 @@ Only current listings for sale or rent and recent sales (the latest 24)
 show up. Leased, withdrawn and off-market listings drop off at the next
 build, and their pages go with them.
 
+### How descriptions are laid out
+
+PropertyMe sends a listing's description as plain text, one line per
+paragraph or point. The page reads the layout back from the lines
+(`src/lib/description.ts`), so descriptions look best typed like this:
+
+- **Headings:** a short line (up to six words) ending in a colon, such
+  as `Property Features:` or `Location:`, or a short question such as
+  `Have a property to sell?`.
+- **Bullet points:** lines starting with `- ` or `• `. Short lines right
+  under a heading, none ending in a full stop, are shown as a list too.
+- **Labels:** in a list, `Council Rates: $1,600 p/a` shows the part
+  before the colon in bold.
+- **Paragraphs:** each line ending in a full stop is its own paragraph.
+  Lines without one stay together, line by line (a signature, say).
+- Web and email addresses become links.
+
+A description that doesn't follow these still shows in full, just as
+plain paragraphs.
+
 ## Setting it up
 
 You'll need: a Google account that can create a Google Cloud project, a
