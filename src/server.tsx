@@ -11,7 +11,7 @@ import { PathContext } from './lib/route';
 
 export { renderBlogPages } from './blog-server';
 
-// Funnel pages (src/funnels/, served at go.apnre.com.au) have their own
+// Funnel pages (src/funnels/, served on apnre.com.au) have their own
 // browser entries, so they're listed here rather than in PAGE_LOADERS
 // (which the main site's browser code imports). Keyed by the route's
 // page id in src/data/routes.json. See docs/funnels.md.

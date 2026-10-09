@@ -3,7 +3,8 @@ import Icon from '../components/Icon';
 import VideoHero from '../components/VideoHero';
 import Picture from '../components/Picture';
 import { CtaBand, ImageCards, Offices, Pillars, SectionHead, Team } from '../components/sections';
-import { LISTINGS_LINKS, REVIEWS_URL } from '../data/nav';
+import { REVIEWS_URL } from '../data/nav';
+import { listingsIn } from '../lib/listings';
 import { STOCK } from '../data/media';
 import { suppliedPhoto } from '../data/supplied';
 import soldSticker from '../assets/photos/agent-placing-sold-sticker.jpg?photo';
@@ -11,6 +12,7 @@ import soldSign from '../assets/photos/sold-sign-ridley.jpg?photo';
 import soldSignSalisbury from '../assets/photos/sold-sign-fenden-rd.jpg?photo';
 import mountGambierStreet from '../assets/photos/mount-gambier-hillside-street.jpg?photo';
 import interior from '../assets/photos/interior-corner-windows.jpg?photo';
+import officeFrontage from '../assets/photos/office/blair-athol-frontage.jpg?photo';
 
 // Pillars are facts APN can stand behind today. Swap in figures (years
 // in business, sales volumes, review scores) only once they're verified
@@ -22,6 +24,13 @@ const TILE_FOR_SALE = suppliedPhoto('home-tile-for-sale')?.photo ?? mountGambier
 const TILE_FOR_RENT = suppliedPhoto('home-tile-for-rent')?.photo ?? interior;
 const HUB_SELLERS = suppliedPhoto('hub-sellers')?.photo ?? soldSignSalisbury;
 const HUB_BUYERS = suppliedPhoto('hub-buyers')?.photo ?? STOCK.houseExterior.photo;
+
+// The third tile shows recent sales, or commercial property for lease
+// while the feed has no sold listings (an empty /sold/ is just a pointer
+// to realestate.com.au).
+const THIRD_TILE = listingsIn('sold').length
+  ? { href: '/sold/', image: soldSign, alt: '', kicker: 'Sold', title: 'Recent sales' }
+  : { href: '/commercial/', image: officeFrontage, alt: '', kicker: 'Lease', title: 'Commercial property' };
 
 const PILLARS = [
   { title: 'Two offices', copy: 'Blair Athol in Adelaide’s north, and Commercial Street East in Mount Gambier.' },
@@ -42,28 +51,20 @@ export default function Home() {
           <ImageCards
             items={[
               {
-                href: LISTINGS_LINKS.buy.href,
-                external: true,
+                href: '/buy/',
                 image: TILE_FOR_SALE,
                 alt: '',
                 kicker: 'Buy',
                 title: 'Properties for sale',
               },
               {
-                href: LISTINGS_LINKS.rent.href,
-                external: true,
+                href: '/rent/',
                 image: TILE_FOR_RENT,
                 alt: '',
                 kicker: 'Rent',
                 title: 'Properties for rent',
               },
-              {
-                href: '/sold/',
-                image: soldSign,
-                alt: '',
-                kicker: 'Sold',
-                title: 'Recent sales',
-              },
+              THIRD_TILE,
             ]}
           />
         </div>
@@ -138,7 +139,7 @@ export default function Home() {
             title="Everything for your situation, in one place."
             action={
               <a href="/client-hub/" className="btn btn-outline-dark">
-                All hubs <Icon name="arrow" />
+                All Hubs <Icon name="arrow" />
               </a>
             }
           />

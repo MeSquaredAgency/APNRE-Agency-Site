@@ -8,10 +8,11 @@
 // (or the templates below), never the output. The sitemap is written
 // after the build by scripts/prerender.mjs, once the blog posts are known.
 //
-// A route with "funnel": "<id>" is a campaign funnel page, served at
-// go.apnre.com.au (src/data/funnels.json, docs/funnels.md): it gets that
-// funnel's entry script and link-preview image, and a go. canonical
-// URL. Everything else is the main site.
+// A route with "funnel": "<id>" is a campaign funnel page for ad traffic
+// (src/data/funnels.json, docs/funnels.md): it gets that funnel's entry
+// script and link-preview image, and a data-funnel attribute on <html>
+// (the Meta Pixel loads straight away there; src/partials/head-shared.html).
+// Everything else is the main site.
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -124,9 +125,9 @@ const JSON_LD = {
 const ENTRIES = { main: '/src/main.tsx', blog: '/src/blog-main.tsx' };
 
 /** Everything after the shared head: fonts marker, then per-page tags. */
-function shell({ entry, headTags, rootAttrs = '' }) {
+function shell({ entry, headTags, rootAttrs = '', htmlAttrs = '' }) {
   return `<!doctype html>
-<html lang="en-AU">
+<html lang="en-AU"${htmlAttrs}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -191,6 +192,7 @@ ${preload}${jsonLd}`;
     entry: funnel ? funnel.entry : ENTRIES.main,
     headTags,
     rootAttrs: ` data-page="${route.page}"`,
+    htmlAttrs: funnel ? ` data-funnel="${funnel.id}"` : '',
   });
 }
 

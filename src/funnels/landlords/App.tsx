@@ -12,7 +12,7 @@ import heroPhoto from '../../assets/photos/balcony-view-hills.jpg?photo';
 import balconyWide from '../../assets/photos/balcony-view-wide.jpg?photo';
 import interiorPhoto from '../../assets/photos/interior-corner-windows.jpg?photo';
 
-// The landlord campaign page at go.apnre.com.au/landlords/, for paid ad
+// The landlord campaign page at apnre.com.au/landlords/, for paid ad
 // traffic. Built from the main site's sections and styles so it looks
 // like the rest of apnre.com.au, with its own copy (already signed off
 // by APN, and shared with /leasing/: keep the two in step), form and

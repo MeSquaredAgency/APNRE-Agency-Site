@@ -15,7 +15,6 @@ import Icon, { type IconName } from '../components/Icon';
 import JsonLd from '../components/JsonLd';
 import { CtaBand, Faq, FormSection, ImageCards, PageHero, SectionHead, Team, type FaqItem } from '../components/sections';
 import { MAINTENANCE_FORM_ENABLED, PHONE_DISPLAY, PHONE_TEL } from '../data/business';
-import { LISTINGS_LINKS } from '../data/nav';
 import { STOCK } from '../data/media';
 import { breadcrumbList } from '../structured-data';
 import type { TeamGroup } from '../data/team';
@@ -92,9 +91,17 @@ function Repairs() {
           <div className="notice">
             <h3 className="h-3">Everything else</h3>
             <p>
-              {MAINTENANCE_FORM_ENABLED
-                ? 'For non-urgent repairs, use the form below or contact your property manager. Include as much detail as you can, and photos if you can send them.'
-                : `For non-urgent repairs, contact your property manager or call us on ${PHONE_DISPLAY}. Have the property address and a description of the problem ready.`}
+              {MAINTENANCE_FORM_ENABLED ? (
+                'For non-urgent repairs, use the form below or contact your property manager. Include as much detail as you can, and photos if you can send them.'
+              ) : (
+                <>
+                  For non-urgent repairs, contact your property manager or call us on{' '}
+                  <a href={PHONE_TEL} onClick={() => trackCallClick('hub_repairs')}>
+                    {PHONE_DISPLAY}
+                  </a>
+                  . Have the property address and a description of the problem ready.
+                </>
+              )}
             </p>
           </div>
         </div>
@@ -200,7 +207,7 @@ export function LandlordHub() {
         faqs: [
           {
             q: 'Who do I contact about my property?',
-            a: 'Your property manager. Call the office on 1300 123 276 and ask for them by name, or send a message below and it will reach the property management team.',
+            a: `Your property manager. Call the office on ${PHONE_DISPLAY} and ask for them by name, or send a message below and it will reach the property management team.`,
           },
           {
             q: 'What does APN Real Estate’s property management include?',
@@ -240,7 +247,7 @@ export function TenantHub() {
         photoAlt: STOCK.keysHand.alt,
         actions: [
           { icon: 'wrench', title: 'Report a repair', copy: 'Urgent problems by phone, everything else to your property manager.', href: '#repairs' },
-          { icon: 'home', title: 'Find a rental', copy: 'Current rentals, with photos and inspection times.', href: LISTINGS_LINKS.rent.href, external: true },
+          { icon: 'home', title: 'Find a rental', copy: 'Current rentals, with photos and inspection times.', href: '/rent/' },
           { icon: 'bell', title: 'Get rental alerts', copy: 'Tell us what you’re after and we’ll be in touch when it comes up.', href: '/rent/#register' },
           { icon: 'users', title: 'Contact your property manager', copy: 'Questions about your lease, rent or moving out.', ...CALL, call: 'hub_tenant' },
         ],
@@ -255,7 +262,7 @@ export function TenantHub() {
           },
           {
             q: 'Who do I talk to about my lease, rent or moving out?',
-            a: 'Your property manager. Call the office on 1300 123 276 and ask for them, and they’ll explain what applies to your tenancy.',
+            a: `Your property manager. Call the office on ${PHONE_DISPLAY} and ask for them, and they’ll explain what applies to your tenancy.`,
           },
           {
             q: 'What counts as an urgent repair?',
@@ -351,7 +358,7 @@ export function BuyerHub() {
         photoAlt: 'Homes on a hillside street in Mount Gambier',
         focalPoint: '30% 65%',
         actions: [
-          { icon: 'home', title: 'Properties for sale', copy: 'Current listings, with photos, inspection times and price guides.', href: LISTINGS_LINKS.buy.href, external: true },
+          { icon: 'home', title: 'Properties for sale', copy: 'Current listings, with photos, inspection times and price guides.', href: '/buy/' },
           { icon: 'bell', title: 'Join our buyer list', copy: 'Hear about suitable new listings from the sales team.', href: '/buy/#register' },
           { icon: 'tag', title: 'See what’s sold', copy: 'A feel for what similar homes have sold for.', href: '/sold/' },
           { icon: 'chart', title: 'Selling before you buy?', copy: 'Find out what your current property is worth.', href: '/appraisal/sales/' },

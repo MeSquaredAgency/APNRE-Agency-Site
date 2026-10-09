@@ -6,7 +6,7 @@ import '../../index.css';
 import './landlords.css';
 
 // Browser entry for the landlord campaign pages (/landlords/ and
-// /landlords/thank-you/, served at go.apnre.com.au). They use the main
+// /landlords/thank-you/, served on apnre.com.au). They use the main
 // site's stylesheet and sections, so they look like the rest of
 // apnre.com.au, plus a few rules of their own in ./landlords.css. Their
 // form (/api/lead) and analytics events are their own, so paid-ad

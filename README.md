@@ -55,7 +55,7 @@ the build, once the blog posts are known.
 | `/client-hub/` | Client hub overview, plus a hub each for `landlords/`, `tenants/` (with repairs), `sellers/` and `buyers/`: quick actions, their team, FAQs and the right form (`src/pages/Hubs.tsx`). The landlord, seller and buyer hubs repeat a lot of `/leasing/` and `/selling/`, so they're noindex to stop them competing in search; the tenant hub is indexed |
 | `/blog/`, `/blog/<post>/` | Guides, written as Markdown in `content/blog/`; see `docs/blog.md` |
 | `/privacy/`, `/thank-you/` | Privacy policy; post-submit page (noindex) |
-| `go.apnre.com.au/landlords/` (+ `thank-you/`) | The landlord campaign funnel for paid ads, and its thank-you page (both noindex). Funnels are served on go.apnre.com.au; see `docs/funnels.md` |
+| `/landlords/` (+ `thank-you/`) | The landlord campaign funnel for paid ads, and its thank-you page (both noindex); see `docs/funnels.md` |
 
 To add a page: add it to `routes.json`, create `src/pages/<Name>.tsx`,
 register it in `PAGE_LOADERS` in `src/pages/index.ts`, and link it from
@@ -65,15 +65,15 @@ Old URLs that moved are redirected in `public/_redirects` (e.g. the
 landing page's `/adelaide/` and `/mount-gambier/` office pages go to the
 offices on `/contact/`). Add a line there whenever a published page moves.
 
-## Campaign funnels (go.apnre.com.au)
+## Campaign funnels
 
-Paid-ad landing pages live on `go.apnre.com.au`, one path per funnel,
-listed in `src/data/funnels.json`. `functions/_middleware.ts` serves
-them there and redirects everything else between the hosts; the full
+Paid-ad landing pages live on `apnre.com.au`, one path per funnel,
+listed in `src/data/funnels.json`. `functions/_middleware.ts` adds a
+noindex header to them (they're for ads, not search); the full
 guide, including a brief template for the marketing exec and UTM
 conventions, is `docs/funnels.md`.
 
-### The landlord funnel (`go.apnre.com.au/landlords/`)
+### The landlord funnel (`apnre.com.au/landlords/`)
 
 The paid-ads landing page, moved in from the `APNRE-Website` repo. It
 looks like the rest of apnre.com.au, while its form and tracking stay
@@ -130,8 +130,9 @@ The site went live at `apnre.com.au` in place of `APNRE-Website` (whose
 repo is now archived) at the start of October 2026. As checked on
 3 Oct 2026:
 
-- [x] **Switch-over.** `apnre.com.au`, `www`, `go.apnre.com.au` and
-  `adelaidepropertynetwork.com.au` are on this Pages project, with all
+- [x] **Switch-over.** `apnre.com.au`, `www` and
+  `adelaidepropertynetwork.com.au` are on this Pages project (`go.apnre.com.au`
+  was too until 8 Oct 2026; it's now the Short.io short-link domain), with all
   the environment variables below set for Production
   (`docs/switch-over.md`).
 - [x] **Spam check.** Turnstile keys set (`docs/forms.md`).
@@ -148,7 +149,7 @@ repo is now archived) at the start of October 2026. As checked on
   firewall rule to PropertyMe's IPs once they send them. Until then
   `/buy/`, `/rent/` and `/sold/` link to the realestate.com.au profile.
 - [ ] **Ads.** If not done yet, change the landing page URL in Google Ads
-  and Meta ads to `https://go.apnre.com.au/landlords/` (`docs/funnels.md`),
+  and Meta ads to `https://apnre.com.au/landlords/` (`docs/funnels.md`),
   and any "visited `/thank-you/`" conversion to `/landlords/thank-you/`
   (end of `docs/gtm-events.md`).
 - [ ] **GTM.** Set up the `generate_lead` and `click_to_call` triggers

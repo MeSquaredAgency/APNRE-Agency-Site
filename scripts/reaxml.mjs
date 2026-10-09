@@ -123,21 +123,60 @@ function floorplans(objects) {
     .map(mediaUrl);
 }
 
+/** Australian numbers spaced the usual way: "0490 459 107",
+ *  "1300 123 276", "08 8262 1234". Anything else is left as typed. */
+export function formatPhone(raw) {
+  let d = raw.replace(/[^\d+]/g, '');
+  if (d.startsWith('+61')) d = `0${d.slice(3)}`;
+  if (/^04\d{8}$/.test(d)) return `${d.slice(0, 4)} ${d.slice(4, 7)} ${d.slice(7)}`;
+  if (/^1[38]00\d{6}$/.test(d)) return `${d.slice(0, 4)} ${d.slice(4, 7)} ${d.slice(7)}`;
+  if (/^0[2378]\d{8}$/.test(d)) return `${d.slice(0, 2)} ${d.slice(2, 6)} ${d.slice(6)}`;
+  return raw.trim();
+}
+
+/** The business is "APN Real Estate" in everything the site shows, never
+ *  "APN" alone, so PropertyMe's "APN Rentals Team" becomes "APN Real Estate
+ *  Rentals Team". */
+const agentName = (name) => name.replace(/\bAPN\b(?! Real Estate)/g, 'APN Real Estate');
+
 function agents(node) {
   return (node.listingAgent ?? [])
     .map((a) => {
       const phones = a.telephone ?? [];
       const phone =
         text(phones.find((t) => attr(t, 'type') === 'mobile')) || text(phones.find((t) => attr(t, 'type') === 'BH'));
-      return { name: text(a.name), ...(phone ? { phone } : {}), ...(text(a.email) ? { email: text(a.email) } : {}) };
+      return {
+        name: agentName(text(a.name)),
+        ...(phone ? { phone: formatPhone(phone) } : {}),
+        ...(text(a.email) ? { email: text(a.email) } : {}),
+      };
     })
     .filter((a) => a.name);
+}
+
+/** The agent's price wording, written the same way on every card:
+ *  "$495,500.00 - $549,000.00" and "$495,500 to $549,000" → "$495,500 –
+ *  $549,000", "$2.3 M" → "$2.3M". The words themselves ("Offers over",
+ *  "New pricing") stay. */
+export function tidyPrice(view) {
+  const amount = String.raw`\$\s?\d[\d,]*(?:\.\d+)?(?:\s?[MmKk]\b)?`;
+  return view
+    .replace(/(\$\s?\d[\d,]*)\.00\b/g, '$1')
+    .replace(/\$\s+(?=\d)/g, '$')
+    .replace(/(\$\d[\d,]*(?:\.\d+)?)\s?([Mm])\b/g, '$1M')
+    .replace(/(\$\d[\d,]*(?:\.\d+)?)\s?([Kk])\b/g, '$1k')
+    .replace(new RegExp(`(${amount})(?:\\s*[-–—]\\s*|\\s+to\\s+)(${amount})`, 'gi'), '$1 – $2')
+    .replace(/^New Pricing\b/, 'New pricing')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
 }
 
 /** What a sale listing shows as its price: the agent's own wording
  *  (priceView) first, the number only if they chose to show it. */
 function salePrice(node) {
-  const view = text(node.priceView);
+  const view = tidyPrice(text(node.priceView));
+  // "Commercial Under Contract": the status is the whole message.
+  if (/\bunder contract\b/i.test(view)) return 'Under contract';
   if (view) return view;
   if (attr(node.authority, 'value').toLowerCase() === 'auction') return 'Auction';
   const price = num(node.price);
@@ -146,7 +185,7 @@ function salePrice(node) {
 }
 
 function rentPrice(node, rentEl) {
-  const view = text(node.priceView);
+  const view = tidyPrice(text(node.priceView));
   if (view) return view;
   const rent = num(rentEl);
   if (rent && attr(rentEl, 'display') !== 'no') {
@@ -291,6 +330,8 @@ function toListing(type, node, agentId) {
   // whole ID if two ever clash).
   const shortId = id.length > 12 ? id.slice(0, 8) : id;
   const pathFor = (idPart) => `/${section}/${slugify([street, suburb, idPart].filter(Boolean).join(' '))}/`;
+  const price = section === 'sold' ? soldPrice(node) : forRent ? rentPrice(node, rentEl) : salePrice(node);
+  const availableFrom = forRent ? normaliseTime(text(node.dateAvailable)).slice(0, 10) : '';
   const listing = {
     id,
     section,
@@ -304,8 +345,10 @@ function toListing(type, node, agentId) {
     suburb,
     state,
     postcode,
-    price: section === 'sold' ? soldPrice(node) : forRent ? rentPrice(node, rentEl) : salePrice(node),
-    underOffer: section === 'buy' && yes(attr(node.underOffer, 'value')),
+    price,
+    // Not as well as "Under contract": that's further along, and saying both
+    // contradicts itself.
+    underOffer: section === 'buy' && price !== 'Under contract' && yes(attr(node.underOffer, 'value')),
     bedrooms: num(features.bedrooms),
     bathrooms: num(features.bathrooms),
     carSpaces: carSpaces || undefined,
@@ -314,7 +357,10 @@ function toListing(type, node, agentId) {
     photos: photos(node),
     floorplans: floorplans(node.objects),
     inspections,
-    availableFrom: forRent ? normaliseTime(text(node.dateAvailable)).slice(0, 10) || undefined : undefined,
+    // A date that's already passed would read as stale ("Available from
+    // 7 October" on 9 October), so it becomes "Available now".
+    availableFrom: availableFrom > today ? availableFrom : undefined,
+    availableNow: Boolean(availableFrom) && availableFrom <= today,
     bond: forRent && num(node.bond) ? money(num(node.bond)) : undefined,
     agents: agents(node),
     soldDate: soldDate || undefined,

@@ -21,10 +21,24 @@ function escapeAttr(value: string): string {
  *  data: and so on) is dropped, so a pasted link can't run code. */
 const SAFE_URL = /^(https?:|mailto:|tel:|\/|#)/i;
 
+/** Straight quotes to curly ones, like the rest of the site's copy
+ *  (it’s, “quoted”), so posts can be typed with an ordinary keyboard. */
+function smartQuotes(text: string): string {
+  return text
+    .replace(/(^|[\s([{—–-])'/g, '$1‘')
+    .replace(/'/g, '’')
+    .replace(/(^|[\s([{—–-])"/g, '$1“')
+    .replace(/"/g, '”');
+}
+
 // The post body goes into the page with dangerouslySetInnerHTML
 // (BlogPostPage.tsx), so the output must be safe however a post was
 // written: raw HTML is shown as text, never run. See docs/blog.md.
 const markdown = new Marked({
+  // Prose only: code spans and link addresses keep their straight quotes.
+  walkTokens(token) {
+    if (token.type === 'text' && !('tokens' in token && token.tokens?.length)) token.text = smartQuotes(token.text);
+  },
   renderer: {
     html({ text }) {
       return escapeAttr(text).replace(/>/g, '&gt;');
@@ -91,9 +105,9 @@ export function loadPosts({ includeDrafts = false } = {}): Post[] {
 
     return {
       slug,
-      title: requireString(data, 'title', file),
-      seoTitle: optionalString(data, 'seoTitle'),
-      description: requireString(data, 'description', file),
+      title: smartQuotes(requireString(data, 'title', file)),
+      seoTitle: optionalString(data, 'seoTitle') && smartQuotes(optionalString(data, 'seoTitle')!),
+      description: smartQuotes(requireString(data, 'description', file)),
       date: toIsoDate(data.date, 'date', file),
       updated: data.updated ? toIsoDate(data.updated, 'updated', file) : undefined,
       author: optionalString(data, 'author'),

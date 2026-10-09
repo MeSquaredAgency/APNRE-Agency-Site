@@ -73,6 +73,10 @@ picture {
 a {
   color: inherit;
 }
+/* A phone number never splits across two lines. */
+a[href^='tel:'] {
+  white-space: nowrap;
+}
 
 h1, h2, h3, h4 {
   margin: 0;
@@ -87,6 +91,8 @@ h1, h2, h3, h4 {
 
 p {
   margin: 0;
+  /* No one-word last lines ("you.", "obligation.") where it can be avoided. */
+  text-wrap: pretty;
 }
 
 button {
@@ -189,6 +195,7 @@ input, select, textarea {
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
+  text-wrap: balance;
 }
 .eyebrow::before {
   content: '';
@@ -1498,8 +1505,10 @@ input, select, textarea {
   display: grid;
   gap: 4px;
 }
+/* Email addresses break at the <wbr>s after "@" and before the domain
+   ending (Listing.tsx), not mid-word. */
 .listing__agents a {
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 .listing__agent-name {
   font-weight: 700;
@@ -1514,6 +1523,15 @@ input, select, textarea {
   .listing__body {
     grid-template-columns: 1fr;
     gap: 32px;
+  }
+  /* One column: the price and Enquire button come straight after the
+     photos, ahead of a description that can run for screens; the
+     inspections and agents stay after it. */
+  .listing__aside {
+    display: contents;
+  }
+  .listing__aside > :first-child {
+    order: -1;
   }
 }
 
@@ -2328,7 +2346,9 @@ input, select, textarea {
   width: auto;
 }
 .site-footer__phone {
-  display: inline-block;
+  /* Its own line, so WhatsApp never runs into it on a wide phone. */
+  display: block;
+  width: fit-content;
   margin: 24px 0;
   font-family: var(--font-serif);
   font-size: 1.8rem;
@@ -2399,6 +2419,11 @@ input, select, textarea {
 .site-footer__licensee {
   color: rgba(255, 255, 255, 0.85);
   font-weight: 600;
+}
+/* Each part of the legal line wraps whole, with its "·" in front, so a
+   line never ends on a dangling separator. */
+.site-footer__legal-part {
+  white-space: nowrap;
 }
 .site-footer__logo--side img {
   max-width: 240px;
@@ -2577,7 +2602,7 @@ input, select, textarea {
 }
 .post-prose h2 + *,
 .post-prose h3 + * {
-  margin-top: 0.6em;
+  margin-top: 0.9em;
 }
 .post-prose strong {
   font-weight: 600;

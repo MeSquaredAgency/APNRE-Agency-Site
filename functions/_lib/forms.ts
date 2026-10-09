@@ -4,7 +4,7 @@
 
 /** Hosts a Turnstile token may come from. Preview deployments
  *  (*.pages.dev) are allowed too, so forms can be tested there. */
-const TURNSTILE_HOSTS = new Set(['apnre.com.au', 'www.apnre.com.au', 'go.apnre.com.au']);
+const TURNSTILE_HOSTS = new Set(['apnre.com.au', 'www.apnre.com.au']);
 
 /** How long to wait for Google before giving up, so a slow Apps Script
  *  can't hold the visitor's request open. */

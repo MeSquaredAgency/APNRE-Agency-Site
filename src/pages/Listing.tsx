@@ -11,7 +11,7 @@ import JsonLd from '../components/JsonLd';
 import { CtaBand, FormSection, PageHero, SectionHead } from '../components/sections';
 import { TEAM, teamMemberId } from '../data/team';
 import { linkParts, parseDescription, splitLabel } from '../lib/description';
-import { formatDay, LISTINGS, listingAddress, listingsIn, photoSrcSet, thumb, type Listing as ListingData } from '../lib/listings';
+import { formatDay, formatInspection, LISTINGS, listingAddress, listingsIn, photoSrcSet, thumb, type Listing as ListingData } from '../lib/listings';
 import { usePath } from '../lib/route';
 import { breadcrumbList, SITE } from '../structured-data';
 import { ListingCard, ListingFeatures } from './Listings';
@@ -105,6 +105,23 @@ function Photos({ listing, address }: { listing: ListingData; address: string })
   );
 }
 
+/** An email address that can wrap after the "@" and before its ending
+ *  (".com.au"), never mid-word, in the narrow agent box. */
+function EmailText({ email }: { email: string }) {
+  const at = email.indexOf('@');
+  const dot = email.indexOf('.', at);
+  if (at < 0 || dot < 0) return <>{email}</>;
+  return (
+    <>
+      {email.slice(0, at + 1)}
+      <wbr />
+      {email.slice(at + 1, dot)}
+      <wbr />
+      {email.slice(dot)}
+    </>
+  );
+}
+
 type LinkTargets = Record<string, string> | undefined;
 
 /** Text with its web and email addresses as links; a short link goes
@@ -117,7 +134,7 @@ function Linked({ text, targets }: { text: string; targets: LinkTargets }) {
           <a
             key={i}
             href={targets?.[part.href] ?? part.href}
-            {...(part.href.startsWith('mailto:') ? {} : { target: '_blank', rel: 'noopener noreferrer' })}
+            {...(/^(mailto|tel):/.test(part.href) ? {} : { target: '_blank', rel: 'noopener noreferrer' })}
           >
             {part.text}
           </a>
@@ -185,7 +202,7 @@ export default function Listing() {
     ['Property type', listing.category],
     ['Land size', listing.landArea],
     ['Building size', listing.buildingArea],
-    ['Available from', listing.availableFrom && formatDay(listing.availableFrom)],
+    ['Available', listing.availableNow ? 'Now' : listing.availableFrom && `From ${formatDay(listing.availableFrom)}`],
     ['Bond', listing.bond],
     ['Sold on', listing.soldDate && formatDay(listing.soldDate)],
   ].filter((f): f is [string, string] => Boolean(f[1]));
@@ -276,7 +293,7 @@ export default function Listing() {
                     <ul className="listing__inspections">
                       {listing.inspections.map((time) => (
                         <li key={time}>
-                          <Icon name="clock" /> {time}
+                          <Icon name="clock" /> {formatInspection(time)}
                         </li>
                       ))}
                     </ul>
@@ -292,6 +309,9 @@ export default function Listing() {
                   <ul className="listing__agents">
                     {listing.agents.map((agent) => {
                       const member = TEAM.find((m) => m.name.toLowerCase() === agent.name.toLowerCase());
+                      // The feed only has some agents' numbers; the team
+                      // page's verified one fills the gap.
+                      const phone = agent.phone ?? member?.phone;
                       return (
                         <li key={agent.name}>
                           {member ? (
@@ -301,14 +321,14 @@ export default function Listing() {
                           ) : (
                             <span className="listing__agent-name">{agent.name}</span>
                           )}
-                          {agent.phone && (
-                            <a href={`tel:${agent.phone.replace(/[^\d+]/g, '')}`}>
-                              <Icon name="phone" /> {agent.phone}
+                          {phone && (
+                            <a href={`tel:${phone.replace(/[^\d+]/g, '')}`}>
+                              <Icon name="phone" /> {phone}
                             </a>
                           )}
                           {agent.email && (
                             <a href={`mailto:${agent.email}`}>
-                              <Icon name="mail" /> {agent.email}
+                              <Icon name="mail" /> <EmailText email={agent.email} />
                             </a>
                           )}
                         </li>
