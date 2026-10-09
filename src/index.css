@@ -1754,7 +1754,9 @@ input, select, textarea {
 .team-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 40px 20px;
+  gap: 0 20px;
+  /* Cancels the last row's card margin (see .team-card). */
+  margin-bottom: -40px;
 }
 /* Wide screens: the column count comes from the number of people
    (teamColumns() in sections.tsx), with cards capped at 300px so a
@@ -1815,15 +1817,27 @@ input, select, textarea {
   text-transform: uppercase;
   color: var(--grey-500);
 }
-/* Cards in a row stretch to the same height; pushing the "About" link
-   to the bottom keeps the links level even when one person's role wraps
-   onto more lines than their neighbour's. */
+/* Each card is a subgrid of six shared rows (photo, name, role, office,
+   registration, link), so every name, role, office and "About" link
+   lines up with its neighbours even when one person's role wraps onto
+   more lines, and an open bio grows downwards without moving the
+   headings of the cards beside it. Empty rows collapse to nothing, which
+   is why the space between rows of cards is a margin here rather than a
+   row gap on .team-grid (a gap would open up around every empty row). */
 .team-card {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-row: span 6;
+  grid-template-rows: subgrid;
+  margin-bottom: 40px;
 }
+.team-card__photo { grid-row: 1; }
+.team-card__name { grid-row: 2; }
+.team-card__role { grid-row: 3; }
+.team-card__office { grid-row: 4; }
+.team-card__reg { grid-row: 5; }
+.team-card__bio,
+.team-card__profile { grid-row: 6; }
 .team-card__bio {
-  margin-top: auto;
   padding-top: 12px;
 }
 .team-card__bio summary {
@@ -1842,8 +1856,18 @@ input, select, textarea {
   font-size: 0.93rem;
   color: var(--grey-700);
 }
+/* Justified, at Pat's request, with hyphenation so the columns don't
+   open up wide gaps between words. Not on phones: the two cards per row
+   are too narrow to justify without big holes in the text. */
+@media (min-width: 561px) {
+  .team-card__bio p {
+    text-align: justify;
+    hyphens: auto;
+    text-wrap: pretty;
+  }
+}
 /* Credentials cards (/selling/, /leasing/): registration number, then
-   the profile link pushed to the bottom like the "About" link. */
+   the profile link on the same row as the "About" link. */
 .team-card__reg {
   margin-top: 4px;
   font-size: 0.85rem;
@@ -1853,9 +1877,9 @@ input, select, textarea {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  align-self: flex-start;
+  justify-self: start;
+  align-self: start;
   min-height: 32px;
-  margin-top: auto;
   padding-top: 12px;
   font-size: 0.9rem;
   font-weight: 600;
@@ -1884,7 +1908,11 @@ input, select, textarea {
 @media (max-width: 560px) {
   .team-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 28px 14px;
+    column-gap: 14px;
+    margin-bottom: -28px;
+  }
+  .team-card {
+    margin-bottom: 28px;
   }
   .team-card__name {
     font-size: 1.15rem;
