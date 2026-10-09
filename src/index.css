@@ -1912,7 +1912,7 @@ input, select, textarea {
    open up wide gaps between words. Not on phones: the two cards per row
    are too narrow to justify without big holes in the text. */
 @media (min-width: 561px) {
-  .team-card__bio p {
+  .team-card__bio-text {
     text-align: justify;
     hyphens: auto;
     text-wrap: pretty;
