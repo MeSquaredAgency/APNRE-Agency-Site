@@ -10,8 +10,8 @@ import type { Photo } from '../lib/photo';
 // TODO(supplied-assets): add these files to src/assets/photos/supplied/
 // (JPEG, PNG or WebP, at least 1600px wide; the build makes the WebP
 // copies and sets their size), and write each one's alt text in PHOTO_ALT.
-//   home-tile-for-sale    home page "Properties for sale" tile
-//   home-tile-for-rent    home page "Properties for rent" tile
+//   home-tile-for-sale    home page "Properties for sale" tile (in)
+//   home-tile-for-rent    home page "Properties for rent" tile (in)
 //   hub-sellers           home page "Seller hub" card
 //   hub-buyers            home page "Buyer hub" card
 //   rent-hero             /rent/ hero: a generic Adelaide/SA property

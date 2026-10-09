@@ -8,8 +8,6 @@ code for `TODO(` to find each one.
 
 | What | Where it goes | Until then |
 | --- | --- | --- |
-| "Properties for sale" tile photo (home) | `src/assets/photos/supplied/home-tile-for-sale.jpg` | Mount Gambier hillside street |
-| "Properties for rent" tile photo (home) | `src/assets/photos/supplied/home-tile-for-rent.jpg` | Corner-windows interior |
 | Seller hub card photo (home) | `src/assets/photos/supplied/hub-sellers.jpg` | SOLD sign, Fenden Road, Salisbury |
 | Buyer hub card photo (home) | `src/assets/photos/supplied/hub-buyers.jpg` | Stock house exterior (Pexels) |
 | /rent/ hero: a generic Adelaide/SA property | `src/assets/photos/supplied/rent-hero.jpg`, plus its alt text in `PHOTO_ALT` in `src/data/supplied.ts` | Corner-windows interior |
@@ -24,6 +22,12 @@ attributes.
 The licensee line ("Adelaide Property Network | RLA 255336") is in the
 footer of every page. `public/404.html` has its own copy, so change both
 if it ever changes.
+
+The home page "Properties for sale" and "Properties for rent" tiles are
+in (`src/assets/photos/supplied/home-tile-for-sale.webp` and
+`home-tile-for-rent.webp`): APN's own listing photos of 6B East Way (at
+dusk) and 6C East Way (living room), Darlington, October 2026. Replace a
+file to change the photo.
 
 Supplied in October 2026 and already in: the title matrix and registration
 numbers (`src/data/team.ts`), one matching set of headshots for everyone
