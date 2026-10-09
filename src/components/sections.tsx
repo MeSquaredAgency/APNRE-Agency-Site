@@ -1,7 +1,7 @@
 // Building blocks the pages are assembled from. Each takes its copy as
 // props, so the words live with the page that uses them.
 
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { OFFICE_LIST } from '../data/offices';
 import { LEADERSHIP_GROUPS, TEAM, teamMemberId, type TeamGroup, type TeamMember } from '../data/team';
 import { OPENING_HOURS, PHONE_DISPLAY, PHONE_TEL, PORTALS, SOCIAL_LINKS } from '../data/business';
@@ -390,6 +390,45 @@ interface TeamCardProps {
   nameAs?: 'h3' | 'h4';
 }
 
+/** A bio cut to the same number of lines on every card (BIO_LINES in
+ *  index.css), so open bios end level with each other, with "Read more"
+ *  to show the rest. The button only appears when the bio is longer than
+ *  the cut, which can only be measured once the bio is open. */
+function BioText({ paragraphs }: { paragraphs: string[] }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [expanded, setExpanded] = useState(false);
+  const [overflows, setOverflows] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const measure = () => setOverflows(el.scrollHeight > el.clientHeight + 1);
+    const details = el.closest('details');
+    details?.addEventListener('toggle', measure);
+    window.addEventListener('resize', measure);
+    measure();
+    return () => {
+      details?.removeEventListener('toggle', measure);
+      window.removeEventListener('resize', measure);
+    };
+  }, []);
+
+  return (
+    <>
+      <div ref={ref} className={`team-card__bio-text${expanded ? ' is-expanded' : overflows ? ' is-clamped' : ''}`}>
+        {paragraphs.map((para, i) => (
+          <p key={i}>{para}</p>
+        ))}
+      </div>
+      {(overflows || expanded) && (
+        <button type="button" className="team-card__more" aria-expanded={expanded} onClick={() => setExpanded(!expanded)}>
+          {expanded ? 'Show less' : 'Read more'}
+        </button>
+      )}
+    </>
+  );
+}
+
 function TeamCard({ member, linked, credentials = false, nameAs: Name = 'h3' }: TeamCardProps) {
   const office = OFFICE_LIST.find((o) => o.id === member.office);
   const profile = `/our-people/${teamMemberId(member.name)}/`;
@@ -417,9 +456,7 @@ function TeamCard({ member, linked, credentials = false, nameAs: Name = 'h3' }: 
       ) : member.bio && (
         <details className="team-card__bio">
           <summary>About {member.name.split(' ')[0]}</summary>
-          {member.bio.map((para, i) => (
-            <p key={i}>{para}</p>
-          ))}
+          <BioText paragraphs={member.bio} />
         </details>
       )}
     </article>
