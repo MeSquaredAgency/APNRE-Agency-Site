@@ -107,7 +107,7 @@ export default function GoogleReviews({ id }: { id?: string }) {
   const [canScroll, setCanScroll] = useState({ back: false, forward: false });
 
   useEffect(() => {
-    fetch('/api/reviews')
+    fetch('/api/reviews?v=2') // ?v= matches the cache version in functions/api/reviews.ts
       .then((res) => (res.ok ? res.json() : null))
       .then((body: Reviews | null) => body?.live && body.reviews?.length && setData(body))
       .catch(() => {});
