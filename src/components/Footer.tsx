@@ -87,8 +87,12 @@ export default function Footer() {
           {/* SA requires the licensee's name and RLA number on all
               marketing, so this line is on every page. */}
           <span className="site-footer__licensee">{LICENSEE_LINE}</span>
-          {registration.length > 0 && <> · {registration.join(' · ')}</>} · © {new Date().getFullYear()}{' '}
-          {BUSINESS_NAME}
+          {[...registration, `© ${new Date().getFullYear()} ${BUSINESS_NAME}`].map((part) => (
+            <span key={part}>
+              {' '}
+              <span className="site-footer__legal-part">· {part}</span>
+            </span>
+          ))}
         </p>
         <p>Some photography and video is stock imagery from Pexels.</p>
         <a href="/privacy/">Privacy Policy</a>

@@ -18,11 +18,11 @@
   Analytics and the Meta Pixel only run on the live site, so dev-server
   visits, Cloudflare preview deployments (*.pages.dev) and test
   submissions don't land in APN's real analytics or ad data. That's
-  apnre.com.au, www. and go. (the campaign funnels, docs/funnels.md). Add
+  apnre.com.au and www. (campaign funnels included, docs/funnels.md). Add
   a hostname here if the site ever moves.
 -->
 <script>
-  window.__APN_LIVE = /^(www\.|go\.)?apnre\.com\.au$/.test(location.hostname);
+  window.__APN_LIVE = /^(www\.)?apnre\.com\.au$/.test(location.hostname);
 </script>
 <script>
   if ('%VITE_GTM_ID%' && window.__APN_LIVE) {
@@ -55,9 +55,10 @@
 
   On the main site, Meta's 110 KB script waits until the page has loaded
   and the browser is idle, so it doesn't compete with the page itself.
-  fbq() calls before then are queued and sent once it arrives. The
-  campaign funnels on go. load it straight away as before, so ad
-  conversion tracking there is unchanged.
+  fbq() calls before then are queued and sent once it arrives. Campaign
+  funnel pages (the "funnel" routes in src/data/routes.json, which get a
+  data-funnel attribute on <html>) load it straight away, since they're
+  where ad conversions happen.
 -->
 <script>
   if ('%VITE_META_PIXEL_ID%' && window.__APN_LIVE) {
@@ -70,7 +71,7 @@
       var load = function () {
         s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s);
       };
-      if (location.hostname.indexOf('go.') === 0) return load();
+      if (b.documentElement.hasAttribute('data-funnel')) return load();
       var idle = function () {
         (f.requestIdleCallback || function (cb) { setTimeout(cb, 1); })(load, { timeout: 3000 });
       };

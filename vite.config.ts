@@ -44,14 +44,20 @@ function blogDevServer(): Plugin {
 
 // Replaces a marker comment in each page with a partial from
 // src/partials/. Runs 'pre' so Vite's own %VITE_*% env replacement still
-// applies to the injected analytics snippets.
+// applies to the injected analytics snippets. The partials' own comments
+// are notes for whoever edits them, so they're left out of the pages.
 function partial(marker: string, file: string): Plugin {
   const partialPath = resolve(__dirname, 'src/partials', file);
   return {
     name: `apn-partial-${file}`,
     transformIndexHtml: {
       order: 'pre',
-      handler: (html) => html.replace(`<!-- ${marker} -->`, readFileSync(partialPath, 'utf8')),
+      handler: (html) =>
+        html.replace(`<!-- ${marker} -->`, () =>
+          readFileSync(partialPath, 'utf8')
+            .replace(/<!--[\s\S]*?-->\s*/g, '')
+            .trim(),
+        ),
     },
   };
 }

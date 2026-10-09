@@ -3,14 +3,15 @@
 
 export const BUSINESS_NAME = 'APN Real Estate';
 
-/** Main line, used for every "Call" button. Both offices share it. */
-export const PHONE_DISPLAY = '1300 123 276';
+/** Main line, used for every "Call" button. Both offices share it. The
+ *  spaces are non-breaking, so it never splits as "1300 / 123 276". */
+export const PHONE_DISPLAY = '1300 123 276';
 export const PHONE_TEL = 'tel:1300123276';
 /** The same number for structured data. */
 export const PHONE_SCHEMA = '+61-1300-123-276';
 
 /** APN's WhatsApp Business number (+61 421 473 210): opens a chat. */
-export const WHATSAPP_DISPLAY = '0421 473 210';
+export const WHATSAPP_DISPLAY = '0421 473 210';
 export const WHATSAPP_URL = 'https://wa.me/61421473210';
 
 /** Both offices keep the same hours (confirmed 28 Sep 2026). If they

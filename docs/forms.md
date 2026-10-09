@@ -74,7 +74,7 @@ which is invisible to most visitors and only asks for a click when it
 isn't sure. It's off until both keys are set:
 
 1. Cloudflare dashboard → **Turnstile** → **Add widget**. Add the
-   hostnames `apnre.com.au`, `www.apnre.com.au`, `go.apnre.com.au` and your
+   hostnames `apnre.com.au`, `www.apnre.com.au` and your
    `<project>.pages.dev` preview domain. Widget mode: **Managed**.
 2. In the Pages project → **Settings → Environment variables**, add both
    (Production, and Preview if you want previews checked too):

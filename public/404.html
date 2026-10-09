@@ -51,7 +51,7 @@
         padding: 0 clamp(16px, 4.5vw, 64px);
       }
       header { padding: 20px 0; }
-      header img { height: 50px; width: auto; display: block; }
+      header img { height: 56px; width: auto; display: block; }
       main {
         flex: 1;
         display: flex;
@@ -112,19 +112,20 @@
       footer a:hover { color: #fff; }
       footer a { display: inline-flex; align-items: center; gap: 8px; }
       .me2 { height: 16px; width: auto; }
+      footer strong { color: rgba(255, 255, 255, 0.85); font-weight: 600; }
     </style>
   </head>
   <body>
     <header>
       <div class="wrap">
-        <a href="/"><img src="/logo-reversed.png" alt="Adelaide Property Network — APN Real Estate" width="448" height="300" /></a>
+        <a href="/"><img src="/logo-side-reversed.webp" alt="Adelaide Property Network and Mount Gambier Property Network — APN Real Estate" width="499" height="140" /></a>
       </div>
     </header>
     <main>
       <div class="wrap">
         <p class="eyebrow">Error 404</p>
         <h1>We couldn’t find that page.</h1>
-        <p>The link may be out of date, or the address may have been mistyped. Try one of these instead, or call us on 1300 123 276.</p>
+        <p>The link may be out of date, or the address may have been mistyped. Try one of these instead, or call us on 1300&nbsp;123&nbsp;276.</p>
         <div class="actions">
           <a class="btn btn-primary" href="/">Back to the Home Page</a>
           <a class="btn btn-outline" href="tel:1300123276">Call 1300 123 276</a>
@@ -133,10 +134,11 @@
           <a href="/buy/">Buy</a>
           <a href="/selling/">Sell</a>
           <a href="/rent/">Rent</a>
-          <a href="/leasing/">Property management</a>
-          <a href="/client-hub/">Client hub</a>
-          <a href="/our-people/">Our people</a>
-          <a href="/contact/">Contact</a>
+          <a href="/commercial/">Commercial</a>
+          <a href="/leasing/">Property Management</a>
+          <a href="/client-hub/">Client Hub</a>
+          <a href="/our-people/">Our People</a>
+          <a href="/contact/">Contact Us</a>
         </nav>
       </div>
     </main>
@@ -144,9 +146,11 @@
          SA requires the licensee line on every page. -->
     <footer>
       <div class="wrap">
-        <p>Adelaide Property Network | RLA 255336 · ACN 164 181 971 · APN Real Estate</p>
+        <p><strong>Adelaide Property Network | RLA 255336</strong> · ACN 164 181 971 · © <span id="year">2026</span> APN Real Estate</p>
+        <a href="/privacy/">Privacy Policy</a>
         <a href="https://mesquaredagency.com" target="_blank" rel="noopener"><img class="me2" src="/me2-mark.webp" alt="" width="86" height="48" />Powered by Me² Agency</a>
       </div>
     </footer>
+    <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
   </body>
 </html>

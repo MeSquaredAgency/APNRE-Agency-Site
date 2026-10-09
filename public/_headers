@@ -9,8 +9,8 @@
 # The Report-Only policy below blocks nothing. Browsers only log what it
 # would have blocked (DevTools console, "Content-Security-Policy-Report-
 # Only"), which shows what an enforced policy needs to allow: the GTM
-# and GA4 tags, the Meta Pixel, Google address search, Turnstile and the
-# Pexels photos. Once a few weeks pass with nothing unexpected logged,
+# and GA4 tags (Google tag gateway included), Google Ads conversions,
+# the Meta Pixel, Google address search, Turnstile and the Pexels photos. Once a few weeks pass with nothing unexpected logged,
 # rename the header to Content-Security-Policy (keeping frame-ancestors).
 
 /*
@@ -19,7 +19,7 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()
   Content-Security-Policy: frame-ancestors 'none'
-  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://*.google-analytics.com https://connect.facebook.net https://maps.googleapis.com https://challenges.cloudflare.com https://static.cloudflareinsights.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://www.facebook.com https://connect.facebook.net https://maps.googleapis.com https://places.googleapis.com https://challenges.cloudflare.com https://cloudflareinsights.com; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self'; frame-src https://challenges.cloudflare.com https://www.googletagmanager.com https://www.facebook.com; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://*.google-analytics.com https://connect.facebook.net https://maps.googleapis.com https://challenges.cloudflare.com https://static.cloudflareinsights.com https://www.googleadservices.com https://googleads.g.doubleclick.net; connect-src 'self' https://*.google-analytics.com https://analytics.google.com https://*.analytics.google.com https://stats.g.doubleclick.net https://www.googletagmanager.com https://www.google.com https://www.google.com.au https://googleads.g.doubleclick.net https://www.facebook.com https://connect.facebook.net https://maps.googleapis.com https://places.googleapis.com https://challenges.cloudflare.com https://cloudflareinsights.com; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; font-src 'self'; frame-src https://challenges.cloudflare.com https://www.googletagmanager.com https://www.facebook.com https://td.doubleclick.net; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'
   X-Frame-Options: DENY
 
 # Built JS, CSS and images have a content hash in their file name, so a

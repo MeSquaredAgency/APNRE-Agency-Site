@@ -1,14 +1,15 @@
-# Campaign funnels (go.apnre.com.au)
+# Campaign funnels
 
-Every paid-ad landing page ("funnel") lives on **go.apnre.com.au**, one
+Every paid-ad landing page ("funnel") lives on **apnre.com.au**, one
 path per funnel:
 
 | Funnel | Address | Form goes to |
 | --- | --- | --- |
-| Landlord rental appraisal | https://go.apnre.com.au/landlords/ | `/api/lead` → the enquiry sheet |
+| Landlord rental appraisal | https://apnre.com.au/landlords/ | `/api/lead` → the enquiry sheet |
 
-The main site (apnre.com.au) is for search and everyone else; funnels are
-for ad traffic. They're built in this repo, from the same team data,
+Funnel pages are for ad traffic: they're noindex, kept out of the
+sitemap, and link back into the rest of the site only through the logo
+and privacy policy. They're built in this repo, from the same team data,
 brand, forms and tracking as the main site, so there's one codebase and
 one deployment.
 
@@ -19,7 +20,7 @@ one deployment.
 Send a brief with these answers. Anything you don't know yet can be left
 as "TBC"; the page won't go live with placeholders.
 
-1. **Name and address.** e.g. "Seller appraisal", at `go.apnre.com.au/sellers/`
+1. **Name and address.** e.g. "Seller appraisal", at `apnre.com.au/sellers/`
    (lowercase, hyphens, short).
 2. **Audience and offer.** Who is the ad aimed at, and what do they get?
    (e.g. "Owners in Adelaide's north thinking of selling in the next
@@ -41,11 +42,11 @@ brief; copy or photo changes to a live one, same day.
 
 ### Linking to a funnel from an ad
 
-Always use the go. address and tag the link, so every lead can be traced
+Always tag the link, so every lead can be traced
 back to its ad:
 
 ```
-https://go.apnre.com.au/landlords/?utm_source=google&utm_medium=cpc&utm_campaign=landlords-2026-10
+https://apnre.com.au/landlords/?utm_source=google&utm_medium=cpc&utm_campaign=landlords-2026-10
 ```
 
 | Tag | Use | Examples |
@@ -57,8 +58,12 @@ https://go.apnre.com.au/landlords/?utm_source=google&utm_medium=cpc&utm_campaign
 
 Lowercase, hyphens, no spaces. Google Ads adds `gclid` and Meta adds
 `fbclid` on their own; don't remove them. Every redirect on the site
-keeps these tags, so an older link like `apnre.com.au/landlords/` still
-tracks correctly after it redirects to go.
+keeps these tags, so an old `adelaidepropertynetwork.com.au/landlords/`
+link still tracks correctly.
+
+**Don't use go.apnre.com.au.** It served the funnels until 8 Oct 2026
+and is now the Short.io short-link domain, so a go. link only works if
+there's a matching short link in Short.io.
 
 ### Tracking
 
@@ -96,18 +101,15 @@ Analytics only runs on the live domains, so testing on a
    form writes a row, thank-you page shows.
 
 That's all the host handling needs: `functions/_middleware.ts` reads
-`funnels.json`, so the new path is automatically served on go. and
-redirected there from apnre.com.au.
+`funnels.json`, so the new path automatically gets its noindex header.
 
 ## How the hosts work
 
 `functions/_middleware.ts` runs before every page request (static files
 skip it via `public/_routes.json`):
 
-- **go.apnre.com.au:** funnel paths, `/api/*` and files are served;
-  everything else, including the bare root, redirects (302) to the same
-  path on apnre.com.au.
-- **apnre.com.au / www.:** funnel paths redirect (301) to go.
+- **apnre.com.au / www.:** everything is served; funnel paths also get an
+  `X-Robots-Tag: noindex` header.
 - **adelaidepropertynetwork.com.au / www.:** everything redirects (301)
   to the same path on apnre.com.au.
 - **Anything else** (e.g. `*.pages.dev` previews): untouched, so the whole
@@ -117,9 +119,5 @@ All redirects keep the query string.
 
 ## One-time setup (done once, not per funnel)
 
-- `go.apnre.com.au` is a custom domain on the `apnre-flagship-site`
-  Pages project (Cloudflare dashboard → Workers & Pages → the project →
-  Custom domains).
-- The Google Maps key's website restrictions include
-  `https://go.apnre.com.au/*` (`docs/google-maps.md`), and so do the
-  Turnstile widget's hostnames if Turnstile is on (`docs/forms.md`).
+Nothing beyond the main site's: the Google Maps key and Turnstile widget
+already allow apnre.com.au (`docs/google-maps.md`, `docs/forms.md`).

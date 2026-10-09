@@ -5,10 +5,10 @@ import JsonLd from '../components/JsonLd';
 import Picture from '../components/Picture';
 import { CtaBand, Faq, FormSection, PageHero, Process, Reasons, Team } from '../components/sections';
 import { PHONE_DISPLAY, PHONE_TEL } from '../data/business';
+import { STOCK } from '../data/media';
 import { trackCallClick } from '../lib/analytics';
 import { service } from '../structured-data';
 import heroPhoto from '../assets/photos/balcony-view-hills.jpg?photo';
-import balconyWide from '../assets/photos/balcony-view-wide.jpg?photo';
 
 // Reasons, switching copy and FAQs come from the landlord landing page
 // (APNRE-Website), where APN has already signed them off. Keep the two
@@ -78,7 +78,8 @@ const FAQS = [
 function Switching() {
   return (
     <section className="photo-band" id="switch">
-      <Picture photo={balconyWide} alt="" className="photo-band__img" />
+      {/* Not the balcony view again: the hero already uses it. */}
+      <Picture photo={STOCK.townhouses.photo} alt="" className="photo-band__img" />
       <div className="photo-band__scrim" />
       <div className="wrap photo-band__inner">
         <span className="eyebrow">Already have a property manager?</span>

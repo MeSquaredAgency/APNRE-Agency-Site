@@ -31,7 +31,6 @@ export const NAV_GROUPS: NavGroup[] = [
     href: '/buy/',
     links: [
       { href: '/buy/', label: 'For Sale' },
-      { href: '/sold/', label: 'Recently Sold' },
       { href: '/buy/#register', label: 'Join Our Buyer List' },
       { href: '/client-hub/buyers/', label: 'Buyer Hub' },
       { href: '/our-people/?filter=sales', label: 'Sales Team' },
@@ -41,7 +40,7 @@ export const NAV_GROUPS: NavGroup[] = [
     title: 'Sell',
     href: '/selling/',
     links: [
-      { href: '/selling/', label: 'Selling With APN Real Estate' },
+      { href: '/selling/', label: 'Selling with APN Real Estate' },
       { href: '/appraisal/sales/', label: 'Sales Appraisal' },
       { href: '/sold/', label: 'Recent Sales' },
       { href: '/client-hub/sellers/', label: 'Seller Hub' },
@@ -77,13 +76,15 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/our-people/', label: 'Our People' },
       { href: '/contact/', label: 'Contact Us' },
       { href: '/client-hub/', label: 'Client Hub' },
-      { href: '/careers/', label: 'Work With Us' },
+      { href: '/careers/', label: 'Work with Us' },
       { href: '/blog/', label: 'Blog' },
     ],
   },
 ];
 
-/** Where each listing type lives until the site has its own feed. */
+/** Each listing type on APN Real Estate's realestate.com.au profile, the
+ *  secondary link on /buy/, /rent/ and /sold/ (and the main one while a
+ *  section is empty). */
 export const LISTINGS_LINKS = {
   buy: { href: REA_PROFILE_URL, label: 'For sale on realestate.com.au' },
   rent: { href: REA_PROFILE_URL, label: 'For rent on realestate.com.au' },

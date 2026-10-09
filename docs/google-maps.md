@@ -10,7 +10,7 @@ It's off until a key is set. Without one, the fields are ordinary text
 boxes and everything else works the same. The code is
 `src/lib/places.ts` and `src/components/AddressInput.tsx`.
 
-The landlord campaign page (`go.apnre.com.au/landlords/`) uses the same
+The landlord campaign page (`apnre.com.au/landlords/`) uses the same
 address field, so the key's website restrictions need that host too (see
 step 4).
 
@@ -36,7 +36,6 @@ key is), so the restrictions are what protect it. On the key's page:
 - **Application restrictions → Websites**, and add:
   - `https://apnre.com.au/*`
   - `https://www.apnre.com.au/*`
-  - `https://go.apnre.com.au/*` (campaign funnels, `docs/funnels.md`)
   - `https://*.<your-pages-project>.pages.dev/*` (preview deployments)
   - `http://localhost:5180/*` (only if you want it on the dev server)
 - **API restrictions → Restrict key**, and tick only **Maps JavaScript

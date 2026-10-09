@@ -20,13 +20,13 @@
   {
     "page": "buy",
     "path": "/buy/",
-    "title": "Properties For Sale | APN Real Estate",
+    "title": "Properties for Sale | APN Real Estate",
     "description": "Browse APN Real Estate's properties for sale in Adelaide and Mount Gambier, or join our buyer list to hear about new listings."
   },
   {
     "page": "rent",
     "path": "/rent/",
-    "title": "Properties For Rent | APN Real Estate",
+    "title": "Properties for Rent | APN Real Estate",
     "description": "Browse APN Real Estate's rental properties for lease in Adelaide and Mount Gambier, or tell us what kind of rental you're looking for."
   },
   {
@@ -182,7 +182,7 @@
   {
     "page": "landlords-thank-you",
     "path": "/landlords/thank-you/",
-    "title": "Thanks for your enquiry | APN Real Estate",
+    "title": "Thanks for Your Enquiry | APN Real Estate",
     "description": "Your free rental appraisal request has been received. An APN Real Estate property manager will be in touch directly.",
     "noindex": true,
     "funnel": "landlords"

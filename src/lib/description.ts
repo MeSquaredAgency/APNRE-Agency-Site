@@ -43,7 +43,10 @@ export function parseDescription(text: string): DescriptionBlock[] {
     .split('\n')
     .map((line) => line.replace(/\u00a0/g, ' ').trim())
     // Divider lines ("-----", "*****") are just gaps.
-    .map((line) => (/^[-–—_*=~•.]{3,}$/.test(line) ? '' : line));
+    .map((line) => (/^[-–—_*=~•.]{3,}$/.test(line) ? '' : line))
+    // A portal's "See less" / "Read more" button, copied in with the text.
+    // Capitalised, as the button is, so "come and see more" in a sentence stays.
+    .map((line) => line.replace(/\s*\b(?:See|Read|Show) (?:less|more)$/, ''));
 
   // Group the lines into runs: lines of plain text with nothing between
   // them. Blank lines, headings and bullet points end a run.
@@ -125,10 +128,24 @@ export function splitLabel(item: string): { label: string; rest: string } | unde
   return { label: `${m[1]}:`, rest: m[2] };
 }
 
-/** Web and email addresses in the text, so they can be links. */
+/** Web and email addresses and phone numbers in the text, so they can be
+ *  links. */
 export type TextPart = { text: string; href?: string };
 
-const LINK = /\bhttps?:\/\/[^\s<>"]+|\bwww\.[^\s<>"]+\.[^\s<>"]+|[\w.+-]+@[\w-]+(?:\.[\w-]+)+/gi;
+/** Australian numbers: 1300/1800, mobiles and landlines, spaced or not. */
+const PHONE = String.raw`\b(?:1[38]00\s?\d{3}\s?\d{3}|04\d{2}\s?\d{3}\s?\d{3}|0[2378]\s?\d{4}\s?\d{4})\b`;
+const LINK = new RegExp(
+  String.raw`\bhttps?:\/\/[^\s<>"]+|\bwww\.[^\s<>"]+\.[^\s<>"]+|[\w.+-]+@[\w-]+(?:\.[\w-]+)+|${PHONE}`,
+  'gi',
+);
+
+/** A long web address shown short: "youtube.com/watch…" rather than 80
+ *  characters of query string. The link itself is the full address. */
+function shortUrl(url: string): string {
+  if (url.length <= 40) return url;
+  const bare = url.replace(/^https?:\/\/(www\.)?/i, '');
+  return `${bare.slice(0, 32)}…`;
+}
 
 export function linkParts(text: string): TextPart[] {
   const parts: TextPart[] = [];
@@ -138,12 +155,14 @@ export function linkParts(text: string): TextPart[] {
     const found = m[0].replace(/[.,;:!?)\]'’]+$/, '');
     const start = m.index ?? 0;
     if (start > last) parts.push({ text: text.slice(last, start) });
-    const href = found.includes('@') && !/^https?:/i.test(found)
-      ? `mailto:${found}`
-      : /^www\./i.test(found)
-        ? `https://${found}`
-        : found;
-    parts.push({ text: found, href });
+    if (/^[\d\s]+$/.test(found)) {
+      // A phone number: tap to call, and never split across two lines.
+      parts.push({ text: found.replace(/\s/g, ' '), href: `tel:${found.replace(/\s/g, '')}` });
+    } else if (found.includes('@') && !/^https?:/i.test(found)) {
+      parts.push({ text: found, href: `mailto:${found}` });
+    } else {
+      parts.push({ text: shortUrl(found), href: /^www\./i.test(found) ? `https://${found}` : found });
+    }
     last = start + found.length;
   }
   if (last < text.length) parts.push({ text: text.slice(last) });

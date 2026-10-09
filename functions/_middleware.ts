@@ -1,16 +1,19 @@
 // Runs in front of every page request (static files skip it; see
 // public/_routes.json) and sends each one to the right host:
 //
-//   go.apnre.com.au   Campaign funnels only (src/data/funnels.json). A
-//                     funnel's pages, the form endpoints and files load
-//                     here; anything else, including the bare root,
-//                     belongs to the main site and redirects there.
-//   apnre.com.au      The main site. A funnel path here (an old ad link,
-//   www.apnre.com.au  e.g. apnre.com.au/landlords/) redirects to go.
+//   apnre.com.au      The main site, campaign funnels included
+//   www.apnre.com.au  (src/data/funnels.json, e.g. apnre.com.au/landlords/).
+//                     Funnel pages are for ad traffic, so they carry an
+//                     X-Robots-Tag: noindex header on top of their own
+//                     noindex tag.
 //
 //   adelaidepropertynetwork.com.au   The old brand's domain: everything
 //                     redirects to the same path on apnre.com.au, so
 //                     there's one address to track and rank.
+//
+// go.apnre.com.au used to serve the funnels. Since October 2026 it's APN
+// Real Estate's Short.io short-link domain, so it never reaches this
+// site; ads point at apnre.com.au/<funnel>/ instead (docs/funnels.md).
 //
 // Every redirect keeps the query string, so ad click IDs (gclid, fbclid)
 // and UTM tags survive it, and adds the trailing slash pages live at, so
@@ -20,8 +23,7 @@
 
 import config from '../src/data/funnels.json';
 
-const MAIN = 'apnre.com.au';
-const GO = new URL(config.origin).hostname;
+const MAIN = new URL(config.origin).hostname;
 const MAIN_HOSTS = new Set([MAIN, `www.${MAIN}`]);
 const OLD_BRAND_HOSTS = new Set(['adelaidepropertynetwork.com.au', 'www.adelaidepropertynetwork.com.au']);
 
@@ -32,21 +34,12 @@ function isFunnelPath(path: string): boolean {
   return FUNNEL_PATHS.some((p) => path === p.slice(0, -1) || path.startsWith(p));
 }
 
-/** Form endpoints, which funnel pages post to on their own host. */
-const isApi = (path: string) => path.startsWith('/api/');
-
-/** Anything with a file extension (images, robots.txt, sitemap.xml...):
- *  served as-is on any host. The big asset folders never reach this
- *  function at all (public/_routes.json). */
+/** Anything with a file extension (images, robots.txt, sitemap.xml...). */
 const isFile = (path: string) => /\/[^/]+\.[a-z0-9]+$/i.test(path);
 
-/** /landlords → /landlords/, so the redirect lands on the page itself
- *  rather than on Pages' own trailing-slash redirect. */
+/** /contact → /contact/, so the redirect lands on the page itself rather
+ *  than on Pages' own trailing-slash redirect. */
 const withSlash = (path: string) => (isFile(path) || path.endsWith('/') ? path : `${path}/`);
-
-function redirect(host: string, url: URL, status: 301 | 302): Response {
-  return Response.redirect(`https://${host}${withSlash(url.pathname)}${url.search}`, status);
-}
 
 /** The response as-is, plus an X-Robots-Tag header. */
 function noindex(response: Response): Response {
@@ -55,33 +48,17 @@ function noindex(response: Response): Response {
   return out;
 }
 
-/** go. only holds noindex funnel pages, so it gets its own robots.txt
- *  with no sitemap (the main one lists apnre.com.au pages). Crawling stays
- *  allowed: a crawler has to fetch a page to see its noindex tag. */
-const GO_ROBOTS = 'User-agent: *\nAllow: /\n';
-
 export const onRequest: PagesFunction = async (context) => {
   const url = new URL(context.request.url);
   const { hostname: host, pathname: path } = url;
 
-  if (host === GO) {
-    if (path === '/robots.txt') {
-      return new Response(GO_ROBOTS, { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
-    }
-    // The page's own noindex tag, repeated as a header, which also
-    // covers anything served here that isn't HTML.
-    if (isFunnelPath(path) || isApi(path) || isFile(path)) return noindex(await context.next());
-    // 302, not 301: the root of go. may become a funnel directory later.
-    return redirect(MAIN, url, 302);
-  }
-
   if (MAIN_HOSTS.has(host)) {
-    if (isFunnelPath(path)) return redirect(GO, url, 301);
-    return context.next();
+    // The page's own noindex tag, repeated as a header.
+    return isFunnelPath(path) ? noindex(await context.next()) : context.next();
   }
 
-  // Old ad links to the funnel go straight to go., not via apnre.com.au.
-  if (OLD_BRAND_HOSTS.has(host)) return redirect(isFunnelPath(path) ? GO : MAIN, url, 301);
+  // Same path on apnre.com.au, query string and all.
+  if (OLD_BRAND_HOSTS.has(host)) return Response.redirect(`https://${MAIN}${withSlash(path)}${url.search}`, 301);
 
   return noindex(await context.next());
 };
