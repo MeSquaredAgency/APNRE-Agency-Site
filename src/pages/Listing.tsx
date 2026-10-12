@@ -55,7 +55,7 @@ function MoreListings({ listing }: { listing: ListingData }) {
         />
         <ul className="listing-grid">
           {more.map((l) => (
-            <ListingCard key={l.id} listing={l} />
+            <ListingCard key={l.id} listing={l} allCommercial={listing.section === 'commercial'} />
           ))}
         </ul>
       </div>

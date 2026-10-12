@@ -51,7 +51,6 @@ export const NAV_GROUPS: NavGroup[] = [
     href: '/rent/',
     links: [
       { href: '/rent/', label: 'For Rent' },
-      { href: '/commercial/', label: 'Commercial Leasing' },
       { href: '/rent/#register', label: 'Rental Alerts' },
       { href: '/office-space/', label: 'Office Space for Lease' },
       { href: '/client-hub/tenants/', label: 'Tenant Hub' },

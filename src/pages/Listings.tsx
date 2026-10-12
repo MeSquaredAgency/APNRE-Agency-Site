@@ -1,5 +1,6 @@
 // /buy/, /rent/, /sold/ and /commercial/. Each shows its listings from
 // PropertyMe's feed (src/lib/listings.ts), linking to a page per property.
+// /rent/ lists commercial leases too, with a Residential / Commercial filter.
 // Until the feed is set up (docs/listings-feed.md), or when a section has
 // nothing in it, /buy/, /rent/ and /sold/ point to APN's
 // realestate.com.au profile instead, which is always current.
@@ -69,12 +70,13 @@ export function ListingFeatures({ listing }: { listing: Listing }) {
   );
 }
 
-export function ListingCard({ listing }: { listing: Listing }) {
+/** `allCommercial`: on a list that's only commercial property (/commercial/),
+ *  where a Commercial badge on every card would say nothing. */
+export function ListingCard({ listing, allCommercial = false }: { listing: Listing; allCommercial?: boolean }) {
   const photo = thumb(listing, 0);
   const badges = [
     listing.underOffer ? 'Under offer' : listing.section === 'sold' ? 'Sold' : '',
-    // Everything on /commercial/ is commercial, so it needs no badge there.
-    listing.propertyType === 'commercial' && listing.section !== 'commercial' ? 'Commercial' : '',
+    listing.propertyType === 'commercial' && !allCommercial ? 'Commercial' : '',
   ].filter(Boolean);
   return (
     <li>
@@ -118,7 +120,8 @@ export function ListingCard({ listing }: { listing: Listing }) {
 }
 
 interface ListingsGridProps {
-  section: ListingSection;
+  /** More than one on /rent/, which lists commercial leases too. */
+  sections: ListingSection[];
   link: { href: string; label: string };
   eyebrow: string;
   /** e.g. n => `${n} properties for sale.` */
@@ -137,9 +140,9 @@ const TYPE_FILTERS = [
 type TypeFilter = (typeof TYPE_FILTERS)[number]['key'];
 
 /** The section's listings, or the realestate.com.au panel when there are none. */
-function ListingsGrid({ section, link, eyebrow, title, fallback, filterable = false }: ListingsGridProps) {
+function ListingsGrid({ sections, link, eyebrow, title, fallback, filterable = false }: ListingsGridProps) {
   const [type, setType] = useState<TypeFilter>('all');
-  const listings = listingsIn(section);
+  const listings = sections.flatMap(listingsIn);
   if (listings.length === 0) return <ListingsPanel link={link} {...fallback} />;
   const commercialCount = listings.filter((l) => l.propertyType === 'commercial').length;
   const showFilter = filterable && commercialCount > 0 && commercialCount < listings.length;
@@ -195,7 +198,7 @@ export function Buy() {
         focalPoint="30% 65%"
       />
       <ListingsGrid
-        section="buy"
+        sections={['buy']}
         link={LISTINGS_LINKS.buy}
         eyebrow="On the market"
         title={(n) => `${plural(n, 'property', 'properties')} for sale.`}
@@ -233,15 +236,16 @@ export function Rent() {
       <PageHero
         eyebrow="Rent"
         title="Properties for rent."
-        lede="Rental homes available now across Adelaide and Mount Gambier."
+        lede="Rental homes and commercial space available now across Adelaide and Mount Gambier."
         photo={RENT_HERO?.photo ?? interior}
         photoAlt={RENT_HERO ? RENT_HERO.alt : 'Floor-to-ceiling corner windows in a rental property managed by APN Real Estate'}
       />
       <ListingsGrid
-        section="rent"
+        sections={['rent', 'commercial']}
         link={LISTINGS_LINKS.rent}
         eyebrow="Available now"
         title={(n) => `${plural(n, 'property', 'properties')} for rent.`}
+        filterable
         fallback={{
           title: 'See what’s available to rent.',
           copy: 'Our current rentals, with photos and inspection times, are on our realestate.com.au agency page. Apply through the listing.',
@@ -277,7 +281,7 @@ export function Sold() {
         focalPoint="70% center"
       />
       <ListingsGrid
-        section="sold"
+        sections={['sold']}
         link={LISTINGS_LINKS.sold}
         eyebrow="Recent results"
         title={(n) => (n === 1 ? 'Our latest sale.' : `Our latest ${n} sales.`)}
@@ -319,7 +323,7 @@ export function Commercial() {
             />
             <ul className="listing-grid">
               {listings.map((l) => (
-                <ListingCard key={l.id} listing={l} />
+                <ListingCard key={l.id} listing={l} allCommercial />
               ))}
             </ul>
           </div>
