@@ -7,6 +7,9 @@ declare global {
     fbq?: (...args: unknown[]) => void;
     dataLayer?: unknown[];
     gtag?: (...args: unknown[]) => void;
+    /** Loads GTM now if it's still waiting for the page to go idle
+     *  (src/partials/head-shared.html). */
+    __apnLoadGtm?: () => void;
   }
 }
 
@@ -61,6 +64,9 @@ export function trackFormSubmit(formName: string, onDone: () => void) {
     };
   };
   const gtmDone = hold();
+  // GTM waits for the page to go idle; a form sent before then mustn't
+  // wait on it, or the lead would sit unsent on the dataLayer.
+  window.__apnLoadGtm?.();
   const adsDone = window.location.pathname.startsWith('/appraisal') ? hold() : undefined;
 
   // Appraisals are the leads worth optimising ads for; everything else
