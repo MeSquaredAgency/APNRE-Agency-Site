@@ -13,6 +13,19 @@
   not built here — see the Meta-Pixel-only script further down. Matching
   <noscript> iframe: src/partials/body-shared.html, injected immediately
   after <body> on every page.
+
+  On the main site GTM (and the Google tag it brings in, about 330 KB
+  between them) waits until the page has loaded and the browser is idle,
+  like the Meta Pixel below, so it doesn't hold up the page's first
+  render on phones. Events pushed before then wait on the dataLayer and
+  are sent once it arrives, page_view included. trackFormSubmit()
+  (src/lib/analytics.ts) loads it straight away through
+  window.__apnLoadGtm if a form is sent before then, so no lead is
+  missed. Campaign funnel pages (data-funnel on <html>) load it
+  immediately, since that's where ad conversions happen.
+
+  Cloudflare's Google tag gateway must not inject its own copy of GTM
+  (its automatic tag injection is off), or the container loads twice.
 -->
 <!--
   Analytics and the Meta Pixel only run on the live site, so dev-server
@@ -29,12 +42,23 @@
     (function (w, d, s, l, i) {
       w[l] = w[l] || [];
       w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
-      var f = d.getElementsByTagName(s)[0],
-        j = d.createElement(s),
-        dl = l != 'dataLayer' ? '&l=' + l : '';
-      j.async = true;
-      j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
-      f.parentNode.insertBefore(j, f);
+      var loaded = false;
+      var load = (w.__apnLoadGtm = function () {
+        if (loaded) return;
+        loaded = true;
+        var f = d.getElementsByTagName(s)[0],
+          j = d.createElement(s),
+          dl = l != 'dataLayer' ? '&l=' + l : '';
+        j.async = true;
+        j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+        f.parentNode.insertBefore(j, f);
+      });
+      if (d.documentElement.hasAttribute('data-funnel')) return load();
+      var idle = function () {
+        (w.requestIdleCallback || function (cb) { setTimeout(cb, 1); })(load, { timeout: 3000 });
+      };
+      if (d.readyState === 'complete') idle();
+      else w.addEventListener('load', idle);
     })(window, document, 'script', 'dataLayer', '%VITE_GTM_ID%');
   }
 </script>
