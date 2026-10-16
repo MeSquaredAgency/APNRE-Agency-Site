@@ -16,10 +16,10 @@ import { REVIEWS_URL } from '../data/nav';
 // the section credits Google Maps. All of them are shown, whatever the
 // star rating.
 
-type OfficeId = keyof typeof places;
+export type OfficeId = keyof typeof places;
 
 /** Matches ReviewsResponse in functions/api/reviews.ts. */
-interface Reviews {
+export interface Reviews {
   ok: boolean;
   live: boolean;
   offices?: { id: OfficeId; name: string; rating: number; count: number; url: string }[];
@@ -35,9 +35,9 @@ interface Reviews {
   }[];
 }
 
-const OFFICE_NAMES: Record<OfficeId, string> = { adelaide: 'Adelaide', 'mount-gambier': 'Mount Gambier' };
+export const OFFICE_NAMES: Record<OfficeId, string> = { adelaide: 'Adelaide', 'mount-gambier': 'Mount Gambier' };
 
-function Stars({ rating, size = 16 }: { rating: number; size?: number }) {
+export function Stars({ rating, size = 16 }: { rating: number; size?: number }) {
   const full = Math.round(rating);
   return (
     <span className="stars" role="img" aria-label={`Rated ${rating} out of 5`}>
@@ -101,17 +101,23 @@ function ReviewCard({ review }: { review: NonNullable<Reviews['reviews']>[number
   );
 }
 
-export default function GoogleReviews({ id }: { id?: string }) {
+/** The live reviews, or null until they load (and for good if the API
+ *  isn't set up or Google doesn't answer). Shared with ReviewBand.tsx. */
+export function useGoogleReviews() {
   const [data, setData] = useState<Reviews | null>(null);
-  const track = useRef<HTMLDivElement>(null);
-  const [canScroll, setCanScroll] = useState({ back: false, forward: false });
-
   useEffect(() => {
     fetch('/api/reviews?v=2') // ?v= matches the cache version in functions/api/reviews.ts
       .then((res) => (res.ok ? res.json() : null))
       .then((body: Reviews | null) => body?.live && body.reviews?.length && setData(body))
       .catch(() => {});
   }, []);
+  return data;
+}
+
+export default function GoogleReviews({ id }: { id?: string }) {
+  const data = useGoogleReviews();
+  const track = useRef<HTMLDivElement>(null);
+  const [canScroll, setCanScroll] = useState({ back: false, forward: false });
 
   // The arrow buttons only show when there's more to scroll to.
   useEffect(() => {

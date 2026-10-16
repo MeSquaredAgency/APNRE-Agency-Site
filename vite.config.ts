@@ -100,6 +100,11 @@ export default defineConfig({
     partial('shared-body', 'body-shared.html'),
     blogDevServer(),
   ],
+  // The dev server has no Pages Functions, so live Google reviews come
+  // from the production API.
+  server: {
+    proxy: { '/api/reviews': { target: 'https://apnre.com.au', changeOrigin: true } },
+  },
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
