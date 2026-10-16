@@ -36,6 +36,14 @@ export default function StickyActions({ current, cta: ownCta }: { current: strin
     };
   }, []);
 
+  // Lets the header hide its own Call button while this bar is showing
+  // one, so there are never two on screen.
+  useEffect(() => {
+    // (The appraisal pages have no bar, so the header keeps its button.)
+    document.documentElement.classList.toggle('has-sticky-actions', visible && !current.startsWith('/appraisal/'));
+    return () => document.documentElement.classList.remove('has-sticky-actions');
+  }, [visible, current]);
+
   if (current.startsWith('/appraisal/')) return null;
   // Office space tenants aren't after an appraisal: send them to the
   // booking form instead. A funnel passes its own (its form on the page).

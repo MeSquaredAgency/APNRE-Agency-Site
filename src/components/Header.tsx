@@ -121,6 +121,19 @@ export default function Header({ current, overlay = false, funnel }: HeaderProps
               <Icon name="phone" /> {PHONE_DISPLAY}
             </a>
           )}
+          {/* Phones only: the header's appraisal button is hidden there,
+              and the sticky Call bar waits until the hero has scrolled
+              away, so this is the call option on the first screen. */}
+          {!funnel && (
+            <a
+              href={PHONE_TEL}
+              className="site-header__call"
+              aria-label={`Call APN Real Estate on ${PHONE_DISPLAY}`}
+              onClick={() => trackCallClick('header_mobile')}
+            >
+              <Icon name="phone" /> Call
+            </a>
+          )}
           <a href={cta.href} className="btn btn-light btn-sm site-header__cta">
             {cta.label}
           </a>

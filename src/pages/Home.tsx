@@ -2,6 +2,7 @@ import Layout from '../components/Layout';
 import Icon from '../components/Icon';
 import VideoHero from '../components/VideoHero';
 import Picture from '../components/Picture';
+import ReviewBand from '../components/ReviewBand';
 import { CtaBand, ImageCards, Offices, Pillars, SectionHead, Team, type ImageCard } from '../components/sections';
 import { REVIEWS_URL } from '../data/nav';
 import { listingsIn } from '../lib/listings';
@@ -45,6 +46,7 @@ export default function Home() {
     <Layout overlay>
       <VideoHero />
       <Pillars items={PILLARS} />
+      <ReviewBand />
 
       <section className="section section-white">
         <div className="wrap">

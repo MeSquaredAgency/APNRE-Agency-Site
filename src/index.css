@@ -444,6 +444,30 @@ input, select, textarea {
   text-decoration: none;
 }
 
+/* Call button in the header, phones only (Header.tsx). Outlined like the
+   header's other light-on-dark controls, so the lime stays for the
+   appraisal button in the sticky bar. */
+.site-header__call {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 999px;
+  color: var(--white);
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+.site-header__call:hover,
+.site-header__call:focus-visible {
+  border-color: var(--lime);
+}
+.site-header__call svg {
+  color: var(--lime);
+}
+
 @media (max-width: 1180px) {
   .site-header__nav {
     display: none;
@@ -466,6 +490,12 @@ input, select, textarea {
     max-width: 170px;
   }
   .site-header__cta {
+    display: none;
+  }
+  .site-header__call {
+    display: inline-flex;
+  }
+  .has-sticky-actions .site-header__call {
     display: none;
   }
   .site-menu__groups {
@@ -3723,4 +3753,91 @@ input, select, textarea {
   display: grid;
   gap: 18px;
   max-width: 44em;
+}
+
+/* ---------- Review band (home, src/components/ReviewBand.tsx) ---------- */
+
+.review-band {
+  background: var(--stone);
+  border-bottom: 1px solid var(--line);
+}
+.review-band__row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 24px clamp(32px, 5vw, 72px);
+  min-height: 128px;
+  padding-top: 28px;
+  padding-bottom: 28px;
+}
+.review-band__ratings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 36px;
+}
+.review-band__rating {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: inherit;
+  text-decoration: none;
+}
+.review-band__score {
+  font-family: var(--font-serif);
+  font-size: clamp(2.2rem, 3.5vw, 2.8rem);
+  line-height: 1;
+}
+.review-band__count {
+  display: block;
+  margin-top: 4px;
+  font-size: 0.85rem;
+  color: var(--grey-700);
+}
+.review-band__rating:hover .review-band__count,
+.review-band__fallback a,
+.review-band__quote a {
+  text-decoration: underline;
+  text-decoration-color: var(--lime);
+  text-underline-offset: 4px;
+}
+.review-band__fallback {
+  margin: 0;
+}
+.review-band__fallback a,
+.review-band__quote a {
+  color: inherit;
+}
+.review-band__quote {
+  margin: 0;
+  padding-left: clamp(24px, 3vw, 40px);
+  border-left: 2px solid var(--lime);
+}
+/* Cut to three lines; the full review is a click away on Google. */
+.review-band__quote blockquote {
+  margin: 0 0 10px;
+  font-family: var(--font-serif);
+  font-size: clamp(1.05rem, 1.4vw, 1.2rem);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}
+.review-band__quote figcaption {
+  font-size: 0.85rem;
+  color: var(--grey-700);
+}
+.review-band__quote figcaption svg {
+  width: 12px;
+  height: 12px;
+  vertical-align: -1px;
+}
+@media (max-width: 900px) {
+  .review-band__row {
+    grid-template-columns: 1fr;
+  }
+  .review-band__quote {
+    padding-left: 18px;
+  }
 }
