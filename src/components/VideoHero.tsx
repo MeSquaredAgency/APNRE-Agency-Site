@@ -19,14 +19,19 @@ function saveData(): boolean {
   return connection?.saveData === true;
 }
 
+/** Phones keep the poster: the 720p loop is about 1.1 MB, a lot of
+ *  mobile data and decoding for a background, and the headline and
+ *  search sit over it either way. Tablets and up get the video. */
+const PHONE = '(max-width: 760px)';
+
 /** Full-bleed looping video with the headline and search over it.
  *
  *  The pre-rendered HTML carries only the poster image, so it shows
  *  straight away. The video file is chosen after the page loads (720p on
- *  narrow screens, 1080p otherwise) and skipped entirely for anyone who
- *  prefers reduced motion or has asked to save data, who keep the
- *  poster. The video is muted and has a pause button, since it runs
- *  longer than 5 seconds. */
+ *  tablets, 1080p on larger screens) and skipped entirely on phones and
+ *  for anyone who prefers reduced motion or has asked to save data, who
+ *  keep the poster. The video is muted and has a pause button, since it
+ *  runs longer than 5 seconds. */
 export default function VideoHero() {
   const video = useRef<HTMLVideoElement>(null);
   const [src, setSrc] = useState<string>();
@@ -37,7 +42,7 @@ export default function VideoHero() {
 
   useEffect(() => {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (!reduce.matches && !saveData()) {
+    if (!reduce.matches && !saveData() && !window.matchMedia(PHONE).matches) {
       setSrc(window.matchMedia('(max-width: 900px)').matches ? HERO_VIDEO.srcSmall : HERO_VIDEO.src);
     }
     // Turning reduced motion on mid-visit pauses it.
