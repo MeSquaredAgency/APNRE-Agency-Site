@@ -47,9 +47,14 @@ const HOURS = [
 const ORG_ID = `${SITE}/#organization`;
 // Must match OFFICE_SCHEMA_IDS in src/structured-data.ts.
 const OFFICE_IDS = { adelaide: `${SITE}/#office-adelaide`, 'mount-gambier': `${SITE}/#office-mount-gambier` };
-// REA_PROFILE_URL in src/data/business.ts. Add the Google Business
-// Profiles and social accounts here once confirmed.
-const SAME_AS = ['https://www.realestate.com.au/agency/adelaide-property-network-blair-athol-JIASZF'];
+// REA_PROFILE_URL and the social links in src/data/business.ts. Add the
+// Google Business Profiles here once confirmed.
+const SAME_AS = [
+  'https://www.realestate.com.au/agency/adelaide-property-network-blair-athol-JIASZF',
+  'https://www.facebook.com/adelaidepropertynetwork',
+  'https://www.instagram.com/apn.realestate/',
+  'https://www.youtube.com/@AdelaidepropertynetworkAu',
+];
 
 const office = ({ id, name, alternateName, street, locality, postcode, city, mapsQuery }) => ({
   '@type': 'RealEstateAgent',
@@ -81,7 +86,7 @@ const JSON_LD = {
       name: 'APN Real Estate',
       alternateName: ['Adelaide Property Network', 'Mount Gambier Property Network', 'APN'],
       url: `${SITE}/`,
-      logo: { '@type': 'ImageObject', url: `${SITE}/apple-touch-icon.png` },
+      logo: { '@type': 'ImageObject', url: `${SITE}/logo.png` },
       // Founded in 2013 by Patrick (his story on /our-story/).
       foundingDate: '2013',
       founder: { '@type': 'Person', name: 'Patrick Nhim', url: `${SITE}/our-people/patrick-nhim/` },

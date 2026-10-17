@@ -26,7 +26,7 @@ export const ORGANIZATION_REF = {
   '@id': ORGANIZATION_ID,
   name: 'APN Real Estate',
   url: `${SITE}/`,
-  logo: { '@type': 'ImageObject', url: `${SITE}/apple-touch-icon.png` },
+  logo: { '@type': 'ImageObject', url: `${SITE}/logo.png` },
 };
 
 export function breadcrumbList(items: { name: string; path: string }[]) {
