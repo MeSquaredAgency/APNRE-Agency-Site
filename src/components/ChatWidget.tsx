@@ -1,17 +1,24 @@
 import { Fragment, useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent, type ReactNode } from 'react';
-import { PHONE_DISPLAY, PHONE_TEL } from '../data/business';
-import { trackCallClick, trackChatLead, trackChatOpen } from '../lib/analytics';
-import Icon from './Icon';
+import { PHONE_DISPLAY, PHONE_TEL, WHATSAPP_URL } from '../data/business';
+import { trackCallClick, trackChatLead, trackChatOpen, trackWhatsAppClick } from '../lib/analytics';
+import { usePath } from '../lib/route';
+import Icon, { type IconName } from './Icon';
+import starMark from '../assets/logo/apn-star-mark.png?w=96&format=webp';
 
-// The chat assistant: a button in the bottom corner that opens a chat
-// panel. Replies come from functions/api/chat.ts (Claude), streamed in
-// as they're written. See docs/chat-assistant.md.
+// The chat assistant: a button in the bottom corner (with a greeting that
+// pops up beside it) that opens a chat panel. Replies come from
+// functions/api/chat.ts (Claude), streamed in as they're written, with
+// follow-up suggestions as buttons. See docs/chat-assistant.md.
 
 const ENDPOINT = '/api/chat';
 
 /** The conversation lives in sessionStorage, so it carries on from page
  *  to page (the site is separate pages) and is gone when the tab closes. */
 const STORAGE_KEY = 'apn-chat';
+/** Set once the greeting has been shown or closed: once per visit is
+ *  plenty. */
+const TEASER_KEY = 'apn-chat-teaser';
+const TEASER_DELAY_MS = 7000;
 
 /** Under the caps in functions/api/chat.ts, so a long conversation drops
  *  its oldest messages instead of being turned away. */
@@ -19,18 +26,80 @@ const SEND_MESSAGES = 20;
 const SEND_CHARS = 30_000;
 const MAX_INPUT = 2000;
 
-const WELCOME =
-  'Hi! I’m APN Real Estate’s AI assistant. Ask me about selling, renting, property management or our team, or I can pass your details on to the team.';
+interface Topic {
+  /** What the greeting beside the button says. */
+  teaser: string;
+  /** Questions offered as buttons, in the visitor's words. */
+  prompts: string[];
+}
 
-const SUGGESTIONS = [
-  'What’s my property worth?',
-  'How does switching property managers work?',
-  'I’m looking for a rental',
-  'What does property management include?',
+/** What to offer on each part of the site, matched on the path's start
+ *  (first match wins). */
+const TOPICS: [string[], Topic][] = [
+  [
+    ['/leasing/', '/client-hub/landlords/', '/appraisal/rental/', '/commercial/'],
+    {
+      teaser: 'Thinking about a property manager? I can explain how we work, or how switching works.',
+      prompts: ['What does property management include?', 'How do I switch property managers?', 'Book a rental appraisal'],
+    },
+  ],
+  [
+    ['/selling/', '/sold/', '/client-hub/sellers/', '/appraisal/sales/'],
+    {
+      teaser: 'Thinking of selling? I can explain how a sale works, or set up a free appraisal.',
+      prompts: ['What’s my home worth?', 'What does it cost to sell?', 'Book a sales appraisal'],
+    },
+  ],
+  [
+    ['/rent/', '/client-hub/tenants/'],
+    {
+      teaser: 'Looking for a rental, or renting with us? I can help with applying, repairs and more.',
+      prompts: ['How do I apply for a rental?', 'I need to report a repair', 'Tell me when new rentals come up'],
+    },
+  ],
+  [
+    ['/buy/', '/client-hub/buyers/'],
+    {
+      teaser: 'Looking to buy? I can help with inspections, offers and our buyer list.',
+      prompts: ['How do inspections work?', 'How do I make an offer?', 'Add me to the buyer list'],
+    },
+  ],
+  [
+    ['/office-space/'],
+    {
+      teaser: 'After an office or the podcast room? Ask me what’s available.',
+      prompts: ['What offices are available?', 'How does podcast room hire work?', 'Can I book a viewing?'],
+    },
+  ],
+  [
+    ['/careers/'],
+    {
+      teaser: 'Interested in working with us? Ask me about APN Real Estate.',
+      prompts: ['What’s it like to work at APN?', 'How do I apply?', 'Where are your offices?'],
+    },
+  ],
 ];
 
-/** A message from the server written for the visitor, shown as-is. */
-class ServerMessage extends Error {}
+const DEFAULT_TOPIC: Topic = {
+  teaser: 'Hi! I’m APN Real Estate’s assistant. Ask me about selling, renting or property management.',
+  prompts: ['What’s my property worth?', 'I need a property manager', 'I’m looking for a rental'],
+};
+
+function topicFor(path: string): Topic {
+  return TOPICS.find(([paths]) => paths.some((p) => path.startsWith(p)))?.[1] ?? DEFAULT_TOPIC;
+}
+
+/** No greeting where it would get in the way: the appraisal forms are
+ *  the whole page, and the rest are legal or after-submit pages. */
+const NO_TEASER = ['/appraisal/', '/thank-you/', '/privacy/'];
+
+/** The start screen's tiles: the main things people come for. */
+const TILES: { icon: IconName; title: string; copy: string; ask: string }[] = [
+  { icon: 'chart', title: 'What’s it worth?', copy: 'Free sales or rental appraisal', ask: 'What’s my property worth?' },
+  { icon: 'key', title: 'Property management', copy: 'What’s included, switching', ask: 'Tell me about your property management' },
+  { icon: 'home', title: 'Buy or rent', copy: 'Listings, inspections, applying', ask: 'I’m looking to buy or rent a property' },
+  { icon: 'wrench', title: 'Tenant help', copy: 'Repairs, rent and your lease', ask: 'I’m a tenant and need some help' },
+];
 
 interface Message {
   role: 'user' | 'assistant';
@@ -38,7 +107,14 @@ interface Message {
   /** An error shown in place of a reply. Left out of what's sent, along
    *  with the question it failed to answer. */
   error?: boolean;
+  /** Follow-ups the assistant offered, shown as buttons under its reply. */
+  suggestions?: string[];
+  /** This reply sent the visitor's details to the team. */
+  lead?: boolean;
 }
+
+/** A message from the server written for the visitor, shown as-is. */
+class ServerMessage extends Error {}
 
 /** The conversation to send: complete question-and-answer pairs (no
  *  failed ones), trimmed from the front to fit the server's caps. */
@@ -129,8 +205,27 @@ function RichText({ text }: { text: string }) {
   );
 }
 
+/** The assistant's picture: APN's star mark, with a dot saying it's on. */
+function Avatar({ size = 'sm', online = false }: { size?: 'sm' | 'lg'; online?: boolean }) {
+  return (
+    <span className={`chat__avatar chat__avatar--${size}`}>
+      <img src={starMark} alt="" width={size === 'lg' ? 26 : 18} height={size === 'lg' ? 27 : 19} />
+      {online && <span className="chat__online" />}
+    </span>
+  );
+}
+
+/** "Good morning" and so on, by the visitor's own clock. */
+function greeting(): string {
+  const hour = new Date().getHours();
+  return hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+}
+
 export default function ChatWidget() {
+  const path = usePath();
+  const topic = topicFor(path);
   const [open, setOpen] = useState(false);
+  const [teaser, setTeaser] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
@@ -163,18 +258,46 @@ export default function ChatWidget() {
     }
   }, [messages, open, sending]);
 
+  // The greeting pops up once per visit, a few seconds in, for visitors
+  // who haven't chatted yet.
   useEffect(() => {
-    if (!open) return;
-    log.current?.scrollTo({ top: log.current.scrollHeight });
+    if (NO_TEASER.some((p) => path.startsWith(p))) return;
+    let seen = false;
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(STORAGE_KEY) ?? 'null');
+      seen = sessionStorage.getItem(TEASER_KEY) !== null || saved?.messages?.length > 0;
+    } catch {
+      // Without storage it would pop up on every page; leave it off.
+      seen = true;
+    }
+    if (seen) return;
+    const timer = window.setTimeout(() => {
+      setTeaser(true);
+      try {
+        sessionStorage.setItem(TEASER_KEY, 'shown');
+      } catch {
+        // Fine: it just may show again on the next page.
+      }
+    }, TEASER_DELAY_MS);
+    return () => window.clearTimeout(timer);
+  }, [path]);
+
+  useEffect(() => {
+    // The start screen reads from the top; a conversation from its end.
+    if (!open || messages.length === 0) return;
+    log.current?.scrollTo({ top: log.current.scrollHeight, behavior: 'smooth' });
   }, [open, messages]);
 
+  // Ready to type on opening, except on touch screens, where it would
+  // bring up the keyboard over the start screen.
   useEffect(() => {
-    if (open) field.current?.focus();
+    if (open && window.matchMedia('(pointer: fine)').matches) field.current?.focus();
   }, [open]);
 
-  function openChat() {
+  function openChat(source: 'launcher' | 'teaser') {
     setOpen(true);
-    trackChatOpen();
+    setTeaser(false);
+    trackChatOpen(source);
   }
 
   function closeChat() {
@@ -185,10 +308,15 @@ export default function ChatWidget() {
   async function send(text: string) {
     const question = text.trim().slice(0, MAX_INPUT);
     if (!question || sending) return;
-    const body = JSON.stringify({ messages: history(messages, question), page: window.location.pathname });
+    const body = JSON.stringify({ messages: history(messages, question), page: path });
     setInput('');
     setSending(true);
-    setMessages((m) => [...m, { role: 'user', content: question }, { role: 'assistant', content: '' }]);
+    // Earlier suggestions go once the visitor has moved on.
+    setMessages((m) => [
+      ...m.map(({ suggestions: _, ...rest }) => rest),
+      { role: 'user', content: question },
+      { role: 'assistant', content: '' },
+    ]);
 
     // Updates the reply being written (always the last message).
     const reply = (update: (m: Message) => Message) =>
@@ -213,12 +341,22 @@ export default function ChatWidget() {
         buffer = lines.pop() ?? '';
         for (const line of lines) {
           if (!line.trim()) continue;
-          const event = JSON.parse(line) as { type: string; text?: string; kind?: string; error?: string };
+          const event = JSON.parse(line) as {
+            type: string;
+            text?: string;
+            kind?: string;
+            items?: unknown;
+            error?: string;
+          };
           if (event.type === 'text' && event.text) {
             wrote = true;
             reply((m) => ({ ...m, content: m.content + event.text }));
+          } else if (event.type === 'suggestions' && Array.isArray(event.items)) {
+            const items = event.items.filter((s): s is string => typeof s === 'string');
+            reply((m) => ({ ...m, suggestions: items }));
           } else if (event.type === 'lead' && event.kind) {
             trackChatLead(event.kind);
+            reply((m) => ({ ...m, lead: true }));
           } else if (event.type === 'error') {
             throw new ServerMessage(event.error ?? '');
           }
@@ -254,103 +392,218 @@ export default function ChatWidget() {
     field.current?.focus();
   }
 
+  function dismissTeaser() {
+    setTeaser(false);
+    try {
+      sessionStorage.setItem(TEASER_KEY, 'closed');
+    } catch {
+      // Fine: it's only shown once per page load anyway.
+    }
+  }
+
+  const last = messages[messages.length - 1];
+
   return (
     <div className={`chat${open ? ' is-open' : ''}`}>
+      {teaser && !open && (
+        <div className="chat__teaser" role="status">
+          <button type="button" className="chat__teaser-close" onClick={dismissTeaser} aria-label="Close message">
+            <Icon name="close" size={14} />
+          </button>
+          <div className="chat__teaser-head">
+            <Avatar online />
+            <span>APN Real Estate</span>
+          </div>
+          <p>{topic.teaser}</p>
+          <div className="chat__teaser-prompts">
+            {topic.prompts.slice(0, 2).map((p) => (
+              <button
+                key={p}
+                type="button"
+                onClick={() => {
+                  openChat('teaser');
+                  send(p);
+                }}
+              >
+                {p}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <button
         ref={launcher}
         type="button"
         className="chat__launcher"
         aria-expanded={open}
-        aria-controls={panelId}
-        onClick={() => (open ? closeChat() : openChat())}
+        aria-controls={open ? panelId : undefined}
+        onClick={() => (open ? closeChat() : openChat('launcher'))}
       >
-        <Icon name={open ? 'close' : 'chat'} size={22} />
-        <span className="chat__launcher-label">{open ? 'Close chat' : 'Ask us'}</span>
+        {open ? (
+          <span className="chat__launcher-icon">
+            <Icon name="close" size={22} />
+          </span>
+        ) : (
+          <Avatar size="lg" online />
+        )}
+        <span className="chat__launcher-text">
+          <strong>{open ? 'Close chat' : 'Ask APN'}</strong>
+          {!open && <span>We reply in seconds</span>}
+        </span>
       </button>
 
-      <section
-        id={panelId}
-        className="chat__panel"
-        role="dialog"
-        aria-labelledby={titleId}
-        hidden={!open}
-        onKeyDown={(e) => e.key === 'Escape' && closeChat()}
-      >
-        <header className="chat__head">
-          <div>
-            <h2 id={titleId} className="chat__title">
-              Ask APN Real Estate
-            </h2>
-            <p className="chat__sub">AI assistant · answers can be wrong</p>
-          </div>
-          <div className="chat__head-actions">
+      {/* Only rendered once opened, so it never differs from the
+          pre-rendered page. */}
+      {open && (
+        <section
+          id={panelId}
+          className="chat__panel"
+          role="dialog"
+          aria-labelledby={titleId}
+          onKeyDown={(e) => e.key === 'Escape' && closeChat()}
+        >
+          <header className="chat__head">
+            <Avatar size="lg" online />
+            <div className="chat__head-text">
+              <h2 id={titleId} className="chat__title">
+                APN Real Estate
+              </h2>
+              <p className="chat__sub">AI assistant · here 24/7</p>
+            </div>
             {messages.length > 0 && (
-              <button type="button" className="chat__text-btn" onClick={startOver} disabled={sending}>
-                Start over
+              <button
+                type="button"
+                className="chat__icon-btn"
+                onClick={startOver}
+                disabled={sending}
+                aria-label="Start a new chat"
+                title="New chat"
+              >
+                <Icon name="refresh" />
               </button>
             )}
-            <button type="button" className="chat__icon-btn" onClick={closeChat} aria-label="Close chat">
+            <button type="button" className="chat__icon-btn" onClick={closeChat} aria-label="Close chat" title="Close">
               <Icon name="close" />
             </button>
-          </div>
-        </header>
+          </header>
 
-        <div ref={log} className="chat__log" role="log" aria-live="polite" aria-busy={sending}>
-          <div className="chat__msg chat__msg--assistant">
-            <RichText text={WELCOME} />
+          <div ref={log} className="chat__log" role="log" aria-live="polite" aria-busy={sending}>
+            {messages.length === 0 ? (
+              <div className="chat__home">
+                <p className="chat__hello">{greeting()}!</p>
+                <p className="chat__intro">
+                  I’m APN Real Estate’s assistant. Ask me anything about selling, renting or property management, or
+                  pick a topic.
+                </p>
+                <div className="chat__tiles">
+                  {TILES.map((t) => (
+                    <button key={t.title} type="button" className="chat__tile" onClick={() => send(t.ask)}>
+                      <span className="chat__tile-icon">
+                        <Icon name={t.icon} size={20} />
+                      </span>
+                      <strong>{t.title}</strong>
+                      <span>{t.copy}</span>
+                    </button>
+                  ))}
+                </div>
+                <p className="chat__label">Popular questions</p>
+                <div className="chat__chips">
+                  {topic.prompts.map((p) => (
+                    <button key={p} type="button" onClick={() => send(p)}>
+                      {p}
+                    </button>
+                  ))}
+                </div>
+                <p className="chat__label">Rather talk to a person?</p>
+                <div className="chat__people">
+                  <a href={PHONE_TEL} onClick={() => trackCallClick('chat')}>
+                    <Icon name="phone" /> {PHONE_DISPLAY}
+                  </a>
+                  <a
+                    href={WHATSAPP_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => trackWhatsAppClick('chat')}
+                  >
+                    <Icon name="whatsapp" /> WhatsApp
+                  </a>
+                </div>
+              </div>
+            ) : (
+              messages.map((m, i) =>
+                m.role === 'user' ? (
+                  <div key={i} className="chat__row chat__row--user">
+                    <div className="chat__bubble">{m.content}</div>
+                  </div>
+                ) : (
+                  <div key={i} className={`chat__row chat__row--assistant${m.error ? ' chat__row--error' : ''}`}>
+                    <Avatar />
+                    <div className="chat__body">
+                      <div className="chat__bubble">
+                        {m.content ? (
+                          <RichText text={m.content} />
+                        ) : (
+                          <span className="chat__typing" aria-label="Writing a reply">
+                            <span />
+                            <span />
+                            <span />
+                          </span>
+                        )}
+                      </div>
+                      {m.lead && (
+                        <div className="chat__sent">
+                          <span className="chat__sent-icon">
+                            <Icon name="check" size={16} />
+                          </span>
+                          <span>
+                            <strong>Details sent to the team.</strong> We’ll be in touch during business hours.
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ),
+              )
+            )}
+            {!sending && last?.role === 'assistant' && last.suggestions?.length ? (
+              <div className="chat__chips chat__chips--reply">
+                {last.suggestions.map((s) => (
+                  <button key={s} type="button" onClick={() => send(s)}>
+                    {s}
+                  </button>
+                ))}
+              </div>
+            ) : null}
           </div>
-          {messages.map((m, i) => (
-            <div
-              key={i}
-              className={`chat__msg chat__msg--${m.role}${m.error ? ' chat__msg--error' : ''}`}
-            >
-              {m.role === 'assistant' && !m.content ? (
-                <span className="chat__typing" aria-label="Writing a reply">
-                  <span />
-                  <span />
-                  <span />
-                </span>
-              ) : m.role === 'assistant' ? (
-                <RichText text={m.content} />
-              ) : (
-                m.content
-              )}
-            </div>
-          ))}
-          {messages.length === 0 && (
-            <div className="chat__suggestions">
-              {SUGGESTIONS.map((s) => (
-                <button key={s} type="button" onClick={() => send(s)}>
-                  {s}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
 
-        <form className="chat__form" onSubmit={handleSubmit}>
-          <label htmlFor={`${panelId}-input`} className="visually-hidden">
-            Your message
-          </label>
-          <textarea
-            ref={field}
-            id={`${panelId}-input`}
-            rows={1}
-            maxLength={MAX_INPUT}
-            placeholder="Type your question…"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-          />
-          <button type="submit" className="chat__send" disabled={sending || !input.trim()} aria-label="Send">
-            <Icon name="send" />
-          </button>
-        </form>
-        <p className="chat__note">
-          Urgent repair? Call <a href={PHONE_TEL} onClick={() => trackCallClick('chat')}>{PHONE_DISPLAY}</a>. How we
-          use your details: <a href="/privacy/">privacy policy</a>.
-        </p>
-      </section>
+          <form className="chat__form" onSubmit={handleSubmit}>
+            <label htmlFor={`${panelId}-input`} className="visually-hidden">
+              Your message
+            </label>
+            <textarea
+              ref={field}
+              id={`${panelId}-input`}
+              rows={1}
+              maxLength={MAX_INPUT}
+              placeholder="Ask a question…"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+            <button type="submit" className="chat__send" disabled={sending || !input.trim()} aria-label="Send">
+              <Icon name="send" />
+            </button>
+          </form>
+          <p className="chat__note">
+            AI can make mistakes. Urgent repair? Call{' '}
+            <a href={PHONE_TEL} onClick={() => trackCallClick('chat')}>
+              {PHONE_DISPLAY}
+            </a>
+            . <a href="/privacy/">Privacy</a>
+          </p>
+        </section>
+      )}
     </div>
   );
 }

@@ -22,7 +22,7 @@ apart.
 | `appraisal_form_submit` | landlord page | Straight after its `generate_lead`, just before the redirect to `/landlords/thank-you/` | `form_name` (`landlord_appraisal`) |
 | `conversion_event_submit_lead_form` | main site (`src/lib/analytics.ts`), as a `gtag('event', …)` command rather than a plain dataLayer event | An appraisal form on `/appraisal/`, `/appraisal/sales/` or `/appraisal/rental/` accepted by `/api/enquiry`, alongside its `generate_lead`. Not sent by the same form on other pages | none |
 | `generate_lead` | chat assistant (`src/lib/analytics.ts`, `trackChatLead`) | The chat assistant sent a visitor's details to the sheet (`docs/chat-assistant.md`). No redirect follows | `event_category` (`chat_assistant`), `form_name` (`sales-appraisal`, `rental-appraisal`, `buyer-register`, `tenant-register`, `general`) |
-| `chat_open` | main site | The chat assistant was opened | none |
+| `chat_open` | main site | The chat assistant was opened | `source` (`launcher`: the button; `teaser`: a quick reply in the greeting that pops up beside it) |
 | `click_to_call` | both | A tap on a Call button | `placement` (where the button is, e.g. `header`, `menu`, `sticky_bar`, `footer`, `cta_band`, `chat`) |
 | `click_to_whatsapp` | main site | A tap on a WhatsApp link | `placement` (`footer` or `contact_hero`) |
 
@@ -30,7 +30,7 @@ apart.
 
 1. **Variables → User-Defined → New → Data Layer Variable**, one for
    each of `event_category`, `event_label`, `form_name`, `office`,
-   `currently_managed`, `property_type`, `placement`. Use the parameter name as the Data
+   `currently_managed`, `property_type`, `placement`, `source`. Use the parameter name as the Data
    Layer Variable Name, and name the variables `DLV - office` and so on.
 2. **Triggers → New → Custom Event**:
    - `CE - generate_lead`, event name `generate_lead`

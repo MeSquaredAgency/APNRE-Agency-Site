@@ -14,6 +14,26 @@ chat with an AI assistant (Claude, from Anthropic). It:
 It isn't on the landlord campaign page (`/landlords/`), so ad visitors
 stay on that page's form.
 
+## What visitors see
+
+- **The button** ("Ask APN", with APN's star mark as the assistant's
+  picture) in the bottom corner. On phones it's just the picture, and it
+  sits above the call bar.
+- **A greeting** that pops up beside the button seven seconds into a
+  visit, once per visit, with quick replies to tap. Both depend on the
+  page: landlord questions on `/leasing/`, seller questions on
+  `/selling/`, and so on (`TOPICS` in `ChatWidget.tsx`). It isn't shown
+  on the appraisal, thank-you or privacy pages, or once someone has
+  chatted.
+- **A start screen** when the chat opens: a greeting, four topic tiles
+  (`TILES`), that page's popular questions, and Call and WhatsApp
+  buttons.
+- **Follow-up buttons** under each reply. The assistant ends each reply
+  with a hidden `[[suggest: … | … ]]` line (asked for in
+  `chat-prompt.ts`), which `functions/api/chat.ts` takes out of the text
+  and sends as buttons.
+- **A "Details sent to the team" card** when a lead reaches the sheet.
+
 ## How it fits together
 
 | Piece | File |
@@ -96,7 +116,8 @@ confirm before it sends them.
 
 ## Analytics
 
-Opening the chat pushes `chat_open`; a lead sent from the chat pushes
+Opening the chat pushes `chat_open`, with `source` set to `launcher`
+(the button) or `teaser` (a quick reply in the greeting); a lead sent from the chat pushes
 `generate_lead` with `event_category: chat_assistant` and `form_name` set
 to the type, plus a Meta Pixel `Lead` (appraisals) or `Contact`. See
 `docs/gtm-events.md`.
