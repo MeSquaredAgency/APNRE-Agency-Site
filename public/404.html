@@ -106,11 +106,12 @@
       nav a:hover { color: #fff; text-decoration: underline; text-decoration-color: var(--lime); text-underline-offset: 4px; }
       :focus-visible { outline: 2px solid var(--lime); outline-offset: 3px; }
       footer { padding: 20px 0 28px; border-top: 1px solid var(--line-dark); font-size: 0.8rem; color: rgba(255, 255, 255, 0.55); }
-      footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; }
-      footer p { margin: 0; font-size: inherit; color: inherit; max-width: none; }
+      footer .wrap { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 24px; }
+      footer p { flex-basis: 100%; margin: 0; font-size: inherit; color: inherit; max-width: none; }
       footer a { color: inherit; text-decoration: none; }
       footer a:hover { color: #fff; }
-      footer a { display: inline-flex; align-items: center; gap: 8px; }
+      footer a { display: inline-flex; align-items: baseline; gap: 8px; }
+      footer a:last-child { margin-left: auto; }
       .me2 { height: 16px; width: auto; }
       footer strong { color: rgba(255, 255, 255, 0.85); font-weight: 600; }
     </style>
