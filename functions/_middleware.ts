@@ -13,12 +13,7 @@
 //                     their new home (LEGACY_PATHS below), anything else
 //                     to the same path.
 //
-//   mountgambierpropertynetwork.com.au   The Mount Gambier office's old
-//                     domain: the same, except that anything without a
-//                     new home goes to the office page, /mount-gambier/.
-//
-// Both old domains need adding to the Pages project as custom domains
-// (with their www) before they reach this; see docs/legacy-domains.md.
+// See docs/legacy-domains.md.
 //
 // go.apnre.com.au used to serve the funnels. Since October 2026 it's APN
 // Real Estate's Short.io short-link domain, so it never reaches this
@@ -35,9 +30,8 @@ import config from '../src/data/funnels.json';
 const MAIN = new URL(config.origin).hostname;
 const MAIN_HOSTS = new Set([MAIN, `www.${MAIN}`]);
 const OLD_BRAND_HOSTS = new Set(['adelaidepropertynetwork.com.au', 'www.adelaidepropertynetwork.com.au']);
-const MOUNT_GAMBIER_HOSTS = new Set(['mountgambierpropertynetwork.com.au', 'www.mountgambierpropertynetwork.com.au']);
 
-/** Where the old sites' usual addresses went, by path without slashes at
+/** Where the old site's usual addresses went, by path without slashes at
  *  either end (lowercase). These are common patterns for agency sites,
  *  not a confirmed list of the old pages: add the real ones from Search
  *  Console as they turn up (docs/legacy-domains.md). A path that already
@@ -125,11 +119,6 @@ export const onRequest: PagesFunction = async (context) => {
 
   // Its new home on apnre.com.au, or the same path, query string and all.
   if (OLD_BRAND_HOSTS.has(host)) return moved(legacyTarget(path) ?? withSlash(path), url.search);
-
-  // The Mount Gambier office page, unless the old page has a better match.
-  if (MOUNT_GAMBIER_HOSTS.has(host)) {
-    return moved(legacyTarget(path) ?? (isFile(path) ? withSlash(path) : '/mount-gambier/'), url.search);
-  }
 
   return noindex(await context.next());
 };
