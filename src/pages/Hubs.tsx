@@ -14,7 +14,7 @@ import Layout from '../components/Layout';
 import EnquiryForm, { type EnquiryKind } from '../components/EnquiryForm';
 import Icon, { type IconName } from '../components/Icon';
 import JsonLd from '../components/JsonLd';
-import { CtaBand, Faq, FormSection, ImageCards, PageHero, SectionHead, Team, type FaqItem } from '../components/sections';
+import { ClosureNote, CtaBand, Faq, FormSection, ImageCards, PageHero, SectionHead, Team, type FaqItem } from '../components/sections';
 import { CLIENT_LOGIN_URL, MAINTENANCE_FORM_ENABLED, PHONE_DISPLAY, PHONE_TEL } from '../data/business';
 import { STOCK } from '../data/media';
 import { breadcrumbList } from '../structured-data';
@@ -103,6 +103,7 @@ function Repairs() {
               </a>
               . Don’t use a form for urgent repairs.
             </p>
+            <ClosureNote repairs />
             <p>
               <strong>If anyone is in danger, call 000 first.</strong>
             </p>
