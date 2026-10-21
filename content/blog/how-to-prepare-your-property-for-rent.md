@@ -8,10 +8,8 @@ date: 2026-10-21
 
 # Optional. Must match a name in src/data/team.ts exactly, or the post
 # is credited to "APN Real Estate".
-author:
+author: Luke Whittaker 
 
-# Leave this in until APN has reviewed it. Delete the line to publish.
-draft: true
 ---
 
 Getting a property ready to rent means making sure it's safe and meets the rules, fixing anything that doesn't work, and then cleaning and presenting it so it photographs well. A well-prepared rental tends to attract more applicants and give you more choice of tenant.
