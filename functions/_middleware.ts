@@ -14,11 +14,12 @@
 //                     to the same path.
 //
 //   mountgambierpropertynetwork.com.au   The Mount Gambier office's old
-//                     domain: the same, except that anything without a
-//                     new home goes to the office page, /mount-gambier/.
-//
-// Both old domains need adding to the Pages project as custom domains
-// (with their www) before they reach this; see docs/legacy-domains.md.
+//                     domain. Today a Cloudflare redirect rule on its own
+//                     zone (in the Me² account) sends it to
+//                     /mount-gambier/ before it reaches this; the branch
+//                     below only applies if that zone moves into APN's
+//                     account and becomes a custom domain here. See
+//                     docs/legacy-domains.md.
 //
 // go.apnre.com.au used to serve the funnels. Since October 2026 it's APN
 // Real Estate's Short.io short-link domain, so it never reaches this

@@ -1,35 +1,40 @@
 # Old domains: adelaidepropertynetwork.com.au and mountgambierpropertynetwork.com.au
 
-Both old brand domains should send everything to `apnre.com.au` with a
-301, so links and search results pointing at them still land on a real
-page. `functions/_middleware.ts` does the redirecting; each domain only
-needs to reach this Pages project.
+Both old brand domains send everything to `apnre.com.au` with a 301, so
+links and search results pointing at them still land on a real page.
+`functions/_middleware.ts` redirects the Adelaide domain, which is a
+custom domain on this Pages project; the Mount Gambier one is redirected
+by a Cloudflare rule (below).
 
 | Domain | Where it goes |
 | --- | --- |
 | `adelaidepropertynetwork.com.au` (+ `www`) | The old page's new home (`LEGACY_PATHS`), otherwise the same path on `apnre.com.au` |
-| `mountgambierpropertynetwork.com.au` (+ `www`) | The old page's new home (`LEGACY_PATHS`), otherwise `/mount-gambier/` |
+| `mountgambierpropertynetwork.com.au` (+ `www`) | `/mount-gambier/` |
 
 The query string is kept, so ad click IDs and UTM tags survive.
 
-## Connecting mountgambierpropertynetwork.com.au
+## How mountgambierpropertynetwork.com.au is set up
 
-As of the October 2026 SEO audit it was still parked at VentraIP
-(a parking page over http, and https failing), and not redirected. The
-code is ready; the domain needs pointing here:
+Unlike the Adelaide domain, this one doesn't reach the Pages project.
+Its DNS zone is on Cloudflare in the **Me²** account (nameservers
+`kolton` / `tegan.ns.cloudflare.com`, set at VentraIP on 21 Oct 2026),
+and a Pages project can only attach a bare domain whose zone is in its
+own account. So the redirect is a Cloudflare rule on that zone instead:
 
-1. Cloudflare → **Workers & Pages** → this project → **Custom domains**
-   → add `mountgambierpropertynetwork.com.au`, then
-   `www.mountgambierpropertynetwork.com.au`. Cloudflare shows the DNS
-   records it needs.
-2. Either move the domain's DNS to Cloudflare (easiest: Cloudflare then
-   adds the records and the certificate itself), or, in VentraIP's DNS
-   manager, turn off parking and add the CNAME records Cloudflare showed
-   (for the bare domain, VentraIP may need a CNAME-flattening or ALIAS
-   record; if it doesn't offer one, move the DNS to Cloudflare).
-3. Wait for both to show **Active** in Cloudflare, then check
-   `https://mountgambierpropertynetwork.com.au/` and the `www` one both
-   301 to `https://apnre.com.au/mount-gambier/`.
+- **DNS:** `mountgambierpropertynetwork.com.au` and `www` are A records,
+  proxied (orange cloud). Their address (VentraIP's old parking IP) is
+  never contacted; proxying is only so requests reach Cloudflare's edge.
+- **Rules → Redirect Rules:** "Old Mount Gambier domain →
+  apnre.com.au/mount-gambier/" sends both hosts, any path, to
+  `https://apnre.com.au/mount-gambier/` with a 301, keeping the query
+  string. The old site was only a parking page, so there are no old
+  paths worth mapping one by one.
+
+Checked live on 21 Oct 2026: http and https, bare and `www`, all 301 to
+`/mount-gambier/`. The domain has no MX records, so no email depends on
+it. If the zone is ever moved into the APN account, it can be added to
+the Pages project as a custom domain instead, and the
+`MOUNT_GAMBIER_HOSTS` branch in `functions/_middleware.ts` takes over.
 
 ## Mapping the real old URLs
 
