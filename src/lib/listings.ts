@@ -58,6 +58,9 @@ export interface Listing {
   /** The same photos, in the same order, at up to 800px for cards and
    *  thumbnails (the same file as `photos` where there's no smaller copy). */
   thumbs?: string[];
+  /** The same photos at up to 400px, for the gallery grid and cards (the
+   *  `thumbs` file where there's no smaller copy). */
+  tiles?: string[];
   floorplans?: string[];
   /** As the feed words them, e.g. "11-Oct-2026 10:00am to 10:15am".
    *  Past ones are dropped at build time. */
@@ -85,6 +88,14 @@ export const listingsIn = (section: ListingSection) => LISTINGS.filter((l) => l.
 
 /** Photo `i` for a card or thumbnail: the 800px copy where there is one. */
 export const thumb = (l: Listing, i: number) => l.thumbs?.[i] ?? l.photos?.[i];
+
+/** srcset for photo `i` shown small (the gallery grid, listing cards):
+ *  the 400px and 800px copies. Undefined when there's only one size. */
+export function tileSrcSet(l: Listing, i: number): string | undefined {
+  const small = l.thumbs?.[i];
+  const tile = l.tiles?.[i];
+  return small && tile && tile !== small ? `${tile} 400w, ${small} 800w` : undefined;
+}
 
 /** srcset for photo `i` shown large: both sizes, so phones load the 800px
  *  copy. Undefined when there's only one size. */
