@@ -11,7 +11,7 @@ import Layout from '../components/Layout';
 import EnquiryForm from '../components/EnquiryForm';
 import Icon from '../components/Icon';
 import JsonLd from '../components/JsonLd';
-import { FormSection, PageHero, Team } from '../components/sections';
+import { ClosureNote, FormSection, PageHero, Team } from '../components/sections';
 import { OPENING_HOURS, PHONE_TEL, WHATSAPP_URL } from '../data/business';
 import { OFFICES, type OfficeId } from '../data/offices';
 import { suppliedPhoto } from '../data/supplied';
@@ -111,6 +111,7 @@ function OfficePage({ id }: { id: OfficeId }) {
               <span aria-hidden="true">{OPENING_HOURS.display}</span>
               <span className="visually-hidden">{OPENING_HOURS.spoken}</span>
             </p>
+            <ClosureNote repairs />
             <div className="office-card__links">
               <a href={PHONE_TEL} onClick={() => trackCallClick(`office_page_${id}_details`)}>
                 <Icon name="phone" /> {office.phone}

@@ -16,7 +16,7 @@ import {
 } from '../data/business';
 import { trackCallClick, trackWhatsAppClick } from '../lib/analytics';
 import Icon from './Icon';
-import { FollowUs } from './sections';
+import { ClosureNote, FollowUs } from './sections';
 
 export default function Footer() {
   // Only details that are actually filled in (src/data/business.ts).
@@ -54,6 +54,7 @@ export default function Footer() {
             <span aria-hidden="true">Both offices: {OPENING_HOURS.display}</span>
             <span className="visually-hidden">Both offices are {OPENING_HOURS.spoken.toLowerCase()}</span>
           </p>
+          <ClosureNote dark />
           <div className="site-footer__offices">
             {OFFICE_LIST.map((office) => (
               <p key={office.id}>

@@ -137,7 +137,7 @@ export default function Header({ current, overlay = false, funnel }: HeaderProps
           {/* Wider screens; phones have Owner and Tenant Login in the menu. */}
           {!funnel && (
             <a href={CLIENT_LOGIN_URL} className="site-header__login" target="_blank" rel="noopener noreferrer">
-              Client Login
+              Owner &amp; Tenant Login
             </a>
           )}
           <a href={cta.href} className="btn btn-light btn-sm site-header__cta">
