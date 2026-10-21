@@ -102,6 +102,8 @@ export function loadPosts({ includeDrafts = false } = {}): Post[] {
     const image = optionalString(data, 'image');
     const imageAlt = optionalString(data, 'imageAlt');
     if (image && !imageAlt) throw new Error(`${file}: "imageAlt" is required when "image" is set`);
+    const form = optionalString(data, 'form') ?? 'rental';
+    if (form !== 'rental' && form !== 'sales') throw new Error(`${file}: "form" must be "rental" or "sales"`);
 
     return {
       slug,
@@ -113,6 +115,7 @@ export function loadPosts({ includeDrafts = false } = {}): Post[] {
       author: optionalString(data, 'author'),
       image,
       imageAlt,
+      form,
       draft: data.draft === true,
       readingMinutes: Math.max(1, Math.round(content.split(/\s+/).filter(Boolean).length / WORDS_PER_MINUTE)),
       html: markdown.parse(content, { async: false }),

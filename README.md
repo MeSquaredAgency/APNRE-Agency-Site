@@ -106,6 +106,15 @@ way:
   traffic, and `/leasing/` is the page for search. The two share copy, so
   keep them in step.
 
+## Chat assistant
+
+An "Ask us" button on every main-site page opens an AI assistant
+(Claude) that answers questions about APN from `public/llms.txt` and
+passes visitors' details to the same Google Sheet as the forms, once
+they confirm them. It needs `ANTHROPIC_API_KEY` in the Pages project's
+environment variables. Setup, costs, rate limiting and how to keep its
+facts current: `docs/chat-assistant.md`.
+
 ## Where content lives
 
 - `src/data/business.ts`: phone, ACN/RLA, REA profile URL, feature flags
@@ -172,6 +181,10 @@ repo is now archived) at the start of October 2026. As checked on
 - [ ] **Office space.** List the podcast room's kit item by item
   (`PODCAST_EQUIPMENT` in `src/data/office-space.ts`;
   `docs/office-space.md`).
+- [ ] **Chat assistant.** Set `ANTHROPIC_API_KEY` (and a spend limit in
+  the Anthropic console), add a rate limiting rule for `/api/chat`, and
+  test a chat lead end to end (`docs/chat-assistant.md`). Until the key
+  is set, the chat replies with the phone number.
 - [ ] Have APN review the selling and leasing copy (reasons, process
   steps and FAQs).
 

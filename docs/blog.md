@@ -2,9 +2,9 @@
 
 Guides for APN's four audiences (landlords, tenants, sellers and
 buyers), there to bring in search traffic and turn it into enquiries.
-Every post currently ends with the rental appraisal form
-(`src/blog/BlogPostPage.tsx`); make that depend on the post once sales or
-buyer posts are published.
+Every post ends with an appraisal form (`src/blog/BlogPostPage.tsx`):
+the rental one by default, or the sales one for a post with
+`form: sales`.
 
 Unlike the rest of the site, blog pages are built as finished HTML. The
 article text is in the page itself, not filled in by JavaScript, so
