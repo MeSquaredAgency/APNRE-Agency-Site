@@ -2,6 +2,7 @@
 // internal href here must be a path in routes.json.
 
 import { CLIENT_LOGIN_URL, REA_PROFILE_URL } from './business';
+import { CONTRACTORS_PUBLISHED } from '../lib/contractors';
 
 export interface NavLink {
   href: string;
@@ -69,6 +70,8 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/client-hub/landlords/', label: 'Landlord Hub' },
       { href: CLIENT_LOGIN_URL, label: 'Owner Login', external: true },
       { href: '/our-people/?filter=property-management', label: 'Property Managers' },
+      // Only once the page is built (src/data/contractors.json).
+      ...(CONTRACTORS_PUBLISHED ? [{ href: '/client-hub/contractors/', label: 'Preferred Contractors' }] : []),
     ],
   },
   {

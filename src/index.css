@@ -3189,6 +3189,75 @@ input, select, textarea {
   color: var(--white);
 }
 
+/* Preferred contractors (Contractors.tsx): Trade and Area drop-downs
+   over a grid of cards. */
+.contractor-filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 260px));
+  gap: 16px;
+  margin: -12px 0 32px;
+}
+.contractors {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+.contractor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 24px;
+  background: var(--stone);
+}
+.contractor p {
+  margin: 0;
+}
+.contractor__trade {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--grey-700);
+}
+.contractor__name {
+  margin: 0;
+}
+.contractor__areas,
+.contractor__note {
+  color: var(--grey-700);
+  font-size: 0.93rem;
+}
+.contractor__areas svg {
+  vertical-align: -3px;
+}
+.contractor__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  padding-top: 4px;
+}
+.contractor__links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.contractor__links a:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--lime);
+  text-underline-offset: 4px;
+}
+@media (max-width: 560px) {
+  .contractor-filters {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Holiday closure beside the opening hours (ClosureNote in
    sections.tsx). */
 .closure-note {
