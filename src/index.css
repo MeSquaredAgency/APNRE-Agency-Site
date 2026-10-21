@@ -3273,10 +3273,15 @@ input, select, textarea {
   margin: 16px 0;
   background: var(--white);
 }
+/* In the footer: tucked under the hours line, the same 24px clear of the
+   office addresses below, and sized like the footer's other small text. */
 .closure-note--dark {
-  margin: 0;
+  margin: -12px 0 24px;
+  padding: 10px 14px;
   background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.86rem;
+  line-height: 1.5;
 }
 .closure-note--dark strong {
   color: var(--white);
