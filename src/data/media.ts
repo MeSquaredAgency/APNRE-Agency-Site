@@ -1,35 +1,26 @@
 // Stock photos from Pexels (free for commercial use, no attribution
-// required, credited here anyway). Photos are served from Pexels' CDN,
-// resized there: AVIF or WebP where supported, 800px for phones and 1200
-// or 1600px for bigger screens, in the same Photo shape as a local `?photo` import so
-// src/components/Picture.tsx handles both. The hero video is hosted on
-// the site itself (public/video/); see docs/media.md.
+// required, credited here anyway), downloaded at 1600px wide into
+// src/assets/photos/stock/ and served from this site like APN's own
+// photos (the `?photo` pipeline: WebP and JPEG, with an 800px copy for
+// phones). They used to be hot-linked from Pexels' CDN, a third-party
+// host the October 2026 SEO audit flagged. The hero video is hosted on
+// the site too (public/video/); see docs/media.md.
 //
 // Stock imagery is illustrative only. Keep alt text and captions neutral,
 // and never caption a stock shot as an APN listing, sale or managed
-// property. Real APN photography lives in src/assets/photos/.
+// property. Real APN photography lives in src/assets/photos/; swap these
+// for real photos as they're taken.
 
 import type { Photo } from '../lib/photo';
+import houseExterior from '../assets/photos/stock/house-exterior.jpg?photo';
+import openPlan from '../assets/photos/stock/open-plan.jpg?photo';
+import keysCouple from '../assets/photos/stock/keys-couple.jpg?photo';
+import keysHand from '../assets/photos/stock/keys-hand.jpg?photo';
 
 export interface StockImage {
   photo: Photo;
   alt: string;
   credit: string;
-}
-
-/** A Pexels photo as a Photo. w/h are the photo's size at 1600px wide
- *  (measured once; the aspect ratio is what matters). */
-function pexels(id: number, w: number, h: number): Photo {
-  const base = `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb`;
-  const set = (fm: string) =>
-    [800, 1200, 1600].map((w) => `${base}&w=${w}${fm} ${w}w`).join(', ');
-  return {
-    // AVIF first: about 20% smaller than WebP from Pexels. A 1200px step
-    // means a third-width card on a high-density laptop doesn't jump
-    // straight to the 1600px copy.
-    sources: { avif: set('&fm=avif'), webp: set('&fm=webp'), jpeg: set('') },
-    img: { src: `${base}&w=1600`, w, h },
-  };
 }
 
 export const HERO_VIDEO = {
@@ -47,44 +38,27 @@ export const HERO_VIDEO = {
 
 export const STOCK = {
   houseExterior: {
-    photo: pexels(7031581, 1600, 1068),
+    // pexels.com/photo/7031581
+    photo: houseExterior,
     alt: 'A contemporary house with a green lawn under a blue sky',
     credit: 'Max / Pexels',
   },
-  townhouses: {
-    photo: pexels(10628470, 1600, 1067),
-    alt: 'A row of modern townhouses with driveways',
-    credit: 'Curtis / Pexels',
-  },
-  livingRoom: {
-    photo: pexels(29012619, 1600, 1573),
-    alt: 'A bright living room with white sofas',
-    credit: 'Beyza / Pexels',
-  },
   openPlan: {
-    photo: pexels(8089172, 1600, 1068),
+    // pexels.com/photo/8089172
+    photo: openPlan,
     alt: 'An open-plan living room and kitchen',
     credit: 'Max / Pexels',
   },
-  kitchen: {
-    photo: pexels(7045356, 1600, 1067),
-    alt: 'A modern kitchen with timber cabinets',
-    credit: 'Max / Pexels',
-  },
   keysCouple: {
-    photo: pexels(8730048, 1600, 1068),
+    // pexels.com/photo/8730048
+    photo: keysCouple,
     alt: 'A couple being handed a set of house keys',
     credit: 'Kampus / Pexels',
   },
   keysHand: {
-    photo: pexels(31651009, 1600, 1067),
+    // pexels.com/photo/31651009
+    photo: keysHand,
     alt: 'A hand holding a set of house keys',
     credit: 'Jakub / Pexels',
-  },
-  suburbAerial: {
-    // Shot in Melbourne, so the alt text doesn't say Adelaide.
-    photo: pexels(14650435, 1600, 1200),
-    alt: 'An aerial view of a leafy suburb',
-    credit: 'Nenyasha / Pexels',
   },
 } satisfies Record<string, StockImage>;

@@ -16,7 +16,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildOgImages, OG_DEFAULT, OG_PHOTOS } from './og-images.mjs';
+import { buildOgImages, OG_DEFAULT, OG_PHOTOS, ogKey } from './og-images.mjs';
 import { allRoutes } from './routes.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -175,7 +175,7 @@ function html(route) {
     ? { image: FUNNEL_ORIGIN + funnel.og.image, alt: funnel.og.alt, sized: true }
     : route.ogImage
       ? { image: route.ogImage, alt: route.ogAlt ?? '', sized: false }
-      : { image: `${SITE}/og/${route.page}.jpg`, alt: (OG_PHOTOS[route.page] ?? OG_DEFAULT).alt, sized: true };
+      : { image: `${SITE}/og/${ogKey(route)}.jpg`, alt: (OG_PHOTOS[ogKey(route)] ?? OG_DEFAULT).alt, sized: true };
   const ogSize = og.sized
     ? `    <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -242,6 +242,6 @@ writeFileSync(
   shell({ entry: ENTRIES.blog, headTags: '    <!-- blog-head -->\n' }),
 );
 
-await buildOgImages([...new Set(routes.filter((r) => !r.funnel && !r.ogImage).map((r) => r.page))]);
+await buildOgImages([...new Set(routes.filter((r) => !r.funnel && !r.ogImage).map(ogKey))]);
 
 console.log(`Generated ${routes.length} pages, the blog template and their link-preview images`);
