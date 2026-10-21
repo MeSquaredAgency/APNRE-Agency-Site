@@ -8,13 +8,11 @@ date: 2026-10-21
 
 # Optional. Must match a name in src/data/team.ts exactly, or the post
 # is credited to "APN Real Estate".
-author:
+author: Patrick Nhim
 
 # Seller post, so it ends with the sales appraisal form.
 form: sales
 
-# Leave this in until APN has reviewed it. Delete the line to publish.
-draft: true
 ---
 
 Preparing your home for sale mostly comes down to three things: fix the small faults buyers notice, clean and clear it so the rooms look their real size, and make it easy to picture living there. None of it has to be expensive, and the best place to start is usually a walk through with your agent before you spend anything.
