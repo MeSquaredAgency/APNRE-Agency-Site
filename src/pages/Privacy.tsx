@@ -80,6 +80,12 @@ export default function Privacy() {
             <li><strong>Google</strong>, where enquiries are stored (Google Sheets) and which provides website analytics (Google Analytics and Google Tag Manager)</li>
             <li><strong>Meta</strong> (Facebook and Instagram), which measures the performance of our ads through the Meta Pixel</li>
           </ul>
+          <p>
+            Property pages show the property’s location on a map from{' '}
+            <strong>Google Maps</strong>. When the map loads, Google receives
+            technical details about your browser and may set its own cookies,
+            under Google’s privacy policy.
+          </p>
           {/* Only described when switched on for this build (see
               src/lib/places.ts and src/lib/turnstile.ts). */}
           {MAPS_API_KEY && (

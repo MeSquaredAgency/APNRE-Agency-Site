@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { MAIN_LOGO_ALT } from '../data/offices';
 import logoReversed from '../assets/logo/adelaide-property-network-logo-reversed.png';
 import { SIDE_LOGO_ALT, SIDE_LOGO_REVERSED } from '../data/supplied';
-import { PHONE_DISPLAY, PHONE_TEL } from '../data/business';
+import { CLIENT_LOGIN_URL, PHONE_DISPLAY, PHONE_TEL } from '../data/business';
 import { NAV_GROUPS, PRIMARY_NAV, type NavLink } from '../data/nav';
 import { trackCallClick } from '../lib/analytics';
 import Icon from './Icon';
@@ -134,6 +134,12 @@ export default function Header({ current, overlay = false, funnel }: HeaderProps
               <Icon name="phone" /> Call
             </a>
           )}
+          {/* Wider screens; phones have Owner and Tenant Login in the menu. */}
+          {!funnel && (
+            <a href={CLIENT_LOGIN_URL} className="site-header__login" target="_blank" rel="noopener noreferrer">
+              Client Login
+            </a>
+          )}
           <a href={cta.href} className="btn btn-light btn-sm site-header__cta">
             {cta.label}
           </a>
@@ -177,8 +183,10 @@ export default function Header({ current, overlay = false, funnel }: HeaderProps
                           href={link.href}
                           aria-current={current === link.href ? 'page' : undefined}
                           onClick={() => setOpen(false)}
+                          {...(link.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                         >
                           {link.label}
+                          {link.external && <Icon name="external" size={14} />}
                         </a>
                       </li>
                     ))}

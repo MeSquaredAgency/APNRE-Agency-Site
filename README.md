@@ -51,6 +51,7 @@ the build, once the blog posts are known.
 | `/our-people/<name>/` | A page per team member (`src/pages/Person.tsx`), listed in `routes.json`: add one there when someone joins |
 | `/our-story/` | Where APN started, what it does, leadership, offices |
 | `/contact/` | Both offices and a general enquiry form |
+| `/adelaide/`, `/mount-gambier/` | A page per office (`src/pages/Office.tsx`): its own hero photo, details, map, team and an enquiry form. Mount Gambier's Google Business Profile should link to `/mount-gambier/` |
 | `/careers/` | Expression of interest form |
 | `/client-hub/` | Client hub overview, plus a hub each for `landlords/`, `tenants/` (with repairs), `sellers/` and `buyers/`: quick actions, their team, FAQs and the right form (`src/pages/Hubs.tsx`). The landlord, seller and buyer hubs repeat a lot of `/leasing/` and `/selling/`, so they're noindex to stop them competing in search; the tenant hub is indexed |
 | `/blog/`, `/blog/<post>/` | Guides, written as Markdown in `content/blog/`; see `docs/blog.md` |
@@ -61,9 +62,9 @@ To add a page: add it to `routes.json`, create `src/pages/<Name>.tsx`,
 register it in `PAGE_LOADERS` in `src/pages/index.ts`, and link it from
 `src/data/nav.ts`.
 
-Old URLs that moved are redirected in `public/_redirects` (e.g. the
-landing page's `/adelaide/` and `/mount-gambier/` office pages go to the
-offices on `/contact/`). Add a line there whenever a published page moves.
+Old URLs that moved are redirected in `public/_redirects` (e.g. an old
+blog post's address, or the profile page of someone who has left). Add a
+line there whenever a published page moves.
 
 ## Campaign funnels
 

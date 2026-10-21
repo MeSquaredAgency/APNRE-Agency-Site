@@ -4,6 +4,7 @@
 // a team member. Only what the feed holds is shown: nothing is filled in
 // when PropertyMe leaves it out. See docs/listings-feed.md.
 
+import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import Layout from '../components/Layout';
 import EnquiryForm from '../components/EnquiryForm';
 import Icon from '../components/Icon';
@@ -67,14 +68,118 @@ function MoreListings({ listing }: { listing: ListingData }) {
  *  "Show all photos". */
 const GRID_PHOTOS = 4;
 
+/** A swipe at least this far across (px) moves to the next photo. */
+const SWIPE = 50;
+
+/** Every photo full size, one at a time, with previous and next buttons,
+ *  arrow keys and swipe. A modal <dialog> keeps focus inside it and
+ *  closes on Escape. */
+function Gallery({
+  listing,
+  alt,
+  index,
+  onChange,
+  onClose,
+}: {
+  listing: ListingData;
+  alt: (i: number) => string;
+  index: number;
+  onChange: (i: number) => void;
+  onClose: () => void;
+}) {
+  const photos = listing.photos!;
+  const dialog = useRef<HTMLDialogElement>(null);
+  const swipeStart = useRef<number | null>(null);
+  const count = photos.length;
+  const go = (step: number) => onChange((index + step + count) % count);
+
+  useEffect(() => {
+    dialog.current?.showModal();
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, []);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') go(-1);
+      if (e.key === 'ArrowRight') go(1);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  });
+
+  // Fetch the photos either side, so moving on shows them straight away.
+  useEffect(() => {
+    [index - 1, index + 1].forEach((i) => {
+      const img = new Image();
+      img.src = photos[(i + count) % count];
+    });
+  }, [index]);
+
+  return (
+    <dialog
+      ref={dialog}
+      className="gallery"
+      aria-label={`Photos of ${listingAddress(listing)}`}
+      onClose={onClose}
+      // A click on the dark backdrop (the dialog itself, not its contents)
+      // closes it.
+      onClick={(e) => e.target === e.currentTarget && dialog.current?.close()}
+      onTouchStart={(e) => (swipeStart.current = e.touches[0].clientX)}
+      onTouchEnd={(e) => {
+        if (swipeStart.current === null) return;
+        const dx = e.changedTouches[0].clientX - swipeStart.current;
+        swipeStart.current = null;
+        if (Math.abs(dx) >= SWIPE) go(dx < 0 ? 1 : -1);
+      }}
+    >
+      <p className="gallery__count" aria-live="polite">
+        {index + 1} / {count}
+      </p>
+      <button type="button" className="gallery__close" aria-label="Close photos" onClick={() => dialog.current?.close()}>
+        <Icon name="close" size={26} />
+      </button>
+      <img
+        key={photos[index]}
+        className="gallery__img"
+        src={photos[index]}
+        srcSet={photoSrcSet(listing, index)}
+        sizes="100vw"
+        alt={alt(index)}
+        decoding="async"
+      />
+      {count > 1 && (
+        <>
+          <button type="button" className="gallery__nav gallery__nav--prev" aria-label="Previous photo" onClick={() => go(-1)}>
+            <Icon name="prev" size={28} />
+          </button>
+          <button type="button" className="gallery__nav gallery__nav--next" aria-label="Next photo" onClick={() => go(1)}>
+            <Icon name="next" size={28} />
+          </button>
+        </>
+      )}
+    </dialog>
+  );
+}
+
 function Photos({ listing, address }: { listing: ListingData; address: string }) {
+  const [open, setOpen] = useState<number | null>(null);
   const photos = listing.photos ?? [];
   if (photos.length === 0) return null;
   const alt = (i: number) => `${address}, photo ${i + 1} of ${photos.length}`;
-  // Thumbnails are the 800px copies; each opens the full-size photo.
+  // Each photo links to its full-size file, which is what opens without
+  // JavaScript; with it, the link opens the gallery at that photo.
+  const show = (i: number) => (e: MouseEvent) => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+    e.preventDefault();
+    setOpen(i);
+  };
+  // Thumbnails are the 800px copies.
   const tile = (i: number) => (
     <li key={photos[i]}>
-      <a href={photos[i]} target="_blank" rel="noopener">
+      <a href={photos[i]} onClick={show(i)}>
         <img src={thumb(listing, i)} alt={alt(i)} loading="lazy" decoding="async" />
       </a>
     </li>
@@ -82,24 +187,34 @@ function Photos({ listing, address }: { listing: ListingData; address: string })
   const rest = photos.map((_, i) => i).slice(1);
   return (
     <div className="listing-photos">
-      {/* The page's largest image (its LCP), so it's fetched first. React
-          18 doesn't know fetchPriority yet; the lowercase attribute passes
-          straight through (as in Picture). */}
-      <img
-        className="listing-photos__main"
-        src={photos[0]}
-        srcSet={photoSrcSet(listing, 0)}
-        sizes="(max-width: 1360px) 100vw, 1232px"
-        alt={alt(0)}
-        decoding="async"
-        {...{ fetchpriority: 'high' }}
-      />
+      <a href={photos[0]} onClick={show(0)} className="listing-photos__open">
+        {/* The page's largest image (its LCP), so it's fetched first. React
+            18 doesn't know fetchPriority yet; the lowercase attribute passes
+            straight through (as in Picture). */}
+        <img
+          className="listing-photos__main"
+          src={photos[0]}
+          srcSet={photoSrcSet(listing, 0)}
+          sizes="(max-width: 1360px) 100vw, 1232px"
+          alt={alt(0)}
+          decoding="async"
+          {...{ fetchpriority: 'high' }}
+        />
+        {photos.length > 1 && (
+          <span className="listing-photos__badge" aria-hidden="true">
+            View all {photos.length} photos
+          </span>
+        )}
+      </a>
       {rest.length > 0 && <ul className="listing-photos__grid">{rest.slice(0, GRID_PHOTOS).map(tile)}</ul>}
       {rest.length > GRID_PHOTOS && (
         <details className="listing-photos__more">
           <summary>Show all {photos.length} photos</summary>
           <ul className="listing-photos__grid">{rest.slice(GRID_PHOTOS).map(tile)}</ul>
         </details>
+      )}
+      {open !== null && (
+        <Gallery listing={listing} alt={alt} index={open} onChange={setOpen} onClose={() => setOpen(null)} />
       )}
     </div>
   );
@@ -143,6 +258,32 @@ function Linked({ text, targets }: { text: string; targets: LinkTargets }) {
         ),
       )}
     </>
+  );
+}
+
+/** A Google map of the listing, and a link to open it in Google Maps.
+ *  Only when the street address is shown: an agent who hides it in
+ *  PropertyMe doesn't want the property pinpointed. Google's plain embed
+ *  needs no API key. It loads lazily, so Google is only contacted when
+ *  the map scrolls into view (the privacy policy says so). */
+function ListingMap({ listing, address }: { listing: ListingData; address: string }) {
+  if (!listing.street) return null;
+  const query = encodeURIComponent([listing.street, listing.suburb, listing.state, listing.postcode].filter(Boolean).join(' '));
+  return (
+    <div className="listing__map">
+      <h2 className="h-3">Location</h2>
+      <iframe
+        title={`Map of ${address}`}
+        src={`https://www.google.com/maps?q=${query}&output=embed`}
+        loading="lazy"
+        referrerPolicy="strict-origin-when-cross-origin"
+      />
+      <p>
+        <a href={`https://www.google.com/maps/search/?api=1&query=${query}`} target="_blank" rel="noopener noreferrer">
+          <Icon name="pin" /> Open in Google Maps
+        </a>
+      </p>
+    </div>
   );
 }
 
@@ -272,6 +413,7 @@ export default function Listing() {
                   </a>
                 </p>
               ))}
+              <ListingMap listing={listing} address={address} />
             </div>
 
             <aside className="listing__aside" aria-label="Price, inspections and agent">

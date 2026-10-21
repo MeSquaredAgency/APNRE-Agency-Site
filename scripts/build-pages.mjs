@@ -61,7 +61,8 @@ const office = ({ id, name, alternateName, street, locality, postcode, city, map
   '@id': OFFICE_IDS[id],
   name,
   alternateName,
-  url: `${SITE}/contact/#${id}`,
+  // Each office's own page (src/pages/Office.tsx).
+  url: `${SITE}/${id}/`,
   telephone: '+61-1300-123-276',
   parentOrganization: { '@id': ORG_ID },
   address: {
@@ -171,7 +172,7 @@ function html(route) {
 `
     : '';
   const jsonLd =
-    route.page === 'home' || route.page === 'contact'
+    ['home', 'contact', 'office-adelaide', 'office-mount-gambier'].includes(route.page)
       ? `    <script type="application/ld+json">${JSON.stringify(JSON_LD)}</script>\n`
       : '';
   // The home hero's poster is its largest image, so fetch it straight

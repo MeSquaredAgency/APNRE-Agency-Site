@@ -48,6 +48,13 @@ export const PRIVACY_EMAIL = '';
 export const REA_PROFILE_URL =
   'https://www.realestate.com.au/agency/adelaide-property-network-blair-athol-JIASZF';
 
+/** PropertyMe's Client Access portal, where APN's landlords and tenants
+ *  log in (APN manages its rentals in PropertyMe). The same address for
+ *  owners and tenants; each gets an invitation from their property
+ *  manager to set up their login. Linked from the header, menu, footer
+ *  and the landlord and tenant hubs. */
+export const CLIENT_LOGIN_URL = 'https://my.propertyme.com/';
+
 export interface ExternalLink {
   label: string;
   /** Blank until APN supplies it; a blank link isn't shown. */

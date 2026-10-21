@@ -2,14 +2,15 @@
 # published page moves, so old links and search results still work.
 # https://developers.cloudflare.com/pages/configuration/redirects/
 
-# The landing page's office pages, from when it was the site at
-# apnre.com.au. The offices now live on the contact page.
-/adelaide /contact/#adelaide 301
-/adelaide/ /contact/#adelaide 301
-/mount-gambier /contact/#mount-gambier 301
-/mount-gambier/ /contact/#mount-gambier 301
+# /adelaide/ and /mount-gambier/ were redirected to the contact page
+# until Oct 2026; they're office pages of their own again
+# (src/pages/Office.tsx), so they're no longer redirected.
 
 # Blog post retargeted to "what does a property manager do", 2026-09-28
 # (carried over from the landing page repo).
 /blog/property-management-adelaide-landlords /blog/what-does-a-property-manager-do/ 301
 /blog/property-management-adelaide-landlords/ /blog/what-does-a-property-manager-do/ 301
+
+# Team members who have left: their profile page goes to the team page.
+/our-people/breeanna-arney /our-people/ 301
+/our-people/breeanna-arney/ /our-people/ 301

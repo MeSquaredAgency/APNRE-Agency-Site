@@ -3,6 +3,7 @@ import { trackFormSubmit } from '../lib/analytics';
 import { loadTurnstile, TURNSTILE_SITE_KEY } from '../lib/turnstile';
 import AddressInput from './AddressInput';
 import { OPENING_HOURS, PHONE_DISPLAY, PHONE_TEL } from '../data/business';
+import type { OfficeId } from '../data/offices';
 
 // Posts to functions/api/enquiry.ts, which forwards to the Google Sheet.
 const ENDPOINT = '/api/enquiry';
@@ -29,6 +30,8 @@ interface EnquiryFormProps {
   before?: ReactNode;
   /** Preselects "What's it about?" on the general form, e.g. on a hub page. */
   defaultTopic?: string;
+  /** Preselects "Nearest office" on the general form, e.g. on an office page. */
+  defaultOffice?: OfficeId;
   /** The property a 'listing' enquiry is about (src/pages/Listing.tsx). */
   listing?: { id: string; address: string };
   /** Fields of the page's own, at the top of the form under the
@@ -89,6 +92,7 @@ export default function EnquiryForm({
   defaultAddress,
   before,
   defaultTopic = '',
+  defaultOffice,
   listing,
   choices,
   detailsHeading,
@@ -356,7 +360,7 @@ export default function EnquiryForm({
           )}
           <label className="form__field">
             <span>Nearest office</span>
-            <select name="office" defaultValue="">
+            <select name="office" defaultValue={defaultOffice ?? ''}>
               <option value="">Either</option>
               <option value="adelaide">Adelaide</option>
               <option value="mount-gambier">Mount Gambier</option>

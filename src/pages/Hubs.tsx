@@ -6,7 +6,8 @@
 //
 // Keep answers to what APN can stand behind. No legal advice (notice
 // periods, bond rules and so on), and no portals or payment methods
-// unless APN confirms they exist.
+// unless APN confirms they exist. PropertyMe's client login is
+// confirmed (CLIENT_LOGIN_URL).
 
 import type { ReactNode } from 'react';
 import Layout from '../components/Layout';
@@ -14,7 +15,7 @@ import EnquiryForm, { type EnquiryKind } from '../components/EnquiryForm';
 import Icon, { type IconName } from '../components/Icon';
 import JsonLd from '../components/JsonLd';
 import { CtaBand, Faq, FormSection, ImageCards, PageHero, SectionHead, Team, type FaqItem } from '../components/sections';
-import { MAINTENANCE_FORM_ENABLED, PHONE_DISPLAY, PHONE_TEL } from '../data/business';
+import { CLIENT_LOGIN_URL, MAINTENANCE_FORM_ENABLED, PHONE_DISPLAY, PHONE_TEL } from '../data/business';
 import { STOCK } from '../data/media';
 import { breadcrumbList } from '../structured-data';
 import type { TeamGroup } from '../data/team';
@@ -25,7 +26,7 @@ import mountGambierStreet from '../assets/photos/mount-gambier-hillside-street.j
 
 /* ---------- Building blocks ---------- */
 
-interface Action {
+export interface Action {
   icon: IconName;
   title: string;
   copy: string;
@@ -35,7 +36,8 @@ interface Action {
   call?: string;
 }
 
-function Actions({ items }: { items: Action[] }) {
+/** Also on the office pages (Office.tsx). */
+export function Actions({ items }: { items: Action[] }) {
   return (
     <section className="section section-white">
       <div className="wrap">
@@ -61,6 +63,23 @@ function Actions({ items }: { items: Action[] }) {
             </li>
           ))}
         </ul>
+      </div>
+    </section>
+  );
+}
+
+/** PropertyMe's client login, for landlords and tenants APN already
+ *  manages for. */
+function ClientLogin({ who, copy }: { who: string; copy: string }) {
+  return (
+    <section className="hub-login" aria-label={`${who} login`}>
+      <div className="wrap hub-login__inner">
+        <p>
+          <strong>Already with APN Real Estate?</strong> {copy}
+        </p>
+        <a href={CLIENT_LOGIN_URL} target="_blank" rel="noopener noreferrer" className="btn btn-light">
+          {who} Login <Icon name="external" />
+        </a>
       </div>
     </section>
   );
@@ -110,6 +129,60 @@ function Repairs() {
   );
 }
 
+/* ---------- Laws and official guides ---------- */
+
+interface LawLink {
+  title: string;
+  /** Who publishes it, e.g. "SA legislation". */
+  source: string;
+  copy: string;
+  href: string;
+}
+
+const ACT = (name: string) => `https://www.legislation.sa.gov.au/lz?path=${encodeURIComponent(`/c/a/${name.toLowerCase()}`)}`;
+
+/** Official sources only (legislation.sa.gov.au, CBS, SACAT, sa.gov.au):
+ *  APN points people to the rules, it doesn't interpret them. */
+const LAWS = {
+  residentialTenancies: { title: 'Residential Tenancies Act 1995', source: 'SA legislation', copy: 'The law for residential leases in South Australia, as currently in force.', href: ACT('Residential Tenancies Act 1995') },
+  rentingAdvice: { title: 'Renting and letting advice', source: 'Consumer and Business Services', copy: 'The SA Government’s guide to rights and obligations for landlords and tenants.', href: 'https://www.cbs.sa.gov.au/renting-and-letting-advice' },
+  rentalReforms: { title: 'Rental reforms', source: 'Consumer and Business Services', copy: 'What has changed in South Australia’s renting laws.', href: 'https://www.cbs.sa.gov.au/campaigns/rental-reforms' },
+  bonds: { title: 'Rental bonds', source: 'Consumer and Business Services', copy: 'How bonds are lodged, held and refunded, and how to check a bond’s status.', href: 'https://www.cbs.sa.gov.au/renting-and-letting-advice/bonds' },
+  sacat: { title: 'Housing and rental disputes', source: 'SACAT', copy: 'The South Australian Civil and Administrative Tribunal, which hears tenancy disputes.', href: 'https://sacat.sa.gov.au/housing-and-rentals' },
+  commercialLeases: { title: 'Retail and Commercial Leases Act 1995', source: 'SA legislation', copy: 'For shops and other retail leases.', href: ACT('Retail and Commercial Leases Act 1995') },
+  landAgents: { title: 'Land Agents Act 1994', source: 'SA legislation', copy: 'How agents, sales representatives and property managers are licensed and regulated.', href: ACT('Land Agents Act 1994') },
+  saleAndConveyancing: { title: 'Land and Business (Sale and Conveyancing) Act 1994', source: 'SA legislation', copy: 'The law for selling property in SA, including the vendor’s statement (Form 1) and cooling-off.', href: ACT('Land and Business (Sale and Conveyancing) Act 1994') },
+  buyersNotice: { title: 'Buyer’s information notice (Form 3)', source: 'Consumer and Business Services', copy: 'Questions worth asking about a property before you buy. PDF.', href: 'https://www.cbs.sa.gov.au/documents/form-3-buyers-information-notice.pdf' },
+  buyingSelling: { title: 'Buying, building and selling', source: 'SA Government', copy: 'sa.gov.au’s guides to buying and selling property in South Australia.', href: 'https://www.sa.gov.au/topics/housing-and-property/buying-building-selling' },
+} satisfies Record<string, LawLink>;
+
+function Laws({ items }: { items: LawLink[] }) {
+  return (
+    <section className="section section-white" id="laws">
+      <div className="wrap">
+        <SectionHead eyebrow="Laws and official guides" title="The rules, from the source." />
+        <p className="law-links__intro">
+          The Acts and SA Government guidance that apply. They’re general information: for your own situation, talk to
+          us or get legal advice.
+        </p>
+        <ul className="law-links">
+          {items.map((l) => (
+            <li key={l.href}>
+              <a href={l.href} target="_blank" rel="noopener noreferrer" className="law-link">
+                <span className="law-link__source">{l.source}</span>
+                <span className="law-link__title">
+                  {l.title} <Icon name="external" size={15} />
+                </span>
+                <span className="law-link__copy">{l.copy}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
 interface HubConfig {
   eyebrow: string;
   /** This hub's path, for the breadcrumb's structured data. */
@@ -120,6 +193,9 @@ interface HubConfig {
   photoAlt: string;
   focalPoint?: string;
   actions: Action[];
+  /** Who logs in to PropertyMe from this hub, e.g. "Owners", with what
+   *  they'll find there. Shown above the quick actions. */
+  login?: { who: string; copy: string };
   team: TeamGroup;
   teamTitle: string;
   /** Rendered after the team, e.g. the repairs section for tenants. */
@@ -128,6 +204,8 @@ interface HubConfig {
   faqs: FaqItem[];
   /** Shown under the FAQs, e.g. links to a guide or service page. */
   faqMore?: ReactNode;
+  /** Links to the Acts and official guidance, after the FAQs. */
+  laws: LawLink[];
   form: {
     kind: EnquiryKind;
     eyebrow: string;
@@ -164,10 +242,12 @@ function HubPage({ config: c }: { config: HubConfig }) {
           { name: c.eyebrow, path: c.path },
         ])}
       />
+      {c.login && <ClientLogin {...c.login} />}
       <Actions items={c.actions} />
       <Team group={c.team} eyebrow="Your team" title={c.teamTitle} />
       {c.extra}
       <Faq title={c.faqTitle} items={c.faqs} more={c.faqMore} />
+      <Laws items={c.laws} />
       <FormSection id="enquiry" eyebrow={c.form.eyebrow} title={c.form.title} copy={c.form.copy}>
         <EnquiryForm kind={c.form.kind} submitLabel={c.form.submit} defaultTopic={c.form.topic} />
       </FormSection>
@@ -195,6 +275,7 @@ export function LandlordHub() {
           { icon: 'swap', title: 'Switch to APN Real Estate', copy: 'How switching property managers works, even with tenants in place.', href: '/leasing/#switch' },
           { icon: 'tag', title: 'Thinking of selling?', copy: 'Sales and property management work together, including for tenanted sales.', href: '/appraisal/sales/' },
         ],
+        login: { who: 'Owner', copy: 'Log in to PropertyMe for your statements, documents and property details.' },
         team: 'property-management',
         teamTitle: 'Your property managers.',
         faqTitle: 'Questions from landlords.',
@@ -222,6 +303,7 @@ export function LandlordHub() {
             a: 'Yes. Changing property managers is a normal process and doesn’t need to disrupt the tenancy. Tell us about your property and we’ll explain how it would work.',
           },
         ],
+        laws: [LAWS.residentialTenancies, LAWS.rentingAdvice, LAWS.rentalReforms, LAWS.bonds, LAWS.sacat, LAWS.landAgents, LAWS.commercialLeases],
         form: {
           kind: 'general',
           topic: 'Property management',
@@ -251,6 +333,7 @@ export function TenantHub() {
           { icon: 'bell', title: 'Get rental alerts', copy: 'Tell us what you’re after and we’ll be in touch when it comes up.', href: '/rent/#register' },
           { icon: 'users', title: 'Contact your property manager', copy: 'Questions about your lease, rent or moving out.', ...CALL, call: 'hub_tenant' },
         ],
+        login: { who: 'Tenant', copy: 'Log in to PropertyMe for your rent, tenancy details and documents.' },
         team: 'property-management',
         teamTitle: 'The property management team.',
         extra: <Repairs />,
@@ -269,6 +352,7 @@ export function TenantHub() {
             a: 'Anything unsafe or likely to cause serious damage if it waits, such as a burst pipe, a gas leak, no power or a security problem. Call us straight away, and call 000 first if anyone is in danger.',
           },
         ],
+        laws: [LAWS.residentialTenancies, LAWS.rentingAdvice, LAWS.rentalReforms, LAWS.bonds, LAWS.sacat],
         form: MAINTENANCE_FORM_ENABLED
           ? {
               kind: 'maintenance',
@@ -334,6 +418,7 @@ export function SellerHub() {
             a: 'Yes. Because APN Real Estate does property management as well as sales, we can explain how a sale works with tenants in place, including inspections and notice.',
           },
         ],
+        laws: [LAWS.saleAndConveyancing, LAWS.landAgents, LAWS.buyingSelling],
         form: {
           kind: 'sales-appraisal',
           eyebrow: 'Free sales appraisal',
@@ -380,6 +465,7 @@ export function BuyerHub() {
             a: 'Join our buyer list with what you’re looking for, and the sales team will let you know when something suitable comes up.',
           },
         ],
+        laws: [LAWS.saleAndConveyancing, LAWS.buyersNotice, LAWS.buyingSelling],
         form: {
           kind: 'buyer-register',
           eyebrow: 'Buyer list',
@@ -403,7 +489,13 @@ export function HubOverview() {
         lede="Choose what you’re here for, and find the people, forms and answers for it in one place."
         photo={STOCK.suburbAerial.photo}
         photoAlt={STOCK.suburbAerial.alt}
-      />
+      >
+        <div className="page-hero__actions">
+          <a href={CLIENT_LOGIN_URL} target="_blank" rel="noopener noreferrer" className="btn btn-outline-light">
+            Owner &amp; Tenant Login <Icon name="external" />
+          </a>
+        </div>
+      </PageHero>
       <section className="section section-white">
         <div className="wrap">
           <ImageCards

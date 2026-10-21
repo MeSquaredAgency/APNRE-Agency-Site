@@ -1,11 +1,13 @@
 // Site navigation, shared by the header's menu and the footer. Every
 // internal href here must be a path in routes.json.
 
-import { REA_PROFILE_URL } from './business';
+import { CLIENT_LOGIN_URL, REA_PROFILE_URL } from './business';
 
 export interface NavLink {
   href: string;
   label: string;
+  /** Another site: opens in a new tab. */
+  external?: boolean;
 }
 
 export interface NavGroup {
@@ -55,6 +57,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/office-space/', label: 'Office Space for Lease' },
       { href: '/client-hub/tenants/', label: 'Tenant Hub' },
       { href: '/client-hub/tenants/#repairs', label: 'Report a Repair' },
+      { href: CLIENT_LOGIN_URL, label: 'Tenant Login', external: true },
     ],
   },
   {
@@ -64,6 +67,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/leasing/', label: 'Property Management' },
       { href: '/appraisal/rental/', label: 'Rental Appraisal' },
       { href: '/client-hub/landlords/', label: 'Landlord Hub' },
+      { href: CLIENT_LOGIN_URL, label: 'Owner Login', external: true },
       { href: '/our-people/?filter=property-management', label: 'Property Managers' },
     ],
   },
