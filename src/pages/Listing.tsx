@@ -110,11 +110,16 @@ function Gallery({
     return () => window.removeEventListener('keydown', onKey);
   });
 
-  // Fetch the photos either side, so moving on shows them straight away.
+  // Fetch the photos either side, so moving on shows them straight away:
+  // the same srcset and sizes as the gallery image, so a phone fetches
+  // the 800px copy rather than the full-size one.
   useEffect(() => {
     [index - 1, index + 1].forEach((i) => {
+      const j = (i + count) % count;
       const img = new Image();
-      img.src = photos[(i + count) % count];
+      img.sizes = '100vw';
+      img.srcset = photoSrcSet(listing, j) ?? '';
+      img.src = photos[j];
     });
   }, [index]);
 
@@ -265,7 +270,8 @@ function Linked({ text, targets }: { text: string; targets: LinkTargets }) {
  *  Only when the street address is shown: an agent who hides it in
  *  PropertyMe doesn't want the property pinpointed. Google's plain embed
  *  needs no API key. It loads lazily, so Google is only contacted when
- *  the map scrolls into view (the privacy policy says so). */
+ *  the map scrolls into view (the privacy policy covers these and the
+ *  office pages' maps). */
 function ListingMap({ listing, address }: { listing: ListingData; address: string }) {
   if (!listing.street) return null;
   const query = encodeURIComponent([listing.street, listing.suburb, listing.state, listing.postcode].filter(Boolean).join(' '));

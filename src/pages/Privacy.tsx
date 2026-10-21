@@ -81,8 +81,8 @@ export default function Privacy() {
             <li><strong>Meta</strong> (Facebook and Instagram), which measures the performance of our ads through the Meta Pixel</li>
           </ul>
           <p>
-            Property pages show the property’s location on a map from{' '}
-            <strong>Google Maps</strong>. When the map loads, Google receives
+            Property pages and our office pages show a location on a map
+            from <strong>Google Maps</strong>. When the map loads, Google receives
             technical details about your browser and may set its own cookies,
             under Google’s privacy policy.
           </p>
