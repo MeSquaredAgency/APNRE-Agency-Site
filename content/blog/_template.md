@@ -31,6 +31,10 @@ author: Jenny Saffin
 # image: /blog-images/rental-bond-guide.jpg
 # imageAlt: A landlord handing keys to a new tenant
 
+# Optional. The appraisal form at the end of the post: "rental" (the
+# default, for landlord posts) or "sales" (for seller posts).
+# form: sales
+
 # Leave this in while writing. The post shows on `npm run dev` but not
 # on the live site. Delete the line (or set it to false) to publish.
 draft: true

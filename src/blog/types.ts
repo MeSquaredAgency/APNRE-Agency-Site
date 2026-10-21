@@ -17,6 +17,9 @@ export interface PostMeta {
   /** Absolute path under public/, e.g. /blog-images/bond-guide.jpg. */
   image?: string;
   imageAlt?: string;
+  /** Which appraisal form the post ends with: 'rental' (the default)
+   *  for landlord posts, 'sales' for seller posts. */
+  form: 'rental' | 'sales';
   readingMinutes: number;
   draft: boolean;
 }

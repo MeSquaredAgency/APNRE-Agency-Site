@@ -79,16 +79,27 @@ export default function BlogPostPage({ post, bodyHtml, related }: BlogPostPagePr
         </div>
       </article>
 
-      {/* The posts so far are for landlords, so they end on the rental
-          appraisal. Make this depend on the post if sales posts arrive. */}
-      <FormSection
-        id="appraisal"
-        eyebrow="Free rental appraisal"
-        title="What could your property rent for?"
-        copy="Tell us about your property. A local APN Real Estate property manager will review the details and contact you directly."
-      >
-        <EnquiryForm kind="rental-appraisal" submitLabel="Get My Free Rental Appraisal" />
-      </FormSection>
+      {/* Landlord posts end on the rental appraisal, seller posts on the
+          sales appraisal (the post's `form:` setting). */}
+      {post.form === 'sales' ? (
+        <FormSection
+          id="appraisal"
+          eyebrow="Free sales appraisal"
+          title="What could your property sell for?"
+          copy="Tell us about your property and a member of our sales team will be in touch to arrange an appraisal."
+        >
+          <EnquiryForm kind="sales-appraisal" submitLabel="Book My Sales Appraisal" />
+        </FormSection>
+      ) : (
+        <FormSection
+          id="appraisal"
+          eyebrow="Free rental appraisal"
+          title="What could your property rent for?"
+          copy="Tell us about your property. A local APN Real Estate property manager will review the details and contact you directly."
+        >
+          <EnquiryForm kind="rental-appraisal" submitLabel="Get My Free Rental Appraisal" />
+        </FormSection>
+      )}
 
       {related.length > 0 && (
         <section className="section section-white" aria-labelledby="post-more-heading">
