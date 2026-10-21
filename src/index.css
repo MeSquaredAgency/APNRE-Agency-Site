@@ -418,6 +418,10 @@ input, select, textarea {
   text-decoration: none;
   font-size: 0.98rem;
 }
+.site-menu__group li a svg {
+  margin-left: 6px;
+  vertical-align: -2px;
+}
 .site-menu__group li a:hover,
 .site-menu__group li a[aria-current='page'] {
   color: var(--white);
@@ -442,6 +446,22 @@ input, select, textarea {
   font-family: var(--font-serif);
   font-size: 1.7rem;
   text-decoration: none;
+}
+
+/* PropertyMe login for landlords and tenants (Header.tsx), styled like
+   the nav links. Phones get it in the menu instead. */
+.site-header__login {
+  font-size: 0.92rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  padding: 6px 0;
+  border-bottom: 1px solid transparent;
+  white-space: nowrap;
+}
+.site-header__login:hover,
+.site-header__login:focus-visible {
+  border-bottom-color: var(--lime);
 }
 
 /* Call button in the header, phones only (Header.tsx). Outlined like the
@@ -489,7 +509,8 @@ input, select, textarea {
   .site-header__logo--side {
     max-width: 170px;
   }
-  .site-header__cta {
+  .site-header__cta,
+  .site-header__login {
     display: none;
   }
   .site-header__call {
@@ -1402,6 +1423,117 @@ input, select, textarea {
   object-fit: cover;
   background: var(--stone-2);
 }
+.listing-photos__open {
+  position: relative;
+  display: block;
+}
+.listing-photos__grid a {
+  display: block;
+}
+.listing-photos__open img,
+.listing-photos__grid img {
+  cursor: zoom-in;
+}
+.listing-photos__badge {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(17, 17, 17, 0.78);
+  color: var(--white);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+/* Full-screen photo gallery on listing pages (Gallery in Listing.tsx). */
+.gallery {
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: rgba(10, 10, 10, 0.96);
+  color: var(--white);
+  overflow: hidden;
+}
+.gallery::backdrop {
+  background: rgba(10, 10, 10, 0.96);
+}
+.gallery[open] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.gallery__img {
+  max-width: calc(100vw - 160px);
+  max-height: calc(100dvh - 120px);
+  object-fit: contain;
+  user-select: none;
+}
+.gallery__count {
+  position: absolute;
+  top: 20px;
+  left: 24px;
+  margin: 0;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+}
+.gallery__close,
+.gallery__nav {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  background: rgba(17, 17, 17, 0.6);
+  color: var(--white);
+  cursor: pointer;
+}
+.gallery__close:hover,
+.gallery__nav:hover,
+.gallery__close:focus-visible,
+.gallery__nav:focus-visible {
+  border-color: var(--lime);
+}
+.gallery__close {
+  top: 12px;
+  right: 16px;
+}
+.gallery__nav {
+  top: 50%;
+  transform: translateY(-50%);
+}
+.gallery__nav--prev {
+  left: 20px;
+}
+.gallery__nav--next {
+  right: 20px;
+}
+@media (max-width: 760px) {
+  .gallery__img {
+    max-width: 100vw;
+    max-height: calc(100dvh - 140px);
+  }
+  /* Swipe does most of the work on phones; the buttons sit below the photo. */
+  .gallery__nav {
+    top: auto;
+    bottom: 20px;
+    transform: none;
+  }
+  .gallery__nav--prev {
+    left: calc(50% - 64px);
+  }
+  .gallery__nav--next {
+    right: calc(50% - 64px);
+  }
+}
+
 .listing-photos__more summary {
   margin-top: 12px;
   cursor: pointer;
@@ -1485,6 +1617,23 @@ input, select, textarea {
   font-weight: 600;
 }
 .listing__floorplan {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+.listing__map {
+  margin-top: 40px;
+}
+.listing__map iframe {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  max-height: 440px;
+  border: 0;
+  background: var(--stone-2);
+}
+.listing__map a {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -2033,8 +2182,43 @@ input, select, textarea {
   gap: 14px;
   padding: 32px;
 }
+.office-card__name {
+  text-decoration: none;
+}
+.office-card__name:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--lime);
+  text-underline-offset: 6px;
+}
 .office-card__address {
   font-weight: 600;
+}
+
+/* An office's own page (Office.tsx): details beside a map. */
+.office-page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 48px;
+  align-items: center;
+}
+.office-page__details .h-2 {
+  margin-top: 8px;
+}
+.office-page__details > p {
+  margin: 16px 0;
+}
+.office-page__map {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border: 0;
+  background: var(--stone-2);
+}
+@media (max-width: 900px) {
+  .office-page {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
 }
 .office-card__body > p:not(.office-card__address) {
   color: var(--grey-700);
@@ -2978,6 +3162,78 @@ input, select, textarea {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
 }
+/* PropertyMe login bar on the landlord and tenant hubs (ClientLogin in
+   Hubs.tsx). */
+.hub-login {
+  background: var(--ink);
+  color: var(--white);
+}
+.hub-login__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 32px;
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+.hub-login p {
+  margin: 0;
+  max-width: 60ch;
+  color: rgba(255, 255, 255, 0.8);
+}
+.hub-login strong {
+  color: var(--white);
+}
+
+/* Laws and official guides on the hubs (Laws in Hubs.tsx). */
+.law-links__intro {
+  max-width: 62ch;
+  margin: -12px 0 28px;
+  color: var(--grey-700);
+}
+.law-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+.law-link {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+  padding: 24px;
+  background: var(--stone);
+  border-top: 2px solid transparent;
+  text-decoration: none;
+  transition: border-color 0.2s;
+}
+.law-link:hover,
+.law-link:focus-visible {
+  border-top-color: var(--lime);
+}
+.law-link__source {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--grey-700);
+}
+.law-link__title {
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+.law-link__title svg {
+  vertical-align: -2px;
+}
+.law-link__copy {
+  font-size: 0.93rem;
+  color: var(--grey-700);
+}
+
 .hub-action {
   display: flex;
   flex-direction: column;

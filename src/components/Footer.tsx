@@ -57,7 +57,9 @@ export default function Footer() {
           <div className="site-footer__offices">
             {OFFICE_LIST.map((office) => (
               <p key={office.id}>
-                <strong>{office.name}</strong>
+                <a href={`/${office.id}/`}>
+                  <strong>{office.name}</strong>
+                </a>
                 <br />
                 {office.addressLines[0]} {office.addressLines[1]}
               </p>
@@ -73,7 +75,9 @@ export default function Footer() {
               <ul>
                 {group.links.map((link) => (
                   <li key={link.href}>
-                    <a href={link.href}>{link.label}</a>
+                    <a href={link.href} {...(link.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>
+                      {link.label}
+                    </a>
                   </li>
                 ))}
               </ul>

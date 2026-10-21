@@ -20,6 +20,8 @@ export const PAGE_LOADERS: Record<string, () => Promise<ComponentType>> = {
   person: () => import('./Person').then((m) => m.default),
   story: () => import('./Story').then((m) => m.default),
   contact: () => import('./Contact').then((m) => m.default),
+  'office-adelaide': () => import('./Office').then((m) => m.AdelaideOffice),
+  'office-mount-gambier': () => import('./Office').then((m) => m.MountGambierOffice),
   careers: () => import('./Careers').then((m) => m.default),
   hub: () => import('./Hubs').then((m) => m.HubOverview),
   'hub-landlords': () => import('./Hubs').then((m) => m.LandlordHub),

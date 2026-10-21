@@ -339,7 +339,11 @@ export function Offices({ title = 'Two offices, one team.' }: { title?: ReactNod
                 </div>
               )}
               <div className="office-card__body">
-                <h3 className="h-2">{office.name}</h3>
+                <h3 className="h-2">
+                  <a href={`/${office.id}/`} className="office-card__name">
+                    {office.name}
+                  </a>
+                </h3>
                 <p className="office-card__address">
                   {office.addressLines[0]}
                   <br />
@@ -361,6 +365,9 @@ export function Offices({ title = 'Two offices, one team.' }: { title?: ReactNod
                     rel="noopener noreferrer"
                   >
                     <Icon name="pin" /> Get directions
+                  </a>
+                  <a href={`/${office.id}/`}>
+                    <Icon name="arrow" /> About this office
                   </a>
                 </div>
               </div>

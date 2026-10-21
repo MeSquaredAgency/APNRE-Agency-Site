@@ -4,7 +4,6 @@ import brettPhoto from '../assets/team/brett-david.jpg?photo';
 import jennyPhoto from '../assets/team/jenny-saffin.jpg?photo';
 import lukePhoto from '../assets/team/luke-whittaker.jpg?photo';
 import marissaPhoto from '../assets/team/marissa-bowell.jpg?photo';
-import breePhoto from '../assets/team/bree.jpg?photo';
 import type { OfficeId } from './offices';
 
 /** The team filters on /our-people/. Someone can be in more than one,
@@ -14,8 +13,6 @@ export type TeamGroup = 'sales' | 'property-management' | 'leadership';
 // Every `role` and `registration` below comes from the title matrix
 // Patrick sent for the email signatures (October 2026), which is the
 // source of truth. Cards, profile pages and structured data all read them.
-// Breeanna's line in the matrix reads "Command Centre" rather than a
-// registration, so she has none here.
 
 export interface TeamMember {
   name: string;
@@ -67,8 +64,8 @@ export const TEAM: TeamMember[] = [
     // in Management alongside Brett.
     groups: ['property-management', 'sales', 'leadership'],
     office: 'mount-gambier',
-    // Supplied by Patrick, 9 Oct 2026, as were Marissa's, Breeanna's,
-    // Patrick's and Brett's below.
+    // Supplied by Patrick, 9 Oct 2026, as were Marissa's, Patrick's and
+    // Brett's below.
     bio: [
       'As Region Manager for Mount Gambier, Luke brings a calm, highly methodical approach to every aspect of property management and real estate. Backed by an extensive background in the hospitality sector, he excels in client relationship management, clear communication and high-level problem-solving.',
       'Since bringing these skills to APN Real Estate — where he has spent his entire property management career — Luke has built a strong reputation for navigating complex tenancies and resolving challenging insurance claims with precision and ease. His expertise spans residential property management, commercial sales and leasing, and residential sales support, making him a versatile and reliable partner for property owners, buyers and tenants alike.',
@@ -111,20 +108,6 @@ export const TEAM: TeamMember[] = [
     office: 'mount-gambier',
     bio: [
       'Jenny is a Property Manager at APN Real Estate, and has been working with landlords and tenants for more than two years. She owns an investment property herself, so she manages other people’s properties the way she’d want her own managed. Outside work, she’s usually at the gym, spending time with family and friends, or travelling.',
-    ],
-  },
-  {
-    name: 'Breeanna Arney',
-    role: 'Property Manager (Trainee)',
-    initials: 'BA',
-    photo: breePhoto,
-    photoAlt: 'Breeanna Arney, Property Manager (Trainee), Mount Gambier',
-    groups: ['property-management'],
-    office: 'mount-gambier',
-    bio: [
-      'Joining APN Real Estate under our cadet program, Breeanna is rapidly mastering maintenance coordination, inspections and clear communication. Backed by a diverse work background with a strong work ethic at its core, she excels at turning hard work into smarter, more streamlined processes that deliver dependable support for landlords and tenants alike.',
-      'Alongside her real estate career, Breeanna runs her own cleaning business and is a proud mother of three. Balancing a business and a busy family life has sharpened her organisational skills and her ability to keep everyday operations running smoothly.',
-      'Outside of work, Breeanna enjoys spending quality time with her family and making the most of her weekends.',
     ],
   },
   {

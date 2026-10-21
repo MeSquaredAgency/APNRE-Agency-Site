@@ -91,12 +91,6 @@
   },
   {
     "page": "person",
-    "path": "/our-people/breeanna-arney/",
-    "title": "Breeanna Arney, Mount Gambier | APN Real Estate",
-    "description": "Breeanna Arney is a trainee Property Manager at APN Real Estate in Mount Gambier. Call 1300 123 276 to reach the Mount Gambier team."
-  },
-  {
-    "page": "person",
     "path": "/our-people/patrick-nhim/",
     "title": "Patrick Nhim, Director & Founder, Adelaide | APN Real Estate",
     "description": "Patrick Nhim founded APN Real Estate, originally Adelaide Property Network, and leads its sales team in Adelaide. Call 1300 123 276 and ask for Patrick."
@@ -112,6 +106,18 @@
     "path": "/our-story/",
     "title": "Our Story | APN Real Estate",
     "description": "APN Real Estate began in Adelaide as Adelaide Property Network. Today it has offices in Blair Athol and Mount Gambier, covering sales and leasing."
+  },
+  {
+    "page": "office-adelaide",
+    "path": "/adelaide/",
+    "title": "Real Estate Agent Blair Athol, Adelaide | APN Real Estate",
+    "description": "APN Real Estate's Adelaide office at 420B Main North Road, Blair Athol: sales, property management and leasing. Call 1300 123 276 or visit us."
+  },
+  {
+    "page": "office-mount-gambier",
+    "path": "/mount-gambier/",
+    "title": "Real Estate & Property Management Mount Gambier | APN Real Estate",
+    "description": "APN Real Estate's Mount Gambier office at 178 Commercial Street East: property management, leasing and sales. Call 1300 123 276 or visit our local team."
   },
   {
     "page": "contact",
