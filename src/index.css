@@ -451,6 +451,9 @@ input, select, textarea {
 /* PropertyMe login for landlords and tenants (Header.tsx), styled like
    the nav links. Phones get it in the menu instead. */
 .site-header__login {
+  /* Kept clear of the appraisal button, about as far as the nav links
+     are from each other. */
+  margin-right: 16px;
   font-size: 0.92rem;
   font-weight: 500;
   letter-spacing: 0.02em;
