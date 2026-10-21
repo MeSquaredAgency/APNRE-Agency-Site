@@ -3249,17 +3249,6 @@ input, select, textarea {
   text-decoration-color: var(--lime);
   text-underline-offset: 4px;
 }
-/* Every card says whether there's a fee: the page's disclosure. */
-.contractor__fee {
-  margin-top: auto !important;
-  padding-top: 12px;
-  border-top: 1px solid var(--line);
-  font-size: 0.88rem;
-  color: var(--grey-700);
-}
-.contractor__fee--paid {
-  color: var(--ink);
-}
 @media (max-width: 560px) {
   .contractor-filters {
     grid-template-columns: 1fr;

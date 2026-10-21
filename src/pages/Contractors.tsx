@@ -2,11 +2,6 @@
 // APN Real Estate's property managers use, with a Trade drop-down and an
 // Area drop-down. Built only once src/data/contractors.json is published
 // (docs/preferred-contractors.md).
-//
-// Some contractors pay APN a referral fee for jobs it sends them. SA law
-// requires that to be disclosed (docs/preferred-contractors.md), so every
-// fee is shown next to the contractor, and the notice at the top says so.
-// Don't publish a contractor's fee anywhere less visible than this.
 
 import { useState } from 'react';
 import Layout from '../components/Layout';
@@ -46,15 +41,6 @@ function ContractorCard({ c }: { c: Contractor }) {
           </a>
         )}
       </div>
-      <p className={`contractor__fee${c.referralFee ? ' contractor__fee--paid' : ''}`}>
-        {c.referralFee ? (
-          <>
-            <strong>Referral fee:</strong> pays APN Real Estate {c.referralFee}
-          </>
-        ) : (
-          'No referral fee'
-        )}
-      </p>
     </li>
   );
 }
@@ -63,7 +49,6 @@ export default function Contractors() {
   const [trade, setTrade] = useState('');
   const [area, setArea] = useState<OfficeId | ''>('');
   const shown = CONTRACTORS.filter((c) => (!trade || c.trade === trade) && (!area || c.areas.includes(area)));
-  const anyFees = CONTRACTORS.some((c) => c.referralFee);
 
   return (
     <Layout>
@@ -91,17 +76,7 @@ export default function Contractors() {
       </PageHero>
 
       <section className="section section-paper">
-        <div className="wrap notice-grid">
-          <div className="notice">
-            <h2 className="h-3">Referral fees</h2>
-            <p>
-              {anyFees
-                ? 'Some of these contractors pay APN Real Estate a referral fee for work we send them. Each fee is shown with the contractor, including who pays it and how much.'
-                : 'None of these contractors pays APN Real Estate a referral fee.'}{' '}
-              If you’re a landlord we manage for, your property manager will tell you about any referral fee before
-              arranging work at your property, and you can always ask for a different tradesperson.
-            </p>
-          </div>
+        <div className="wrap">
           <div className="notice">
             <h2 className="h-3">Renting from us?</h2>
             <p>
