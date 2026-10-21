@@ -28,6 +28,8 @@ export const PAGE_LOADERS: Record<string, () => Promise<ComponentType>> = {
   'hub-tenants': () => import('./Hubs').then((m) => m.TenantHub),
   'hub-sellers': () => import('./Hubs').then((m) => m.SellerHub),
   'hub-buyers': () => import('./Hubs').then((m) => m.BuyerHub),
+  // Only built once src/data/contractors.json is published.
+  contractors: () => import('./Contractors').then((m) => m.default),
   privacy: () => import('./Privacy').then((m) => m.default),
   'thank-you': () => import('./ThankYou').then((m) => m.default),
   // Every /buy/<slug>/, /rent/<slug>/ and /sold/<slug>/ page; Listing

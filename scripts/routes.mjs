@@ -77,8 +77,16 @@ export function loadListings() {
   return existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : [];
 }
 
+/** /client-hub/contractors/ is only built once src/data/contractors.json
+ *  is marked published (docs/preferred-contractors.md). */
+function contractorsPublished() {
+  return JSON.parse(readFileSync(join(ROOT, 'src/data/contractors.json'), 'utf8')).published === true;
+}
+
 export function allRoutes() {
-  const routes = JSON.parse(readFileSync(join(ROOT, 'src/data/routes.json'), 'utf8'));
+  const routes = JSON.parse(readFileSync(join(ROOT, 'src/data/routes.json'), 'utf8')).filter(
+    (r) => r.page !== 'contractors' || contractorsPublished(),
+  );
   const listings = loadListings();
   // /buy/, /rent/ and /sold/ change whenever one of their listings does,
   // so their sitemap <lastmod> is the newest listing's.

@@ -54,6 +54,7 @@ the build, once the blog posts are known.
 | `/adelaide/`, `/mount-gambier/` | A page per office (`src/pages/Office.tsx`): its own hero photo, details, map, team and an enquiry form. Mount Gambier's Google Business Profile should link to `/mount-gambier/` |
 | `/careers/` | Expression of interest form |
 | `/client-hub/` | Client hub overview, plus a hub each for `landlords/`, `tenants/` (with repairs), `sellers/` and `buyers/`: quick actions, their team, FAQs and the right form (`src/pages/Hubs.tsx`). The landlord, seller and buyer hubs repeat a lot of `/leasing/` and `/selling/`, so they're noindex to stop them competing in search; the tenant hub is indexed |
+| `/client-hub/contractors/` | Preferred contractors with Trade and Area drop-downs, and any referral fee shown on each (`src/pages/Contractors.tsx`, list in `src/data/contractors.json`). Only built once that file is published; see `docs/preferred-contractors.md` |
 | `/blog/`, `/blog/<post>/` | Guides, written as Markdown in `content/blog/`; see `docs/blog.md` |
 | `/privacy/`, `/thank-you/` | Privacy policy; post-submit page (noindex) |
 | `/landlords/` (+ `thank-you/`) | The landlord campaign funnel for paid ads, and its thank-you page (both noindex); see `docs/funnels.md` |
