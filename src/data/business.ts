@@ -107,3 +107,9 @@ export const SOCIAL_LINKS: (ExternalLink & { icon: 'facebook' | 'instagram' | 'y
  *  day. A repair request that sits unread in a sheet is worse than no
  *  form, so while it's false the page tells tenants to call instead. */
 export const MAINTENANCE_FORM_ENABLED = false;
+
+/** The chat assistant in the bottom corner of every main-site page
+ *  (src/components/ChatWidget.tsx, functions/api/chat.ts). Needs
+ *  ANTHROPIC_API_KEY set in Cloudflare; see docs/chat-assistant.md. Set
+ *  to false to take it off the site. */
+export const CHAT_ASSISTANT_ENABLED = true;

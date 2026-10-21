@@ -1,16 +1,17 @@
 import Layout from '../components/Layout';
 import { OFFICE_LIST } from '../data/offices';
-import { ABN, ACN, BUSINESS_NAME, LICENSEE_LINE, PHONE_DISPLAY, PHONE_TEL, PRIVACY_EMAIL } from '../data/business';
+import { ABN, ACN, BUSINESS_NAME, CHAT_ASSISTANT_ENABLED, LICENSEE_LINE, PHONE_DISPLAY, PHONE_TEL, PRIVACY_EMAIL } from '../data/business';
 import { MAPS_API_KEY } from '../lib/places';
 import { TURNSTILE_SITE_KEY } from '../lib/turnstile';
 
 // Adapted from the landlord landing page's policy, and written from what
 // this site actually collects and where it goes: the forms
 // (functions/api/enquiry.ts → Google Sheet), Cloudflare hosting, and
-// GTM / GA4 / Meta Pixel (src/partials/head-shared.html). If any of that
+// GTM / GA4 / Meta Pixel (src/partials/head-shared.html), and the chat
+// assistant (functions/api/chat.ts → Anthropic, and the same sheet). If any of that
 // changes (a new form, a CRM, another ad platform), update this page in
 // the same change.
-const LAST_UPDATED = '28 September 2026';
+const LAST_UPDATED = '21 October 2026';
 
 export default function Privacy() {
   return (
@@ -95,6 +96,18 @@ export default function Privacy() {
               suggest matching addresses. Google receives the text you type
               and technical details about your browser, but not the other
               details you enter in the form.
+            </p>
+          )}
+          {CHAT_ASSISTANT_ENABLED && (
+            <p>
+              Our website chat is an AI assistant provided by{' '}
+              <strong>Anthropic</strong>. What you type into the chat is sent
+              to Anthropic to write the assistant’s replies, so please don’t
+              include sensitive information such as bank or ID details. The
+              conversation is kept in your browser until you close the tab.
+              If you ask the assistant to pass your details to our team, it
+              sends your name, contact details and what you wrote to us, and
+              they’re stored with our other enquiries.
             </p>
           )}
           {TURNSTILE_SITE_KEY && (

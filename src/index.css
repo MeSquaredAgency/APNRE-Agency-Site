@@ -4210,3 +4210,276 @@ input, select, textarea {
     padding-left: 18px;
   }
 }
+
+/* ---------- Chat assistant (ChatWidget.tsx) ---------- */
+
+.chat {
+  --focus: var(--lime);
+  position: fixed;
+  z-index: 95;
+  right: 24px;
+  bottom: 24px;
+  /* The button lifts above the phone call bar while that's showing. */
+  transition: bottom 0.25s ease;
+}
+.chat__launcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 0 22px 0 18px;
+  border: 0;
+  border-radius: 999px;
+  /* Lime, so it shows up over the dark sections as well as the light. */
+  background: var(--lime);
+  color: var(--ink);
+  font: 600 0.95rem/1 var(--font-sans);
+  letter-spacing: 0.02em;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+}
+.chat__launcher:hover {
+  background: var(--lime-light);
+}
+.chat__launcher:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px var(--white);
+}
+.chat__panel {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 12px);
+  display: flex;
+  flex-direction: column;
+  width: min(400px, calc(100vw - 48px));
+  height: min(600px, calc(100dvh - var(--header-h) - 120px));
+  background: var(--white);
+  border: 1px solid var(--line);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.22);
+}
+.chat__panel[hidden] {
+  display: none;
+}
+.chat__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 16px 14px 20px;
+  background: var(--ink);
+  color: var(--white);
+}
+.chat__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.2rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.chat__sub {
+  margin: 2px 0 0;
+  font-size: 0.8rem;
+  color: var(--grey-300);
+}
+.chat__head-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.chat__text-btn,
+.chat__icon-btn {
+  min-height: 40px;
+  border: 0;
+  background: none;
+  color: var(--white);
+  font: 600 0.82rem var(--font-sans);
+  cursor: pointer;
+}
+.chat__text-btn {
+  padding: 0 8px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.chat__icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+}
+.chat__log {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--stone);
+}
+.chat__msg {
+  max-width: 88%;
+  padding: 10px 14px;
+  font-size: 0.94rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+.chat__msg p,
+.chat__msg ul {
+  margin: 0;
+}
+.chat__msg p + p,
+.chat__msg p + ul,
+.chat__msg ul + p {
+  margin-top: 0.6em;
+}
+.chat__msg ul {
+  padding-left: 1.2em;
+}
+.chat__msg a {
+  text-decoration-color: var(--lime);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.chat__msg--assistant {
+  align-self: flex-start;
+  background: var(--white);
+  border: 1px solid var(--line);
+}
+.chat__msg--user {
+  align-self: flex-end;
+  background: var(--ink);
+  color: var(--white);
+  white-space: pre-wrap;
+}
+.chat__msg--error {
+  border-left: 3px solid #b3261e;
+}
+.chat__typing {
+  display: inline-flex;
+  gap: 4px;
+  padding: 6px 0;
+}
+.chat__typing span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--grey-500);
+  animation: chat-dot 1s infinite ease-in-out;
+}
+.chat__typing span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.chat__typing span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+@keyframes chat-dot {
+  0%, 80%, 100% {
+    opacity: 0.3;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+.chat__suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+.chat__suggestions button {
+  padding: 8px 12px;
+  border: 1px solid var(--ink);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--ink);
+  font: 500 0.86rem/1.3 var(--font-sans);
+  text-align: left;
+  cursor: pointer;
+}
+.chat__suggestions button:hover {
+  background: var(--lime-wash);
+}
+.chat__form {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 12px 12px 8px;
+  border-top: 1px solid var(--line);
+}
+.chat__form textarea {
+  flex: 1;
+  min-height: 44px;
+  max-height: 120px;
+  padding: 11px 12px;
+  border: 1px solid var(--grey-300);
+  border-radius: var(--radius);
+  font: 1rem/1.4 var(--font-sans);
+  resize: none;
+  field-sizing: content;
+}
+.chat__form textarea:focus {
+  outline: 2px solid var(--ink);
+  outline-offset: -1px;
+}
+.chat__send {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--lime);
+  color: var(--ink);
+  cursor: pointer;
+}
+.chat__send:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.chat__note {
+  margin: 0;
+  padding: 0 12px 12px;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--grey-700);
+}
+@media (max-width: 760px) {
+  .chat {
+    right: 16px;
+    bottom: calc(16px + env(safe-area-inset-bottom));
+  }
+  /* Above the call bar while it's showing (StickyActions.tsx). */
+  .has-sticky-actions .chat {
+    bottom: calc(56px + 12px + env(safe-area-inset-bottom));
+  }
+  /* Just the icon on phones, so it covers less of the page. */
+  .chat__launcher {
+    width: 56px;
+    padding: 0;
+    justify-content: center;
+  }
+  .chat__launcher-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+  /* Open, the chat takes the whole screen, over the header and call bar. */
+  .chat.is-open {
+    z-index: 110;
+  }
+  .chat.is-open .chat__launcher {
+    display: none;
+  }
+  .chat__panel {
+    position: fixed;
+    inset: 0;
+    width: auto;
+    height: auto;
+    border: 0;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}

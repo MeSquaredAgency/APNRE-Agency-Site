@@ -137,3 +137,33 @@ export function trackWhatsAppClick(placement: string) {
     console.warn('Meta Pixel WhatsApp event failed:', err);
   }
 }
+
+/** The chat assistant (src/components/ChatWidget.tsx) was opened. */
+export function trackChatOpen() {
+  try {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: 'chat_open' });
+  } catch (err) {
+    console.warn('dataLayer push failed:', err);
+  }
+}
+
+/** The chat assistant passed a visitor's details to the sheet. The same
+ *  `generate_lead` event as the forms, told apart by `event_category`
+ *  ('chat_assistant'); `form_name` is the enquiry type, e.g.
+ *  'rental-appraisal'. No redirect follows, so nothing waits on it. */
+export function trackChatLead(formName: string) {
+  // GTM waits for the page to go idle; load it now so the lead is sent.
+  window.__apnLoadGtm?.();
+  try {
+    window.fbq?.('track', formName.endsWith('appraisal') ? 'Lead' : 'Contact', { content_name: `chat_${formName}` });
+  } catch (err) {
+    console.warn('Meta Pixel event failed:', err);
+  }
+  try {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({ event: 'generate_lead', event_category: 'chat_assistant', form_name: formName });
+  } catch (err) {
+    console.warn('dataLayer push failed:', err);
+  }
+}
