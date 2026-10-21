@@ -43,10 +43,13 @@ the Pages project as a custom domain instead, and the
 common patterns, not a confirmed list of the old sites' pages. To catch
 the real ones:
 
-1. In Google Search Console, add `adelaidepropertynetwork.com.au` (and the
-   Mount Gambier domain) as properties if they aren't already.
+1. In Google Search Console, verify `apnre.com.au` and
+   `adelaidepropertynetwork.com.au`, and on the old domain's property use
+   **Settings → Change of address** to point it at `apnre.com.au`. (The
+   Mount Gambier domain needs no property: it was only ever a parking
+   page, so Google has nothing of it to move.)
 2. **Pages → Not found (404)** on `apnre.com.au`, and **Performance →
-   Pages** on the old domains, list addresses that still get visits or
+   Pages** on the old domain, list addresses that still get visits or
    links. Old analytics (if any) are another source.
 3. Add each one that has a sensible new home to `LEGACY_PATHS`, keyed by
    its path without slashes at either end, lowercase. A whole old
