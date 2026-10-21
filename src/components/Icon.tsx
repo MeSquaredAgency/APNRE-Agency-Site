@@ -10,6 +10,8 @@ const PATHS = {
   search: 'M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14zM20 20l-4-4',
   menu: 'M4 7h16M4 12h16M4 17h16',
   close: 'M6 6l12 12M18 6L6 18',
+  chat: 'M4 5h16v11H10l-4 4v-4H4z',
+  send: 'M4 12l16-8-6 16-2.5-6.5z',
   plus: 'M12 5v14M5 12h14',
   pause: 'M9 5v14M15 5v14',
   play: 'M8 5l11 7-11 7z',
