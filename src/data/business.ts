@@ -24,6 +24,26 @@ export const OPENING_HOURS = {
   spoken: 'Open Monday to Saturday, 8:30am to 5:00pm',
 };
 
+/** A holiday closure, shown beside the opening hours (ClosureNote in
+ *  src/components/sections.tsx) until the offices reopen, and given to
+ *  Google as special hours (CLOSURE in scripts/build-pages.mjs, which must
+ *  match). Set to undefined when there isn't one coming up. */
+export const HOLIDAY_CLOSURE:
+  | {
+      name: string;
+      /** First day closed, YYYY-MM-DD. */
+      from: string;
+      /** First day open again, YYYY-MM-DD. */
+      reopens: string;
+      display: string;
+    }
+  | undefined = {
+  name: 'Christmas closure',
+  from: '2026-12-18',
+  reopens: '2027-01-11',
+  display: 'Both offices are closed from Friday 18 December and reopen on Monday 11 January 2027.',
+};
+
 /** Legal entity details for the compliance line in the footer. Each one
  *  is only shown once it's filled in, so nothing half-finished goes live.
  *  Take these from the actual registration records rather than old

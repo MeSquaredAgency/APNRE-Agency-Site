@@ -4,7 +4,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { OFFICE_LIST } from '../data/offices';
 import { LEADERSHIP_GROUPS, TEAM, teamMemberId, type TeamGroup, type TeamMember } from '../data/team';
-import { OPENING_HOURS, PHONE_DISPLAY, PHONE_TEL, PORTALS, SOCIAL_LINKS } from '../data/business';
+import { HOLIDAY_CLOSURE, OPENING_HOURS, PHONE_DISPLAY, PHONE_TEL, PORTALS, SOCIAL_LINKS } from '../data/business';
 import { trackCallClick } from '../lib/analytics';
 import { faqPage } from '../structured-data';
 import HeroSlides, { type HeroSlide } from './HeroSlides';
@@ -311,11 +311,35 @@ export function CtaBand({ title, copy, href = '/appraisal/', label = 'Book a Fre
 
 /* ---------- Offices ---------- */
 
+/** The holiday closure (HOLIDAY_CLOSURE in business.ts), until the
+ *  offices reopen. Pages are built ahead of time, so the browser hides it
+ *  once that day arrives, in Adelaide time. `repairs` adds that the phone
+ *  is still answered for urgent repairs. */
+export function ClosureNote({ repairs = false, dark = false }: { repairs?: boolean; dark?: boolean }) {
+  const [over, setOver] = useState(false);
+  useEffect(() => {
+    if (HOLIDAY_CLOSURE && Date.now() >= Date.parse(`${HOLIDAY_CLOSURE.reopens}T00:00:00+10:30`)) setOver(true);
+  }, []);
+  if (!HOLIDAY_CLOSURE || over) return null;
+  return (
+    <p className={`closure-note${dark ? ' closure-note--dark' : ''}`}>
+      <strong>{HOLIDAY_CLOSURE.name}:</strong> {HOLIDAY_CLOSURE.display}
+      {repairs && (
+        <>
+          {' '}
+          For urgent repairs, call <a href={PHONE_TEL}>{PHONE_DISPLAY}</a>: it’s still answered while we’re closed.
+        </>
+      )}
+    </p>
+  );
+}
+
 export function Offices({ title = 'Two offices, one team.' }: { title?: ReactNode }) {
   return (
     <section className="section section-paper">
       <div className="wrap">
         <SectionHead eyebrow="Our locations" title={title} />
+        <ClosureNote repairs />
         <div className="offices">
           {OFFICE_LIST.map((office) => (
             <article className="office-card" key={office.id} id={office.id}>

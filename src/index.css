@@ -3186,6 +3186,30 @@ input, select, textarea {
   color: var(--white);
 }
 
+/* Holiday closure beside the opening hours (ClosureNote in
+   sections.tsx). */
+.closure-note {
+  max-width: 70ch;
+  margin: 0 0 24px;
+  padding: 12px 16px;
+  border-left: 3px solid var(--lime);
+  background: var(--stone);
+  font-size: 0.93rem;
+}
+.office-page__details .closure-note,
+.notice .closure-note {
+  margin: 16px 0;
+  background: var(--white);
+}
+.closure-note--dark {
+  margin: 0;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.85);
+}
+.closure-note--dark strong {
+  color: var(--white);
+}
+
 /* Laws and official guides on the hubs (Laws in Hubs.tsx). */
 .law-links__intro {
   max-width: 62ch;

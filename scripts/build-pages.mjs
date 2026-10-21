@@ -44,6 +44,15 @@ const HOURS = [
   },
 ];
 
+// The holiday closure: HOLIDAY_CLOSURE in src/data/business.ts, which
+// this must match. Given to Google as special hours (closed all day),
+// only in builds before the offices reopen.
+const CLOSURE = { from: '2026-12-18', lastClosed: '2027-01-10', reopens: '2027-01-11' };
+const SPECIAL_HOURS =
+  CLOSURE && Date.now() < Date.parse(`${CLOSURE.reopens}T00:00:00+10:30`)
+    ? [{ '@type': 'OpeningHoursSpecification', opens: '00:00', closes: '00:00', validFrom: CLOSURE.from, validThrough: CLOSURE.lastClosed }]
+    : undefined;
+
 const ORG_ID = `${SITE}/#organization`;
 // Must match OFFICE_SCHEMA_IDS in src/structured-data.ts.
 const OFFICE_IDS = { adelaide: `${SITE}/#office-adelaide`, 'mount-gambier': `${SITE}/#office-mount-gambier` };
@@ -76,6 +85,7 @@ const office = ({ id, name, alternateName, street, locality, postcode, city, map
   hasMap: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapsQuery)}`,
   areaServed: { '@type': 'City', name: city, containedInPlace: { '@type': 'State', name: 'South Australia' } },
   openingHoursSpecification: HOURS,
+  ...(SPECIAL_HOURS ? { specialOpeningHoursSpecification: SPECIAL_HOURS } : {}),
 });
 
 const JSON_LD = {
