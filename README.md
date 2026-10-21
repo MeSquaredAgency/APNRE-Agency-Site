@@ -71,8 +71,8 @@ from `src/data/nav.ts`.
 
 Old URLs that moved are redirected in `public/_redirects` (e.g. an old
 blog post's address, or the profile page of someone who has left). Add a
-line there whenever a published page moves. The old brand domain, and
-the old site's usual addresses (`/about-us/`, `/property-management/`...),
+line there whenever a published page moves. The old brand domains, and
+the old sites' usual addresses (`/about-us/`, `/property-management/`...),
 are redirected by `functions/_middleware.ts`; see `docs/legacy-domains.md`.
 
 ## Campaign funnels
