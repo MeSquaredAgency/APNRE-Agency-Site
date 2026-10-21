@@ -1,7 +1,7 @@
 import Layout from '../components/Layout';
 import JsonLd from '../components/JsonLd';
 import { CtaBand, PageHero, Team } from '../components/sections';
-import { STOCK } from '../data/media';
+import { BLAIR_ATHOL_PHOTOS } from '../data/offices';
 import { TEAM, teamMemberId } from '../data/team';
 import { OFFICE_SCHEMA_IDS, ORGANIZATION_ID, SITE } from '../structured-data';
 
@@ -28,8 +28,8 @@ export default function People() {
         eyebrow="Our people"
         title="Meet the team."
         lede="Sales, leasing and property management across our Adelaide and Mount Gambier offices."
-        photo={STOCK.suburbAerial.photo}
-        photoAlt={STOCK.suburbAerial.alt}
+        photo={BLAIR_ATHOL_PHOTOS.reception.photo}
+        photoAlt={BLAIR_ATHOL_PHOTOS.reception.alt}
       />
       <Team filterable headless />
       <p className="wrap people__careers">

@@ -12,10 +12,12 @@
   The build turns each into WebP plus a JPEG fallback, with an 800px copy
   for phones, and `src/components/Picture.tsx` picks the right one. This
   is the same pipeline as the landing page repo.
-- **Stock photos** (Pexels) are listed in `src/data/media.ts`. Pexels
-  resizes them on its CDN, so they're described with the same `Photo`
-  shape: WebP at 800px and 1600px. Keep their alt text neutral, and never
-  present a stock photo as an APN listing, sale or managed property.
+- **Stock photos** (Pexels) are in `src/assets/photos/stock/`, listed
+  with their credits in `src/data/media.ts` and imported with `?photo`
+  like APN's own, so they're served from this site rather than
+  hot-linked from Pexels. Keep their alt text neutral, never present a
+  stock photo as an APN listing, sale or managed property, and replace
+  them with real photos as APN supplies them.
 
 ## Hero video
 

@@ -25,12 +25,17 @@
 import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import sharp from 'sharp';
 import { parseFeed } from './reaxml.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = join(ROOT, 'src/data/listings.json');
 const SAMPLE_DIR = join(ROOT, 'scripts/sample-listings');
 const PHOTO_DIR = join(ROOT, 'public/listing-photos');
+/** The gallery grid and listing cards show photos about 300-400px wide,
+ *  so each 800px copy also gets one this wide (made here with sharp),
+ *  rather than every thumbnail loading at twice the size it's shown. */
+const TILE_WIDTH = 400;
 
 const { LISTINGS_FEED_URL, LISTINGS_FEED_TOKEN, LISTINGS_AGENT_ID, CF_PAGES } = process.env;
 
@@ -99,6 +104,24 @@ async function useCopies(listings, photos) {
     }
   }
   await Promise.all(Array.from({ length: 8 }, worker));
+
+  // The 400px tiles, from the 800px copies just downloaded.
+  const tileOf = (src) => src.replace(/(\.\w+)$/, `-${TILE_WIDTH}w$1`);
+  const tiles = new Set();
+  for (const l of listings) {
+    if (!l.thumbs) continue;
+    l.tiles = l.thumbs.map((src) => {
+      if (!src.startsWith('/listing-photos/')) return src;
+      tiles.add(src);
+      return tileOf(src);
+    });
+  }
+  await Promise.all(
+    [...tiles].map((src) => {
+      const file = join(ROOT, 'public', src);
+      return sharp(file).resize({ width: TILE_WIDTH, withoutEnlargement: true }).toFile(join(ROOT, 'public', tileOf(src)));
+    }),
+  );
   return wanted.size;
 }
 

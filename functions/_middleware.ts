@@ -8,8 +8,18 @@
 //                     noindex tag.
 //
 //   adelaidepropertynetwork.com.au   The old brand's domain: everything
-//                     redirects to the same path on apnre.com.au, so
-//                     there's one address to track and rank.
+//                     redirects to apnre.com.au, so there's one address
+//                     to track and rank. Old pages that moved go to
+//                     their new home (LEGACY_PATHS below), anything else
+//                     to the same path.
+//
+//   mountgambierpropertynetwork.com.au   The Mount Gambier office's old
+//                     domain. Today a Cloudflare redirect rule on its own
+//                     zone (in the Me² account) sends it to
+//                     /mount-gambier/ before it reaches this; the branch
+//                     below only applies if that zone moves into APN's
+//                     account and becomes a custom domain here. See
+//                     docs/legacy-domains.md.
 //
 // go.apnre.com.au used to serve the funnels. Since October 2026 it's APN
 // Real Estate's Short.io short-link domain, so it never reaches this
@@ -26,6 +36,54 @@ import config from '../src/data/funnels.json';
 const MAIN = new URL(config.origin).hostname;
 const MAIN_HOSTS = new Set([MAIN, `www.${MAIN}`]);
 const OLD_BRAND_HOSTS = new Set(['adelaidepropertynetwork.com.au', 'www.adelaidepropertynetwork.com.au']);
+const MOUNT_GAMBIER_HOSTS = new Set(['mountgambierpropertynetwork.com.au', 'www.mountgambierpropertynetwork.com.au']);
+
+/** Where the old sites' usual addresses went, by path without slashes at
+ *  either end (lowercase). These are common patterns for agency sites,
+ *  not a confirmed list of the old pages: add the real ones from Search
+ *  Console as they turn up (docs/legacy-domains.md). A path that already
+ *  exists on apnre.com.au (/contact/, /sold/...) needs no entry. Applied
+ *  on apnre.com.au too, so a stray link there gets the same answer. */
+const LEGACY_PATHS: Record<string, string> = {
+  'about': '/our-story/',
+  'about-us': '/our-story/',
+  'our-team': '/our-people/',
+  'team': '/our-people/',
+  'staff': '/our-people/',
+  'agents': '/our-people/',
+  'contact-us': '/contact/',
+  'property-management': '/leasing/',
+  'property-managers': '/leasing/',
+  'landlord': '/leasing/',
+  'rental-appraisal': '/appraisal/rental/',
+  'free-rental-appraisal': '/appraisal/rental/',
+  'sales-appraisal': '/appraisal/sales/',
+  'market-appraisal': '/appraisal/sales/',
+  'free-appraisal': '/appraisal/',
+  'sell': '/selling/',
+  'for-sale': '/buy/',
+  'buying': '/buy/',
+  'properties': '/buy/',
+  'listings': '/buy/',
+  'rentals': '/rent/',
+  'rental': '/rent/',
+  'for-rent': '/rent/',
+  'lease': '/rent/',
+  'tenants': '/client-hub/tenants/',
+  'tenant': '/client-hub/tenants/',
+  'maintenance': '/client-hub/tenants/#repairs',
+  'repairs': '/client-hub/tenants/#repairs',
+  'news': '/blog/',
+};
+
+/** Where an old address now lives: LEGACY_PATHS, or a whole old section
+ *  (/property-management/anything) by its first part. */
+function legacyTarget(path: string): string | undefined {
+  const key = path.toLowerCase().replace(/^\/+|\/+$/g, '');
+  if (key in LEGACY_PATHS) return LEGACY_PATHS[key];
+  const first = key.split('/')[0];
+  return key.includes('/') && first in LEGACY_PATHS && !isFile(path) ? LEGACY_PATHS[first] : undefined;
+}
 
 const FUNNEL_PATHS = config.funnels.map((f) => f.path);
 
@@ -41,6 +99,13 @@ const isFile = (path: string) => /\/[^/]+\.[a-z0-9]+$/i.test(path);
  *  than on Pages' own trailing-slash redirect. */
 const withSlash = (path: string) => (isFile(path) || path.endsWith('/') ? path : `${path}/`);
 
+/** A 301 to `target` on apnre.com.au, keeping the query string. A target
+ *  with a #fragment keeps it after the query. */
+function moved(target: string, search: string): Response {
+  const [path, hash = ''] = target.split('#');
+  return Response.redirect(`https://${MAIN}${path}${search}${hash ? `#${hash}` : ''}`, 301);
+}
+
 /** The response as-is, plus an X-Robots-Tag header. */
 function noindex(response: Response): Response {
   const out = new Response(response.body, response);
@@ -53,12 +118,19 @@ export const onRequest: PagesFunction = async (context) => {
   const { hostname: host, pathname: path } = url;
 
   if (MAIN_HOSTS.has(host)) {
+    const target = legacyTarget(path);
+    if (target) return moved(target, url.search);
     // The page's own noindex tag, repeated as a header.
     return isFunnelPath(path) ? noindex(await context.next()) : context.next();
   }
 
-  // Same path on apnre.com.au, query string and all.
-  if (OLD_BRAND_HOSTS.has(host)) return Response.redirect(`https://${MAIN}${withSlash(path)}${url.search}`, 301);
+  // Its new home on apnre.com.au, or the same path, query string and all.
+  if (OLD_BRAND_HOSTS.has(host)) return moved(legacyTarget(path) ?? withSlash(path), url.search);
+
+  // The Mount Gambier office page, unless the old page has a better match.
+  if (MOUNT_GAMBIER_HOSTS.has(host)) {
+    return moved(legacyTarget(path) ?? (isFile(path) ? withSlash(path) : '/mount-gambier/'), url.search);
+  }
 
   return noindex(await context.next());
 };

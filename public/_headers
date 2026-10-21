@@ -10,7 +10,7 @@
 # would have blocked (DevTools console, "Content-Security-Policy-Report-
 # Only"), which shows what an enforced policy needs to allow: the GTM
 # and GA4 tags (Google tag gateway included), Google Ads conversions,
-# the Meta Pixel, Google address search, the listing pages' Google map, Turnstile and the Pexels photos. Once a few weeks pass with nothing unexpected logged,
+# the Meta Pixel, Google address search, the listing pages' Google map, Turnstile and the listing photos. Once a few weeks pass with nothing unexpected logged,
 # rename the header to Content-Security-Policy (keeping frame-ancestors).
 
 /*

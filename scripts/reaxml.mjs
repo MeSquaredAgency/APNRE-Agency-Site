@@ -49,6 +49,19 @@ function titleCase(s) {
   return s.toLowerCase().replace(/\b[a-z]/g, (c) => c.toUpperCase());
 }
 
+/** A headline as it should read on the page: one "!" or "?" rather than
+ *  a run of them ("beyond!!!" → "beyond!"), and an all-capitals one in
+ *  title case, which reads as shouting in a page heading. The audit that
+ *  asked for this also asked for the listings to be tidied in PropertyMe;
+ *  this only catches what slips through. */
+export function tidyHeadline(s) {
+  const once = s.replace(/([!?])[!?]+/g, '$1').replace(/\s+/g, ' ').trim();
+  const letters = once.replace(/[^A-Za-z]/g, '');
+  const capitals = letters.replace(/[^A-Z]/g, '').length;
+  const shouting = letters.length >= 8 && capitals / letters.length > 0.8;
+  return shouting ? once.toLowerCase().replace(/\b[a-z]/g, (c) => c.toUpperCase()) : once;
+}
+
 /** REAXML dates: "2026-10-02-14:30:00", "2026-10-02T14:30:00" or
  *  "20261002143000". Returned as "2026-10-02T14:30:00", in whatever
  *  time zone the feed uses (PropertyMe's is UTC), or '' when unreadable. */
@@ -339,7 +352,7 @@ function toListing(type, node, agentId) {
     fullPath: pathFor(id),
     category: category(type, node),
     propertyType: isCommercial ? 'commercial' : 'residential',
-    headline: text(node.headline),
+    headline: tidyHeadline(text(node.headline)),
     description: text(node.description),
     street,
     suburb,

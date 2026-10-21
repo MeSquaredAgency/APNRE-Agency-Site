@@ -9,12 +9,14 @@ import { useState } from 'react';
 import Layout from '../components/Layout';
 import EnquiryForm from '../components/EnquiryForm';
 import Icon from '../components/Icon';
+import JsonLd from '../components/JsonLd';
 import { CtaBand, FormSection, PageHero, PortalLinks, SectionHead } from '../components/sections';
 import { LISTINGS_LINKS } from '../data/nav';
 import { BLAIR_ATHOL_PHOTOS } from '../data/offices';
 import { suppliedPhoto } from '../data/supplied';
 import { OFFICE_RENT_FROM } from '../data/office-space';
-import { listingsIn, thumb, type Listing, type ListingSection } from '../lib/listings';
+import { listingAddress, listingsIn, thumb, tileSrcSet, type Listing, type ListingSection } from '../lib/listings';
+import { breadcrumbList, collectionPage } from '../structured-data';
 import mountGambier from '../assets/photos/mount-gambier-hillside-street.jpg?photo';
 import interior from '../assets/photos/interior-corner-windows.jpg?photo';
 import soldSign from '../assets/photos/sold-sign-ridley.jpg?photo';
@@ -87,7 +89,16 @@ export function ListingCard({ listing, allCommercial = false }: { listing: Listi
           {photo ? (
             // The address beside it says what the property is, so the
             // photo itself is decorative here.
-            <img src={photo} alt="" loading="lazy" decoding="async" />
+            <img
+              src={photo}
+              srcSet={tileSrcSet(listing, 0)}
+              sizes="(max-width: 700px) 100vw, 400px"
+              width={600}
+              height={400}
+              alt=""
+              loading="lazy"
+              decoding="async"
+            />
           ) : (
             <span className="listing-card__no-photo">Photos coming soon</span>
           )}
@@ -186,9 +197,30 @@ function ListingsGrid({ sections, link, eyebrow, title, fallback, filterable = f
 
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
+/** The page as a list of its listings, and its breadcrumb. Blair Athol's
+ *  offices are left out of the list: they have no page of their own. */
+function ListingsJsonLd({ path, name, sections }: { path: string; name: string; sections: ListingSection[] }) {
+  const items = sections
+    .flatMap(listingsIn)
+    .filter((l) => l.apnBuilding !== 'blair-athol')
+    .map((l) => ({ name: listingAddress(l), path: l.path }));
+  return (
+    <>
+      <JsonLd data={collectionPage({ path, name, items })} />
+      <JsonLd
+        data={breadcrumbList([
+          { name: 'Home', path: '/' },
+          { name, path },
+        ])}
+      />
+    </>
+  );
+}
+
 export function Buy() {
   return (
     <Layout>
+      <ListingsJsonLd path="/buy/" name="Properties for sale" sections={['buy']} />
       <PageHero
         eyebrow="Buy"
         title="Properties for sale."
@@ -233,6 +265,7 @@ const RENT_HERO = suppliedPhoto('rent-hero');
 export function Rent() {
   return (
     <Layout>
+      <ListingsJsonLd path="/rent/" name="Properties for rent" sections={['rent', 'commercial']} />
       <PageHero
         eyebrow="Rent"
         title="Properties for rent."
@@ -272,6 +305,7 @@ export function Rent() {
 export function Sold() {
   return (
     <Layout>
+      <ListingsJsonLd path="/sold/" name="Recently sold" sections={['sold']} />
       <PageHero
         eyebrow="Sold"
         title="Recently sold."
@@ -307,6 +341,7 @@ export function Commercial() {
   const listings = listingsIn('commercial');
   return (
     <Layout>
+      <ListingsJsonLd path="/commercial/" name="Commercial property for lease" sections={['commercial']} />
       <PageHero
         eyebrow="Commercial"
         title="Commercial property for lease."
