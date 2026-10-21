@@ -18,11 +18,17 @@ export interface NavGroup {
   links: NavLink[];
 }
 
+/** Where "Rent" goes: /commercial/ while the feed has commercial leases
+ *  but no homes for rent (then /rent/ is noindex and only points to
+ *  realestate.com.au; scripts/routes.mjs), /rent/ otherwise. Set at build
+ *  time in vite.config.ts. */
+const RENT_HREF = __RENT_MENU_HREF__;
+
 /** Shown inline in the header on wide screens. */
 export const PRIMARY_NAV: NavLink[] = [
   { href: '/buy/', label: 'Buy' },
   { href: '/selling/', label: 'Sell' },
-  { href: '/rent/', label: 'Rent' },
+  { href: RENT_HREF, label: 'Rent' },
   { href: '/leasing/', label: 'Property Management' },
   { href: '/our-story/', label: 'About Us' },
 ];
@@ -51,10 +57,11 @@ export const NAV_GROUPS: NavGroup[] = [
   },
   {
     title: 'Rent',
-    href: '/rent/',
+    href: RENT_HREF,
     links: [
-      { href: '/rent/', label: 'For Rent' },
+      { href: '/rent/', label: 'Homes for Rent' },
       { href: '/rent/#register', label: 'Rental Alerts' },
+      { href: '/commercial/', label: 'Commercial for Lease' },
       { href: '/office-space/', label: 'Office Space for Lease' },
       { href: '/client-hub/tenants/', label: 'Tenant Hub' },
       { href: '/client-hub/tenants/#repairs', label: 'Report a Repair' },
@@ -67,6 +74,8 @@ export const NAV_GROUPS: NavGroup[] = [
     links: [
       { href: '/leasing/', label: 'Property Management' },
       { href: '/appraisal/rental/', label: 'Rental Appraisal' },
+      { href: '/mount-gambier/property-management/', label: 'Mount Gambier Property Management' },
+      { href: '/leasing/switching-property-managers/', label: 'Switching Property Managers' },
       { href: '/client-hub/landlords/', label: 'Landlord Hub' },
       { href: CLIENT_LOGIN_URL, label: 'Owner Login', external: true },
       { href: '/our-people/?filter=property-management', label: 'Property Managers' },

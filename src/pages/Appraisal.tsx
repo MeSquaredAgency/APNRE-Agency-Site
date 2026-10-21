@@ -1,17 +1,29 @@
 import { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import EnquiryForm from '../components/EnquiryForm';
-import { FormSection } from '../components/sections';
+import JsonLd from '../components/JsonLd';
+import { Faq, FormSection, ProseSection, Team, type FaqItem } from '../components/sections';
+import { TEAM } from '../data/team';
+import type { OfficeId } from '../data/offices';
 import {
   clearAppraisalAddress,
   readAppraisalAddress,
   type AppraisalType,
 } from '../lib/appraisal-handoff';
+import { breadcrumbList, OFFICE_SCHEMA_IDS, ORGANIZATION_ID, SITE } from '../structured-data';
 
-// Three pages share this: /appraisal/sales/ and /appraisal/rental/, each
-// aimed at its own search ("free sales appraisal", "rental appraisal"),
-// and /appraisal/, the general one with a sales/rental switch that the
-// header's "Book a Free Appraisal" button and older ?type= links use.
+// Four pages share this: /appraisal/sales/ and /appraisal/rental/, each
+// the landing page for its own search ("free sales appraisal", "rental
+// appraisal"), /mount-gambier/rental-appraisal/ for "rental appraisal
+// Mount Gambier", and /appraisal/, the general one with a sales/rental
+// switch that the header's "Book a Free Appraisal" button and older
+// ?type= links use. The single-type pages add what the appraisal covers,
+// who does it and a short FAQ under the form; /appraisal/ stays the
+// chooser.
+//
+// Only claims APN already makes elsewhere: free, no obligation, based on
+// the property and recent sales or rentals nearby. No turnaround times
+// until APN confirms them.
 
 const COPY: Record<
   AppraisalType,
@@ -33,13 +45,169 @@ const COPY: Record<
   },
 };
 
+/** What each appraisal looks at, for the "What it covers" section. */
+const COVERS: Record<AppraisalType, { lede: string; points: string[] }> = {
+  sales: {
+    lede: 'A sales appraisal is our view of what your property would sell for in today’s market, and why.',
+    points: [
+      'Your property itself: its land, layout, condition and the things buyers will notice.',
+      'Recent sales of comparable properties nearby, and what’s on the market now that buyers will compare it with.',
+      'A realistic price guide, and how we’d approach selling it.',
+    ],
+  },
+  rental: {
+    lede: 'A rental appraisal is our view of what your property should lease for in today’s rental market, and why.',
+    points: [
+      'Your property itself: its size, features and condition, and what tenants in the area look for.',
+      'Comparable rentals nearby: what’s leased recently and what tenants can choose from now.',
+      'What we think it should lease for, and anything that would help it lease well.',
+    ],
+  },
+};
+
+const FAQS: Record<AppraisalType, FaqItem[]> = {
+  sales: [
+    {
+      q: 'Does a sales appraisal cost anything?',
+      a: 'No. It’s free, and there’s no obligation to sell or to list with APN Real Estate.',
+    },
+    {
+      q: 'Is an appraisal the same as a valuation?',
+      a: 'No. An appraisal is an agent’s opinion of the likely selling price, based on the property and recent sales nearby. A formal valuation is done by a certified valuer, usually for a bank or a legal matter.',
+    },
+    {
+      q: 'What happens after I send the form?',
+      a: 'A member of our sales team gets in touch to arrange a time to see the property, then talks you through the price guide and how a sale would work.',
+    },
+    {
+      q: 'I’m not ready to sell yet. Can I still ask?',
+      a: 'Yes. Plenty of people ask for an appraisal to plan ahead. You decide what to do next, if anything.',
+    },
+  ],
+  rental: [
+    {
+      q: 'Does a rental appraisal cost anything?',
+      a: 'No. It’s free, and there’s no obligation to appoint APN Real Estate to manage the property.',
+    },
+    {
+      q: 'My property is managed by another agent. Can I still get one?',
+      a: 'Yes. Many landlords ask for an appraisal when they’re thinking about changing property managers.',
+    },
+    {
+      q: 'What happens after I send the form?',
+      a: 'A local APN Real Estate property manager reviews the details and contacts you directly to talk through the rent and anything else you’d like to know.',
+    },
+    {
+      q: 'Can you appraise a property that isn’t rented yet?',
+      a: 'Yes, whether it’s a new investment, your own home you’re moving out of, or a property you manage yourself.',
+    },
+  ],
+};
+
+/** Who does each kind of appraisal, by office: the sales group for sales,
+ *  the property managers for rentals (src/data/team.ts). */
+function appraisers(type: AppraisalType, office?: OfficeId): string[] {
+  const group = type === 'sales' ? 'sales' : 'property-management';
+  return TEAM.filter((m) => m.groups.includes(group) && (!office || m.office === office)).map((m) => m.name);
+}
+
 const OTHER: Record<AppraisalType, { href: string; label: string }> = {
   sales: { href: '/appraisal/rental/', label: 'Leasing it out instead? Get a rental appraisal.' },
   rental: { href: '/appraisal/sales/', label: 'Thinking of selling instead? Get a sales appraisal.' },
 };
 
-/** `fixed` makes it a single-type page with no switch. */
-function Appraisal({ fixed }: { fixed?: AppraisalType }) {
+interface PageOptions {
+  path: string;
+  /** Breadcrumb and service name. */
+  name: string;
+  /** A one-office version, e.g. Mount Gambier's rental appraisal page. */
+  office?: OfficeId;
+  /** Replaces the heading, intro or service link above the form. */
+  overrides?: Partial<Pick<(typeof COPY)[AppraisalType], 'title' | 'copy' | 'service'>>;
+}
+
+const PAGES: Record<AppraisalType, PageOptions> = {
+  sales: { path: '/appraisal/sales/', name: 'Sales appraisal' },
+  rental: { path: '/appraisal/rental/', name: 'Rental appraisal' },
+};
+
+/** What the appraisal covers, who does it and a short FAQ, under the
+ *  form on the single-type pages. */
+function AppraisalDetails({ type, page }: { type: AppraisalType; page: PageOptions }) {
+  const covers = COVERS[type];
+  const names = appraisers(type, page.office);
+  return (
+    <>
+      <JsonLd
+        data={breadcrumbList([
+          { name: 'Home', path: '/' },
+          ...(page.office === 'mount-gambier' ? [{ name: 'Mount Gambier', path: '/mount-gambier/' }] : [{ name: 'Appraisal', path: '/appraisal/' }]),
+          { name: page.name, path: page.path },
+        ])}
+      />
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'Service',
+          name: page.name,
+          serviceType: type === 'sales' ? 'Property sales appraisal' : 'Rental appraisal',
+          url: `${SITE}${page.path}`,
+          description: covers.lede,
+          offers: { '@type': 'Offer', price: '0', priceCurrency: 'AUD' },
+          provider: { '@id': page.office ? OFFICE_SCHEMA_IDS[page.office] : ORGANIZATION_ID },
+          areaServed: page.office
+            ? { '@type': 'City', name: 'Mount Gambier' }
+            : [
+                { '@type': 'City', name: 'Adelaide' },
+                { '@type': 'City', name: 'Mount Gambier' },
+              ],
+        }}
+      />
+      <ProseSection eyebrow="What it covers" title={type === 'sales' ? 'What a sales appraisal looks at.' : 'What a rental appraisal looks at.'}>
+        <p className="lede">{covers.lede}</p>
+        <ul>
+          {covers.points.map((p) => (
+            <li key={p}>{p}</li>
+          ))}
+        </ul>
+        <p>
+          {type === 'sales' ? (
+            <>
+              More about <a href="/selling/">how we sell</a>, or see our <a href="/sold/">recent sales</a>.
+            </>
+          ) : page.office === 'mount-gambier' ? (
+            <>
+              More about <a href="/mount-gambier/property-management/">property management in Mount Gambier</a>, or{' '}
+              <a href="/leasing/switching-property-managers/">how switching property managers works</a>.
+            </>
+          ) : (
+            <>
+              More about <a href="/leasing/">how we manage rentals</a>, or{' '}
+              <a href="/leasing/switching-property-managers/">how switching property managers works</a>.
+            </>
+          )}
+        </p>
+      </ProseSection>
+      <Team
+        names={names}
+        credentials
+        eyebrow="Who does it"
+        title={
+          page.office === 'mount-gambier'
+            ? 'Your Mount Gambier property managers.'
+            : type === 'sales'
+              ? 'Your appraisal, from our sales team.'
+              : 'Your appraisal, from a local property manager.'
+        }
+      />
+      <Faq title="Questions about appraisals." items={FAQS[type]} />
+    </>
+  );
+}
+
+/** `fixed` makes it a single-type page with no switch; `page` overrides
+ *  its path, heading and copy (Mount Gambier's rental appraisal). */
+function Appraisal({ fixed, page }: { fixed?: AppraisalType; page?: PageOptions }) {
   // Pre-rendered with no address (and, on /appraisal/, as sales). After
   // hydration, ?type= and the address typed into the home hero (if any)
   // are read here, never during render, so the server's HTML and the
@@ -52,7 +220,7 @@ function Appraisal({ fixed }: { fixed?: AppraisalType }) {
     setAddress(readAppraisalAddress());
     clearAppraisalAddress();
   }, [fixed]);
-  const copy = COPY[type];
+  const copy = { ...COPY[type], ...page?.overrides };
 
   function choose(next: AppraisalType) {
     setType(next);
@@ -108,6 +276,21 @@ function Appraisal({ fixed }: { fixed?: AppraisalType }) {
           />
         </FormSection>
       </div>
+      {fixed ? (
+        <AppraisalDetails type={fixed} page={page ?? PAGES[fixed]} />
+      ) : (
+        <JsonLd
+          data={{
+            '@context': 'https://schema.org',
+            '@type': 'Service',
+            name: 'Free property appraisal',
+            serviceType: 'Property sales and rental appraisal',
+            url: `${SITE}/appraisal/`,
+            offers: { '@type': 'Offer', price: '0', priceCurrency: 'AUD' },
+            provider: { '@id': ORGANIZATION_ID },
+          }}
+        />
+      )}
     </Layout>
   );
 }
@@ -122,4 +305,22 @@ export function SalesAppraisal() {
 
 export function RentalAppraisal() {
   return <Appraisal fixed="rental" />;
+}
+
+export function MountGambierRentalAppraisal() {
+  return (
+    <Appraisal
+      fixed="rental"
+      page={{
+        path: '/mount-gambier/rental-appraisal/',
+        name: 'Rental appraisal, Mount Gambier',
+        office: 'mount-gambier',
+        overrides: {
+          title: 'Free rental appraisal in Mount Gambier.',
+          copy: 'What could your Mount Gambier property rent for? Tell us about it and Luke or Jenny, from our office on Commercial Street East, will review the details and contact you directly.',
+          service: { href: '/mount-gambier/property-management/', label: 'Property management in Mount Gambier' },
+        },
+      }}
+    />
+  );
 }

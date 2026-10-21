@@ -1808,6 +1808,14 @@ input, select, textarea {
   max-width: 13ch;
   margin-bottom: 22px;
 }
+.photo-band__more {
+  margin-top: 20px;
+}
+.photo-band__more a {
+  color: var(--white);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 
 /* ---------- Team ---------- */
 

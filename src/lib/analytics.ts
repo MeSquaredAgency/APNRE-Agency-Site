@@ -10,6 +10,9 @@ declare global {
     /** Loads GTM now if it's still waiting for the page to go idle
      *  (src/partials/head-shared.html). */
     __apnLoadGtm?: () => void;
+    /** Loads the Meta Pixel now if it's still waiting for the visitor's
+     *  first interaction (src/partials/head-shared.html). */
+    __apnLoadPixel?: () => void;
   }
 }
 
@@ -44,6 +47,10 @@ function gtag(...args: unknown[]) {
  *  On the /appraisal/ pages it also sends the Google Ads conversion event
  *  `conversion_event_submit_lead_form`, and the redirect waits for that
  *  too (same fallback). */
+/** The appraisal pages: /appraisal/, its sales and rental pages and
+ *  Mount Gambier's rental appraisal page. */
+const APPRAISAL_PAGE = /^\/appraisal\b|^\/mount-gambier\/rental-appraisal\//;
+
 export function trackFormSubmit(formName: string, onDone: () => void) {
   let done = false;
   const finish = () => {
@@ -67,7 +74,8 @@ export function trackFormSubmit(formName: string, onDone: () => void) {
   // GTM waits for the page to go idle; a form sent before then mustn't
   // wait on it, or the lead would sit unsent on the dataLayer.
   window.__apnLoadGtm?.();
-  const adsDone = window.location.pathname.startsWith('/appraisal') ? hold() : undefined;
+  window.__apnLoadPixel?.();
+  const adsDone = APPRAISAL_PAGE.test(window.location.pathname) ? hold() : undefined;
 
   // Appraisals are the leads worth optimising ads for; everything else
   // is a plain Contact.

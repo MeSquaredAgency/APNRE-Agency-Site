@@ -32,6 +32,9 @@ interface EnquiryFormProps {
   defaultTopic?: string;
   /** Preselects "Nearest office" on the general form, e.g. on an office page. */
   defaultOffice?: OfficeId;
+  /** Rental appraisals: preticks "How can we help?" options, e.g.
+   *  ['switching'] on the switching guide. */
+  defaultHelp?: string[];
   /** The property a 'listing' enquiry is about (src/pages/Listing.tsx). */
   listing?: { id: string; address: string };
   /** Fields of the page's own, at the top of the form under the
@@ -93,6 +96,7 @@ export default function EnquiryForm({
   before,
   defaultTopic = '',
   defaultOffice,
+  defaultHelp,
   listing,
   choices,
   detailsHeading,
@@ -259,7 +263,7 @@ export default function EnquiryForm({
               ['advice', 'General advice'],
             ].map(([value, label]) => (
               <label key={value}>
-                <input type="checkbox" name="help" value={value} />
+                <input type="checkbox" name="help" value={value} defaultChecked={defaultHelp?.includes(value)} />
                 <span>{label}</span>
               </label>
             ))}
