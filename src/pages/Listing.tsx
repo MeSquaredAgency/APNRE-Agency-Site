@@ -423,7 +423,7 @@ export default function Listing() {
           '@context': 'https://schema.org',
           '@type': 'RealEstateListing',
           url: `${SITE}${path}`,
-          name: listing.headline ?? address,
+          name: listing.headline || address,
           ...(listing.photos?.length
             ? { image: listing.photos.map((src) => (src.startsWith('/') ? SITE + src : src)) }
             : {}),

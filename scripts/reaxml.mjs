@@ -62,6 +62,18 @@ export function tidyHeadline(s) {
   return shouting ? once.toLowerCase().replace(/\b[a-z]/g, (c) => c.toUpperCase()) : once;
 }
 
+/** The listing's headline, or '' when it only restates the address.
+ *  PropertyMe sends the address as the headline when none is written,
+ *  cut to 50 characters ("2/178 Commercial Street East, Mount Gambier,
+ *  SA 52"), and the page already leads with the address. */
+function headlineFor(raw, street, suburbName) {
+  const headline = tidyHeadline(raw);
+  const lower = headline.toLowerCase();
+  const number = street.split(' ')[0].toLowerCase();
+  const restatesAddress = Boolean(number) && lower.startsWith(`${number} `) && lower.includes(suburbName.toLowerCase());
+  return restatesAddress ? '' : headline;
+}
+
 /** REAXML dates: "2026-10-02-14:30:00", "2026-10-02T14:30:00" or
  *  "20261002143000". Returned as "2026-10-02T14:30:00", in whatever
  *  time zone the feed uses (PropertyMe's is UTC), or '' when unreadable. */
@@ -352,7 +364,7 @@ function toListing(type, node, agentId) {
     fullPath: pathFor(id),
     category: category(type, node),
     propertyType: isCommercial ? 'commercial' : 'residential',
-    headline: tidyHeadline(text(node.headline)),
+    headline: headlineFor(text(node.headline), street, suburbName),
     description: text(node.description),
     street,
     suburb,
