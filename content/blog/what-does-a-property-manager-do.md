@@ -24,7 +24,7 @@ date: 2026-09-28
 
 # Optional. Must match a name in src/data/team.ts exactly, or the post
 # is credited to "APN Real Estate".
-author: 
+author: Brett David
 
 # Optional. Put the photo in public/blog-images/ and use its path here.
 # A 1200×675 (16:9) photo works best. imageAlt is required with it.
