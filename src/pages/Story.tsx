@@ -1,9 +1,11 @@
 import Layout from '../components/Layout';
 import Icon from '../components/Icon';
+import JsonLd from '../components/JsonLd';
 import Picture from '../components/Picture';
 import { CtaBand, Gallery, Leadership, Offices, PageHero, SectionHead } from '../components/sections';
 import { BLAIR_ATHOL_PHOTOS } from '../data/offices';
 import { TEAM } from '../data/team';
+import { webPage } from '../structured-data';
 import soldSticker from '../assets/photos/agent-placing-sold-sticker.jpg?photo';
 
 // "Where we started" is Patrick's own story, in his words (supplied
@@ -35,6 +37,13 @@ const SERVICES = [
 export default function Story() {
   return (
     <Layout>
+      <JsonLd
+        data={webPage({
+          type: 'AboutPage',
+          path: '/our-story/',
+          name: 'Our story: from Adelaide Property Network to APN Real Estate',
+        })}
+      />
       <PageHero
         eyebrow="Our story"
         title="From Adelaide Property Network to APN Real Estate."

@@ -12,7 +12,7 @@ import JsonLd from '../components/JsonLd';
 import { CtaBand, FormSection, PageHero, SectionHead } from '../components/sections';
 import { TEAM, teamMemberId } from '../data/team';
 import { linkParts, parseDescription, splitLabel } from '../lib/description';
-import { formatDay, formatInspection, LISTINGS, listingAddress, listingsIn, photoSrcSet, thumb, type Listing as ListingData } from '../lib/listings';
+import { formatDay, formatInspection, LISTINGS, listingAddress, listingsIn, photoSrcSet, thumb, tileSrcSet, type Listing as ListingData } from '../lib/listings';
 import { usePath } from '../lib/route';
 import { breadcrumbList, SITE } from '../structured-data';
 import { ListingCard, ListingFeatures } from './Listings';
@@ -33,13 +33,62 @@ const MORE_TITLE = {
   commercial: 'More commercial property for lease.',
 };
 
+/** Street-name spellings that mean the same street, so "6B East Way" and
+ *  "6C East Way" (or "Gray St" and "Gray Street") read as one street. */
+const STREET_TYPES: Record<string, string> = {
+  street: 'st',
+  road: 'rd',
+  avenue: 'ave',
+  av: 'ave',
+  terrace: 'tce',
+  drive: 'dr',
+  court: 'ct',
+  crescent: 'cres',
+  place: 'pl',
+  parade: 'pde',
+  highway: 'hwy',
+  lane: 'ln',
+  boulevard: 'bvd',
+  close: 'cl',
+  east: 'e',
+  west: 'w',
+  north: 'n',
+  south: 's',
+};
+
+/** "6C East Way" → "east way", "2/178 Commercial Street East" →
+ *  "commercial st e", plus the suburb; undefined when the street is
+ *  hidden. */
+function streetKey(l: ListingData): string | undefined {
+  if (!l.street) return undefined;
+  const words = l.street
+    .toLowerCase()
+    .replace(/[.,]/g, ' ')
+    .split(/\s+/)
+    .filter((w) => w && !/\d/.test(w))
+    .map((w) => STREET_TYPES[w] ?? w);
+  return words.length ? `${words.join(' ')}|${(l.suburb ?? '').toLowerCase()}` : undefined;
+}
+
+/** True when two listings are on the same street in the same suburb. */
+const sameStreet = (a: ListingData, b: ListingData) => {
+  const key = streetKey(a);
+  return key !== undefined && key === streetKey(b);
+};
+
 /** A few of the section's other listings: the ones after this one,
  *  wrapping round, so every listing is linked from other listings' pages
- *  as well as from /buy/, /rent/ or /commercial/. */
+ *  as well as from /buy/, /rent/ or /commercial/.
+ *
+ *  Never one on the same street: neighbouring listings can be different
+ *  vendors (6B and 6C East Way, Darlington), and one vendor's page must
+ *  never market the other's property. */
 function MoreListings({ listing }: { listing: ListingData }) {
   const all = listingsIn(listing.section);
   const i = all.findIndex((l) => l.id === listing.id);
-  const more = [...all.slice(i + 1), ...all.slice(0, i)].slice(0, MORE_LISTINGS);
+  const more = [...all.slice(i + 1), ...all.slice(0, i)]
+    .filter((l) => !sameStreet(l, listing))
+    .slice(0, MORE_LISTINGS);
   if (more.length === 0) return null;
   const section = SECTIONS[listing.section];
   return (
@@ -181,11 +230,22 @@ function Photos({ listing, address }: { listing: ListingData; address: string })
     e.preventDefault();
     setOpen(i);
   };
-  // Thumbnails are the 800px copies.
+  // Thumbnails: the 400px copies, or the 800px ones on high-density
+  // screens. Every photo is shown cropped to 3:2 (index.css), so the
+  // width and height only give that shape before it loads.
   const tile = (i: number) => (
     <li key={photos[i]}>
       <a href={photos[i]} onClick={show(i)}>
-        <img src={thumb(listing, i)} alt={alt(i)} loading="lazy" decoding="async" />
+        <img
+          src={thumb(listing, i)}
+          srcSet={tileSrcSet(listing, i)}
+          sizes="(max-width: 760px) 50vw, 300px"
+          width={600}
+          height={400}
+          alt={alt(i)}
+          loading="lazy"
+          decoding="async"
+        />
       </a>
     </li>
   );
@@ -201,6 +261,8 @@ function Photos({ listing, address }: { listing: ListingData; address: string })
           src={photos[0]}
           srcSet={photoSrcSet(listing, 0)}
           sizes="(max-width: 1360px) 100vw, 1232px"
+          width={1500}
+          height={1000}
           alt={alt(0)}
           decoding="async"
           {...{ fetchpriority: 'high' }}
@@ -361,7 +423,7 @@ export default function Listing() {
           '@context': 'https://schema.org',
           '@type': 'RealEstateListing',
           url: `${SITE}${path}`,
-          name: listing.headline ?? address,
+          name: listing.headline || address,
           ...(listing.photos?.length
             ? { image: listing.photos.map((src) => (src.startsWith('/') ? SITE + src : src)) }
             : {}),
@@ -377,7 +439,8 @@ export default function Listing() {
       />
       <PageHero
         eyebrow={`${section.eyebrow} · ${listing.category}`}
-        title={listing.street ?? listing.suburb}
+        // Street and suburb, so the heading says where it is on its own.
+        title={address}
         lede={listing.street ? place : undefined}
       >
         <nav className="hub-crumbs" aria-label="Breadcrumb">

@@ -72,3 +72,37 @@ export function service(s: { name: string; serviceType: string; path: string; de
     ],
   };
 }
+
+/** A page about the organisation or one of its lists, e.g. AboutPage on
+ *  /our-story/. Points at the organisation rather than repeating it. */
+export function webPage(p: { type?: string; path: string; name: string; description?: string }) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': p.type ?? 'WebPage',
+    '@id': `${SITE}${p.path}#webpage`,
+    url: `${SITE}${p.path}`,
+    name: p.name,
+    ...(p.description ? { description: p.description } : {}),
+    inLanguage: 'en-AU',
+    isPartOf: { '@id': WEBSITE_ID },
+    about: { '@id': ORGANIZATION_ID },
+  };
+}
+
+/** A listings page (/buy/, /rent/...): the page and the listings on it,
+ *  in order, each by its own page. */
+export function collectionPage(p: { path: string; name: string; items: { name: string; path: string }[] }) {
+  return {
+    ...webPage({ type: 'CollectionPage', path: p.path, name: p.name }),
+    mainEntity: {
+      '@type': 'ItemList',
+      numberOfItems: p.items.length,
+      itemListElement: p.items.map((item, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        url: `${SITE}${item.path}`,
+        name: item.name,
+      })),
+    },
+  };
+}

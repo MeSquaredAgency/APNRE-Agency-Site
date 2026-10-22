@@ -42,7 +42,9 @@ function openingLine(l) {
 }
 
 function listingDescription(l, summary) {
-  let text = l.headline ? `${l.headline}. ${summary}.` : `${summary}.`;
+  // No full stop after a headline that already ends in one ("…beyond!").
+  const headline = l.headline && (/[.!?]$/.test(l.headline) ? l.headline : `${l.headline}.`);
+  let text = headline ? `${headline} ${summary}.` : `${summary}.`;
   if (text.length < MIN_DESCRIPTION) {
     const opening = openingLine(l);
     text += opening ? ` ${opening}` : ' See the photos, inspection times and agent details at APN Real Estate.';

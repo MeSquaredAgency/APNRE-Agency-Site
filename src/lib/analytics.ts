@@ -10,6 +10,9 @@ declare global {
     /** Loads GTM now if it's still waiting for the page to go idle
      *  (src/partials/head-shared.html). */
     __apnLoadGtm?: () => void;
+    /** Loads the Meta Pixel now if it's still waiting for the visitor's
+     *  first interaction (src/partials/head-shared.html). */
+    __apnLoadPixel?: () => void;
   }
 }
 
@@ -28,6 +31,10 @@ function gtag(...args: unknown[]) {
   window.gtag(...args);
 }
 
+/** The appraisal pages: /appraisal/, its sales and rental pages and
+ *  Mount Gambier's rental appraisal page. */
+const APPRAISAL_PAGE = /^\/appraisal\b|^\/mount-gambier\/rental-appraisal\//;
+
 /** Fire after a successful form submission, then call `onDone` (normally
  *  the redirect to /thank-you/). Pushing the event and navigating in the
  *  same tick can abort GTM's in-flight request, so this waits for GTM's
@@ -41,9 +48,9 @@ function gtag(...args: unknown[]) {
  *  ('enquiry_form' here, 'appraisal_form' there) and `form_name` is the
  *  enquiry type, e.g. 'sales-appraisal'. See docs/gtm-events.md.
  *
- *  On the /appraisal/ pages it also sends the Google Ads conversion event
- *  `conversion_event_submit_lead_form`, and the redirect waits for that
- *  too (same fallback). */
+ *  On the appraisal pages (APPRAISAL_PAGE) it also sends the Google Ads
+ *  conversion event `conversion_event_submit_lead_form`, and the redirect
+ *  waits for that too (same fallback). */
 export function trackFormSubmit(formName: string, onDone: () => void) {
   let done = false;
   const finish = () => {
@@ -67,7 +74,8 @@ export function trackFormSubmit(formName: string, onDone: () => void) {
   // GTM waits for the page to go idle; a form sent before then mustn't
   // wait on it, or the lead would sit unsent on the dataLayer.
   window.__apnLoadGtm?.();
-  const adsDone = window.location.pathname.startsWith('/appraisal') ? hold() : undefined;
+  window.__apnLoadPixel?.();
+  const adsDone = APPRAISAL_PAGE.test(window.location.pathname) ? hold() : undefined;
 
   // Appraisals are the leads worth optimising ads for; everything else
   // is a plain Contact.
@@ -157,6 +165,7 @@ export function trackChatOpen(source: 'launcher' | 'teaser') {
 export function trackChatLead(formName: string) {
   // GTM waits for the page to go idle; load it now so the lead is sent.
   window.__apnLoadGtm?.();
+  window.__apnLoadPixel?.();
   try {
     window.fbq?.('track', formName.endsWith('appraisal') ? 'Lead' : 'Contact', { content_name: `chat_${formName}` });
   } catch (err) {

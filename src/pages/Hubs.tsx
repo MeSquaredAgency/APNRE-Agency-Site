@@ -12,9 +12,10 @@
 import type { ReactNode } from 'react';
 import Layout from '../components/Layout';
 import EnquiryForm, { type EnquiryKind } from '../components/EnquiryForm';
-import Icon, { type IconName } from '../components/Icon';
+import Icon from '../components/Icon';
 import JsonLd from '../components/JsonLd';
-import { ClosureNote, CtaBand, Faq, FormSection, ImageCards, PageHero, SectionHead, Team, type FaqItem } from '../components/sections';
+import Laws, { LAWS, type LawLink } from '../components/Laws';
+import { Actions, ClosureNote, CtaBand, Faq, FormSection, ImageCards, PageHero, SectionHead, Team, type Action, type FaqItem } from '../components/sections';
 import { CLIENT_LOGIN_URL, MAINTENANCE_FORM_ENABLED, PHONE_DISPLAY, PHONE_TEL } from '../data/business';
 import { STOCK } from '../data/media';
 import { breadcrumbList } from '../structured-data';
@@ -23,50 +24,9 @@ import type { Photo } from '../lib/photo';
 import { trackCallClick } from '../lib/analytics';
 import soldSign from '../assets/photos/sold-sign-ridley.jpg?photo';
 import mountGambierStreet from '../assets/photos/mount-gambier-hillside-street.jpg?photo';
+import balconyView from '../assets/photos/balcony-view-wide.jpg?photo';
 
 /* ---------- Building blocks ---------- */
-
-export interface Action {
-  icon: IconName;
-  title: string;
-  copy: string;
-  href: string;
-  external?: boolean;
-  /** Call-button placement name, for analytics, when href is the phone. */
-  call?: string;
-}
-
-/** Also on the office pages (Office.tsx). */
-export function Actions({ items }: { items: Action[] }) {
-  return (
-    <section className="section section-white">
-      <div className="wrap">
-        <SectionHead eyebrow="Quick actions" title="What do you need to do?" />
-        <ul className="hub-actions">
-          {items.map((a) => (
-            <li key={a.title}>
-              <a
-                href={a.href}
-                className="hub-action"
-                onClick={a.call ? () => trackCallClick(a.call!) : undefined}
-                {...(a.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-              >
-                <span className="hub-action__icon">
-                  <Icon name={a.icon} size={22} />
-                </span>
-                <span className="hub-action__title">
-                  {a.title}
-                  <Icon name={a.external ? 'external' : 'arrow'} size={16} />
-                </span>
-                <span className="hub-action__copy">{a.copy}</span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
-  );
-}
 
 /** PropertyMe's client login, for landlords and tenants APN already
  *  manages for. */
@@ -125,60 +85,6 @@ function Repairs() {
             </p>
           </div>
         </div>
-      </div>
-    </section>
-  );
-}
-
-/* ---------- Laws and official guides ---------- */
-
-interface LawLink {
-  title: string;
-  /** Who publishes it, e.g. "SA legislation". */
-  source: string;
-  copy: string;
-  href: string;
-}
-
-const ACT = (name: string) => `https://www.legislation.sa.gov.au/lz?path=${encodeURIComponent(`/c/a/${name.toLowerCase()}`)}`;
-
-/** Official sources only (legislation.sa.gov.au, CBS, SACAT, sa.gov.au):
- *  APN points people to the rules, it doesn't interpret them. */
-const LAWS = {
-  residentialTenancies: { title: 'Residential Tenancies Act 1995', source: 'SA legislation', copy: 'The law for residential leases in South Australia, as currently in force.', href: ACT('Residential Tenancies Act 1995') },
-  rentingAdvice: { title: 'Renting and letting advice', source: 'Consumer and Business Services', copy: 'The SA Government’s guide to rights and obligations for landlords and tenants.', href: 'https://www.cbs.sa.gov.au/renting-and-letting-advice' },
-  rentalReforms: { title: 'Rental reforms', source: 'Consumer and Business Services', copy: 'What has changed in South Australia’s renting laws.', href: 'https://www.cbs.sa.gov.au/campaigns/rental-reforms' },
-  bonds: { title: 'Rental bonds', source: 'Consumer and Business Services', copy: 'How bonds are lodged, held and refunded, and how to check a bond’s status.', href: 'https://www.cbs.sa.gov.au/renting-and-letting-advice/bonds' },
-  sacat: { title: 'Housing and rental disputes', source: 'SACAT', copy: 'The South Australian Civil and Administrative Tribunal, which hears tenancy disputes.', href: 'https://sacat.sa.gov.au/housing-and-rentals' },
-  commercialLeases: { title: 'Retail and Commercial Leases Act 1995', source: 'SA legislation', copy: 'For shops and other retail leases.', href: ACT('Retail and Commercial Leases Act 1995') },
-  landAgents: { title: 'Land Agents Act 1994', source: 'SA legislation', copy: 'How agents, sales representatives and property managers are licensed and regulated.', href: ACT('Land Agents Act 1994') },
-  saleAndConveyancing: { title: 'Land and Business (Sale and Conveyancing) Act 1994', source: 'SA legislation', copy: 'The law for selling property in SA, including the vendor’s statement (Form 1) and cooling-off.', href: ACT('Land and Business (Sale and Conveyancing) Act 1994') },
-  buyersNotice: { title: 'Buyer’s information notice (Form 3)', source: 'Consumer and Business Services', copy: 'Questions worth asking about a property before you buy. PDF.', href: 'https://www.cbs.sa.gov.au/documents/form-3-buyers-information-notice.pdf' },
-  buyingSelling: { title: 'Buying, building and selling', source: 'SA Government', copy: 'sa.gov.au’s guides to buying and selling property in South Australia.', href: 'https://www.sa.gov.au/topics/housing-and-property/buying-building-selling' },
-} satisfies Record<string, LawLink>;
-
-function Laws({ items }: { items: LawLink[] }) {
-  return (
-    <section className="section section-white" id="laws">
-      <div className="wrap">
-        <SectionHead eyebrow="Laws and official guides" title="The rules, from the source." />
-        <p className="law-links__intro">
-          The Acts and SA Government guidance that apply. They’re general information: for your own situation, talk to
-          us or get legal advice.
-        </p>
-        <ul className="law-links">
-          {items.map((l) => (
-            <li key={l.href}>
-              <a href={l.href} target="_blank" rel="noopener noreferrer" className="law-link">
-                <span className="law-link__source">{l.source}</span>
-                <span className="law-link__title">
-                  {l.title} <Icon name="external" size={15} />
-                </span>
-                <span className="law-link__copy">{l.copy}</span>
-              </a>
-            </li>
-          ))}
-        </ul>
       </div>
     </section>
   );
@@ -488,8 +394,8 @@ export function HubOverview() {
         eyebrow="Client hub"
         title="How can we help?"
         lede="Choose what you’re here for, and find the people, forms and answers for it in one place."
-        photo={STOCK.suburbAerial.photo}
-        photoAlt={STOCK.suburbAerial.alt}
+        photo={balconyView}
+        photoAlt="The view from the balcony of a property APN Real Estate manages"
       >
         <div className="page-hero__actions">
           <a href={CLIENT_LOGIN_URL} target="_blank" rel="noopener noreferrer" className="btn btn-outline-light">

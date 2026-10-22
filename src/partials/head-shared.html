@@ -66,8 +66,6 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
 <link rel="icon" type="image/png" sizes="180x180" href="/favicon-180.png" />
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-<!-- Stock photos come from Pexels' CDN (src/data/media.ts). -->
-<link rel="preconnect" href="https://images.pexels.com" />
 <!--
   Meta Pixel. The ID is VITE_META_PIXEL_ID in the repo's .env (it's a
   public ID, visible in every page anyway); a Cloudflare Pages
@@ -77,12 +75,18 @@
   this script never runs. No placeholder ID to remember to swap out
   before launch.
 
-  On the main site, Meta's 110 KB script waits until the page has loaded
-  and the browser is idle, so it doesn't compete with the page itself.
-  fbq() calls before then are queued and sent once it arrives. Campaign
-  funnel pages (the "funnel" routes in src/data/routes.json, which get a
-  data-funnel attribute on <html>) load it straight away, since they're
-  where ad conversions happen.
+  On the main site, Meta's script (about 200 KB with what it pulls in)
+  waits for the visitor's first scroll, tap, click or key press, or 10
+  seconds after the page has loaded, whichever comes first. Loaded any
+  earlier it was the biggest single cause of the main thread being
+  blocked on phones (the October 2026 SEO audit measured 300-450 ms).
+  fbq() calls before then are queued and sent once it arrives, PageView
+  included, and a form sent before then loads it straight away through
+  window.__apnLoadPixel (src/lib/analytics.ts). Campaign funnel pages
+  (the "funnel" routes in src/data/routes.json, which get a data-funnel
+  attribute on <html>) load it straight away, since they're where ad
+  conversions happen. After changing this, check Meta's Events Manager
+  still attributes leads to ads as before.
 -->
 <script>
   if ('%VITE_META_PIXEL_ID%' && window.__APN_LIVE) {
@@ -92,15 +96,22 @@
       };
       if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
       n.queue = []; t = b.createElement(e); t.async = !0; t.src = v;
-      var load = function () {
+      var loaded = false;
+      var load = (f.__apnLoadPixel = function () {
+        if (loaded) return;
+        loaded = true;
         s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s);
-      };
+      });
       if (b.documentElement.hasAttribute('data-funnel')) return load();
-      var idle = function () {
-        (f.requestIdleCallback || function (cb) { setTimeout(cb, 1); })(load, { timeout: 3000 });
+      var first = ['scroll', 'pointerdown', 'keydown', 'touchstart'];
+      var go = function () {
+        first.forEach(function (type) { f.removeEventListener(type, go, true); });
+        load();
       };
-      if (b.readyState === 'complete') idle();
-      else f.addEventListener('load', idle);
+      first.forEach(function (type) { f.addEventListener(type, go, { capture: true, passive: true }); });
+      var later = function () { setTimeout(go, 10000); };
+      if (b.readyState === 'complete') later();
+      else f.addEventListener('load', later);
     }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
     window.fbq('init', '%VITE_META_PIXEL_ID%');
     window.fbq('track', 'PageView');

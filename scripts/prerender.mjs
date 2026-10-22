@@ -30,6 +30,7 @@ const PAGE_FILES = {
   home: 'src/pages/Home.tsx',
   selling: 'src/pages/Selling.tsx',
   leasing: 'src/pages/Leasing.tsx',
+  switching: 'src/pages/Switching.tsx',
   buy: 'src/pages/Listings.tsx',
   rent: 'src/pages/Listings.tsx',
   sold: 'src/pages/Listings.tsx',
@@ -37,18 +38,53 @@ const PAGE_FILES = {
   appraisal: 'src/pages/Appraisal.tsx',
   'appraisal-sales': 'src/pages/Appraisal.tsx',
   'appraisal-rental': 'src/pages/Appraisal.tsx',
+  'mount-gambier-rental-appraisal': 'src/pages/Appraisal.tsx',
   people: 'src/pages/People.tsx',
   person: 'src/pages/Person.tsx',
   story: 'src/pages/Story.tsx',
   contact: 'src/pages/Contact.tsx',
+  'office-adelaide': 'src/pages/Office.tsx',
+  'office-mount-gambier': 'src/pages/Office.tsx',
+  'mount-gambier-pm': 'src/pages/MountGambier.tsx',
+  'office-space': 'src/pages/OfficeSpace.tsx',
   careers: 'src/pages/Careers.tsx',
   hub: 'src/pages/Hubs.tsx',
   'hub-landlords': 'src/pages/Hubs.tsx',
   'hub-tenants': 'src/pages/Hubs.tsx',
   'hub-sellers': 'src/pages/Hubs.tsx',
   'hub-buyers': 'src/pages/Hubs.tsx',
+  contractors: 'src/pages/Contractors.tsx',
   privacy: 'src/pages/Privacy.tsx',
   listing: 'src/pages/Listing.tsx',
+};
+
+// The data each page's own content comes from, on top of its module, for
+// its <lastmod>. Only what changes what the page says: the header,
+// footer, styles and shared components are the same on every page, so a
+// change there isn't a change to any one page (and dating every page by
+// it made the sitemap's dates look like build dates, which Google learns
+// to ignore).
+const TEAM = 'src/data/team.ts';
+const OFFICES = 'src/data/offices.ts';
+const PAGE_CONTENT = {
+  selling: [TEAM],
+  leasing: ['src/data/leasing.ts', TEAM],
+  switching: ['src/components/Laws.tsx', TEAM],
+  appraisal: [TEAM],
+  'appraisal-sales': [TEAM],
+  'appraisal-rental': [TEAM],
+  'mount-gambier-rental-appraisal': [TEAM],
+  people: [TEAM],
+  person: [TEAM],
+  story: [TEAM, OFFICES],
+  contact: [OFFICES],
+  'office-adelaide': [OFFICES, TEAM],
+  'office-mount-gambier': [OFFICES, TEAM],
+  'mount-gambier-pm': ['src/data/leasing.ts', OFFICES, TEAM],
+  'office-space': ['src/data/office-space.ts'],
+  hub: ['src/components/Laws.tsx'],
+  'hub-tenants': ['src/components/Laws.tsx'],
+  contractors: ['src/data/contractors.json'],
 };
 
 // Vite's manifest: source file → built chunk, its static imports and the
@@ -107,8 +143,8 @@ for (const page of blogPages) {
 const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
 
 // A page's <lastmod> is the date of the last commit touching the files
-// it's built from (its page file plus the shared components, data and
-// styles), so the build needs the full git history. Cloudflare Pages
+// its content comes from (PAGE_FILES and PAGE_CONTENT), so the build
+// needs the full git history. Cloudflare Pages
 // clones only the latest commit, and in a shallow clone that one commit
 // looks like it added every file, so every page would get its date. So
 // fetch the rest of the history first. If that fails, or there's no git
@@ -129,7 +165,6 @@ function hasFullHistory() {
 }
 
 const today = new Date().toISOString().slice(0, 10);
-const SHARED = ['src/components', 'src/data', 'src/index.css'];
 const fullHistory = hasFullHistory();
 // Files that aren't committed yet have no log, which means they're being
 // changed today.
@@ -143,7 +178,10 @@ const urls = [
   ...routes
     .filter((r) => !r.noindex)
     // A listing's <lastmod> is when the feed last changed it.
-    .map((r) => ({ path: r.path, lastmod: r.lastmod ?? lastCommitDate([PAGE_FILES[r.page] ?? 'src/pages', ...SHARED]) })),
+    .map((r) => ({
+      path: r.path,
+      lastmod: r.lastmod ?? lastCommitDate([PAGE_FILES[r.page] ?? 'src/pages', ...(PAGE_CONTENT[r.page] ?? [])]),
+    })),
   ...blogPages.filter((p) => p.indexable).map((p) => ({ path: p.path, lastmod: p.lastmod ?? today })),
 ];
 writeFileSync(

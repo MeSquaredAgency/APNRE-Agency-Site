@@ -4,7 +4,7 @@ import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { imagetools } from 'vite-imagetools';
 // Fixed pages plus one per listing (scripts/routes.mjs).
-import { allRoutes } from './scripts/routes.mjs';
+import { allRoutes, loadListings } from './scripts/routes.mjs';
 
 // Serves the /blog/ pages on the dev server, rendered the same way the
 // build does (src/blog-server.tsx) but including drafts, so a post can be
@@ -87,7 +87,18 @@ function photoDefaults() {
   });
 }
 
+function rentMenuHref(): string {
+  const sections = new Set(loadListings().map((l: { section: string }) => l.section));
+  return !sections.has('rent') && sections.has('commercial') ? '/commercial/' : '/rent/';
+}
+
 export default defineConfig({
+  // The Rent menu (src/data/nav.ts): /commercial/ while the feed has
+  // commercial leases but no homes for rent, since /rent/ is noindex then
+  // (scripts/routes.mjs); /rent/ otherwise.
+  define: {
+    __RENT_MENU_HREF__: JSON.stringify(rentMenuHref()),
+  },
   plugins: [
     react(),
     photoDefaults(),

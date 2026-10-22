@@ -1,7 +1,9 @@
 import Layout from '../components/Layout';
 import EnquiryForm from '../components/EnquiryForm';
+import JsonLd from '../components/JsonLd';
 import { FormSection, PageHero } from '../components/sections';
 import { BLAIR_ATHOL_PHOTOS } from '../data/offices';
+import { webPage } from '../structured-data';
 
 // No job listings are shown, and no claims about openings either way.
 // If APN starts advertising roles, list them here with a link to each ad.
@@ -9,6 +11,8 @@ import { BLAIR_ATHOL_PHOTOS } from '../data/offices';
 export default function Careers() {
   return (
     <Layout>
+      {/* A WebPage, not a JobPosting: there are no openings listed. */}
+      <JsonLd data={webPage({ path: '/careers/', name: 'Careers at APN Real Estate' })} />
       <PageHero
         eyebrow="Careers"
         title="Work with APN Real Estate."

@@ -8,7 +8,7 @@ import { HOLIDAY_CLOSURE, OPENING_HOURS, PHONE_DISPLAY, PHONE_TEL, PORTALS, SOCI
 import { trackCallClick } from '../lib/analytics';
 import { faqPage } from '../structured-data';
 import HeroSlides, { type HeroSlide } from './HeroSlides';
-import Icon from './Icon';
+import Icon, { type IconName } from './Icon';
 import JsonLd from './JsonLd';
 import Picture from './Picture';
 import type { Photo } from '../lib/photo';
@@ -198,6 +198,88 @@ export function SectionHead({ eyebrow, title, action }: { eyebrow: string; title
       </div>
       {action}
     </div>
+  );
+}
+
+/* ---------- Quick actions: a grid of linked cards ---------- */
+
+/** One card in Actions: on the hubs, office pages and service pages. */
+export interface Action {
+  icon: IconName;
+  title: string;
+  copy: string;
+  href: string;
+  external?: boolean;
+  /** Call-button placement name, for analytics, when href is the phone. */
+  call?: string;
+}
+
+export function Actions({
+  items,
+  eyebrow = 'Quick actions',
+  title = 'What do you need to do?',
+}: {
+  items: Action[];
+  eyebrow?: string;
+  title?: string;
+}) {
+  return (
+    <section className="section section-white">
+      <div className="wrap">
+        <SectionHead eyebrow={eyebrow} title={title} />
+        <ul className="hub-actions">
+          {items.map((a) => (
+            <li key={a.title}>
+              <a
+                href={a.href}
+                className="hub-action"
+                onClick={a.call ? () => trackCallClick(a.call!) : undefined}
+                {...(a.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+              >
+                <span className="hub-action__icon">
+                  <Icon name={a.icon} size={22} />
+                </span>
+                <span className="hub-action__title">
+                  {a.title}
+                  <Icon name={a.external ? 'external' : 'arrow'} size={16} />
+                </span>
+                <span className="hub-action__copy">{a.copy}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- Prose: a heading and a few paragraphs ---------- */
+
+/** A labelled block of copy, for service pages and guides: the eyebrow
+ *  sits beside the text on wide screens and above it on phones. */
+export function ProseSection({
+  id,
+  eyebrow,
+  title,
+  paper = false,
+  children,
+}: {
+  id?: string;
+  eyebrow: string;
+  title: ReactNode;
+  paper?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <section className={`section ${paper ? 'section-paper' : 'section-white'}`} id={id}>
+      <div className="wrap prose-grid">
+        <span className="eyebrow">{eyebrow}</span>
+        <div className="prose">
+          <h2 className="h-1">{title}</h2>
+          {children}
+        </div>
+      </div>
+    </section>
   );
 }
 

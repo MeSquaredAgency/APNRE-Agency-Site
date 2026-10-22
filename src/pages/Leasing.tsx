@@ -1,85 +1,28 @@
 import Layout from '../components/Layout';
 import EnquiryForm from '../components/EnquiryForm';
+import GoogleReviews from '../components/GoogleReviews';
 import Icon from '../components/Icon';
 import JsonLd from '../components/JsonLd';
 import Picture from '../components/Picture';
 import { CtaBand, Faq, FormSection, PageHero, Process, Reasons, Team } from '../components/sections';
 import { PHONE_DISPLAY, PHONE_TEL } from '../data/business';
-import { STOCK } from '../data/media';
 import { trackCallClick } from '../lib/analytics';
+import { LEASING_FAQS as FAQS, LEASING_REASONS as REASONS, LEASING_STEPS as STEPS } from '../data/leasing';
 import { service } from '../structured-data';
 import heroPhoto from '../assets/photos/balcony-view-hills.jpg?photo';
+import interiorPhoto from '../assets/photos/interior-corner-windows.jpg?photo';
 
 // Reasons, switching copy and FAQs come from the landlord landing page
-// (APNRE-Website), where APN has already signed them off. Keep the two
-// in step if either changes.
-
-const REASONS = [
-  {
-    title: 'People on the ground',
-    copy: 'APN Real Estate operates across Adelaide and Mount Gambier, with people on the ground in both markets.',
-  },
-  {
-    title: 'Know who’s looking after it',
-    copy: 'You’ll know who is responsible for your property and how to reach them directly.',
-  },
-  {
-    title: 'You make the decisions',
-    copy: 'Our job is to manage the property professionally, keep you informed and give you the information you need to make your own decisions.',
-  },
-];
-
-const STEPS = [
-  {
-    title: 'Rental appraisal',
-    copy: 'We look at the property and the local rental market and tell you what we think it should lease for.',
-  },
-  {
-    title: 'Prepare & advertise',
-    copy: 'We help get the property ready, then list it and run inspections for prospective tenants.',
-  },
-  {
-    title: 'Find the right tenant',
-    copy: 'We screen applicants and recommend a tenant. You make the final decision.',
-  },
-  {
-    title: 'Ongoing management',
-    copy: 'Rent collection, routine inspections, maintenance coordination and regular updates from your property manager.',
-  },
-];
-
-const FAQS = [
-  {
-    q: 'What does APN Real Estate’s property management service include?',
-    a: 'Finding and screening tenants, collecting rent, routine and entry/exit inspections, coordinating maintenance and repairs, and keeping you informed about your property. Get in touch and your property manager can walk you through what that looks like for your specific property.',
-  },
-  {
-    q: 'What happens when something needs repairing?',
-    a: 'Your property manager coordinates qualified tradespeople to get it sorted and keeps you informed about what’s happening and why. If you’d like the specifics of how repairs are handled for your property, ask your property manager directly.',
-  },
-  {
-    q: 'How much does property management cost?',
-    a: 'Management fees vary depending on your property and what you need. Get in touch and we’ll give you a straight answer for your specific property.',
-  },
-  {
-    q: 'Can I change property managers if my property is currently tenanted?',
-    a: 'Yes — it’s a normal process and doesn’t need to disrupt an existing tenancy. Tell us your situation and we’ll explain how it would work for your property.',
-  },
-  {
-    q: 'Who will manage my property, and can I speak to them directly?',
-    a: 'A named property manager from our team. You’ll know who they are and be able to reach them directly.',
-  },
-  {
-    q: 'How quickly can my property be leased?',
-    a: 'This depends on the property, the market, and the time of year. Ask us for a rental appraisal and we’ll give you a realistic view for your property.',
-  },
-];
+// (APNRE-Website), where APN has already signed them off; the reasons,
+// steps and FAQs live in src/data/leasing.ts, shared with the Mount
+// Gambier property management page.
 
 function Switching() {
   return (
     <section className="photo-band" id="switch">
-      {/* Not the balcony view again: the hero already uses it. */}
-      <Picture photo={STOCK.townhouses.photo} alt="" className="photo-band__img" />
+      {/* A property APN manages; not the balcony view again, which the
+          hero already uses. */}
+      <Picture photo={interiorPhoto} alt="" className="photo-band__img" />
       <div className="photo-band__scrim" />
       <div className="wrap photo-band__inner">
         <span className="eyebrow">Already have a property manager?</span>
@@ -97,6 +40,9 @@ function Switching() {
             Or call {PHONE_DISPLAY}
           </a>
         </div>
+        <p className="photo-band__more">
+          <a href="/leasing/switching-property-managers/">How switching property managers works in SA</a>
+        </p>
       </div>
     </section>
   );
@@ -139,13 +85,16 @@ export default function Leasing() {
       <Process eyebrow="Our leasing process" title="From appraisal to a tenant in place." steps={STEPS} />
       <Switching />
       <Team group="property-management" credentials eyebrow="Property management" title="Your property managers." />
+      <GoogleReviews id="reviews" />
       <Faq
         title="Questions landlords ask us."
         items={FAQS}
         more={
           <>
-            More detail: <a href="/blog/what-does-a-property-manager-do/">what does a property manager do?</a> Already
-            with APN Real Estate? Go to the <a href="/client-hub/landlords/">landlord hub</a>, or{' '}
+            More detail: <a href="/blog/what-does-a-property-manager-do/">what does a property manager do?</a> and{' '}
+            <a href="/leasing/switching-property-managers/">how to switch property managers in SA</a>. In Mount Gambier?
+            See <a href="/mount-gambier/property-management/">property management in Mount Gambier</a>. Already with APN
+            Real Estate? Go to the <a href="/client-hub/landlords/">landlord hub</a>, or{' '}
             <a href="/our-people/?filter=property-management">meet our property managers</a>.
           </>
         }

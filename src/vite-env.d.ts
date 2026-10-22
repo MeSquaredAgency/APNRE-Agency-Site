@@ -19,3 +19,9 @@ interface ImportMetaEnv {
    *  (src/lib/places.ts). Blank = plain address fields. */
   readonly VITE_GOOGLE_MAPS_API_KEY?: string;
 }
+
+/** Where the header's Rent menu goes: /commercial/ while the listings
+ *  feed has commercial leases but no homes for rent, /rent/ otherwise.
+ *  Worked out from src/data/listings.json at build time (vite.config.ts),
+ *  so the listings themselves stay out of the code every page loads. */
+declare const __RENT_MENU_HREF__: string;

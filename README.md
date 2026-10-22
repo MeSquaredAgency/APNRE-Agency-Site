@@ -21,9 +21,10 @@ statistics or programmes from other agencies' sites.
 - Real APN photography (sold signs, managed properties, team headshots)
   is in `src/assets/`.
 - Stock photos and the hero video come from Pexels (free for commercial
-  use) and are listed, with credits, in `src/data/media.ts`. Photos are
-  served, resized, from Pexels' CDN; the video is re-encoded and hosted
-  in `public/video/`. See `docs/media.md`.
+  use) and are listed, with credits, in `src/data/media.ts`. Both are
+  hosted on the site itself: the photos in `src/assets/photos/stock/`,
+  the re-encoded video in `public/video/`. See `docs/media.md`. Replace
+  the stock photos with real APN ones as they're taken.
 - Stock imagery is illustrative only. Never caption a stock shot as an
   APN listing, sale or managed property. The footer notes that some
   imagery is stock.
@@ -41,17 +42,20 @@ the build, once the blog posts are known.
 | --- | --- |
 | `/` | Home: video hero with Sell / Lease / Find an agent search, key points, listings cards, appraisal feature, team, story, client hub, offices |
 | `/selling/` | Selling with APN: reasons, process, sales team, FAQ, sales appraisal form |
-| `/leasing/` | Leasing & property management: reasons, process, switching, PM team, FAQ, rental appraisal form |
+| `/leasing/` | Leasing & property management: reasons, process, switching, PM team, live Google reviews, FAQ, rental appraisal form. Its reasons, steps and FAQs are in `src/data/leasing.ts` |
+| `/leasing/switching-property-managers/` | Step-by-step guide to changing property managers in SA, linking to the official CBS guidance, with the rental appraisal form pre-ticked "Changing property managers" (`src/pages/Switching.tsx`) |
 | `/buy/`, `/rent/`, `/sold/` | Listings from PropertyMe's feed, plus buyer/tenant register forms. Until the feed is set up, a link to APN's realestate.com.au profile instead (`docs/listings-feed.md`) |
 | `/buy/<listing>/`, `/rent/<listing>/`, `/sold/<listing>/` | A page per listing (`src/pages/Listing.tsx`), made at build time from the feed, with an enquiry form |
 | `/office-space/` | Offices for lease (6–12 months) in APN's Blair Athol building and the podcast room for daily hire, with a clickable floor plan and booking requests (`src/pages/OfficeSpace.tsx`, rooms in `src/data/office-space.ts`; see `docs/office-space.md`) |
-| `/appraisal/sales/`, `/appraisal/rental/` | A sales or rental appraisal form, each its own page for search (`src/pages/Appraisal.tsx`) |
+| `/appraisal/sales/`, `/appraisal/rental/` | A sales or rental appraisal form, each its own landing page for search, with what the appraisal covers, who does it and a short FAQ (`src/pages/Appraisal.tsx`) |
 | `/appraisal/` | Both, with a sales/rental switch (`?type=sales` or `?type=rental`), for the header button and older links |
 | `/our-people/` | Team with Sales / Property Management / Leadership filters (`?filter=sales`) and a name, role or office search (`?q=`) |
 | `/our-people/<name>/` | A page per team member (`src/pages/Person.tsx`), listed in `routes.json`: add one there when someone joins |
 | `/our-story/` | Where APN started, what it does, leadership, offices |
 | `/contact/` | Both offices and a general enquiry form |
-| `/adelaide/`, `/mount-gambier/` | A page per office (`src/pages/Office.tsx`): its own hero photo, details, map, team and an enquiry form. Mount Gambier's Google Business Profile should link to `/mount-gambier/` |
+| `/adelaide/`, `/mount-gambier/` | A page per office (`src/pages/Office.tsx`): its own hero photo, details, map, what it does for landlords, team and an enquiry form. Mount Gambier's Google Business Profile should link to `/mount-gambier/` |
+| `/mount-gambier/property-management/` | Property management in Mount Gambier: Luke and Jenny, the leasing process, reviews, FAQ and the rental appraisal form (`src/pages/MountGambier.tsx`) |
+| `/mount-gambier/rental-appraisal/` | Mount Gambier's own rental appraisal page (`MountGambierRentalAppraisal` in `src/pages/Appraisal.tsx`) |
 | `/careers/` | Expression of interest form |
 | `/client-hub/` | Client hub overview, plus a hub each for `landlords/`, `tenants/` (with repairs), `sellers/` and `buyers/`: quick actions, their team, FAQs and the right form (`src/pages/Hubs.tsx`). The landlord, seller and buyer hubs repeat a lot of `/leasing/` and `/selling/`, so they're noindex to stop them competing in search; the tenant hub is indexed |
 | `/client-hub/contractors/` | Preferred contractors with Trade and Area drop-downs (`src/pages/Contractors.tsx`, list in `src/data/contractors.json`). Only built once that file is published; see `docs/preferred-contractors.md` |
@@ -60,12 +64,16 @@ the build, once the blog posts are known.
 | `/landlords/` (+ `thank-you/`) | The landlord campaign funnel for paid ads, and its thank-you page (both noindex); see `docs/funnels.md` |
 
 To add a page: add it to `routes.json`, create `src/pages/<Name>.tsx`,
-register it in `PAGE_LOADERS` in `src/pages/index.ts`, and link it from
-`src/data/nav.ts`.
+register it in `PAGE_LOADERS` in `src/pages/index.ts` and in
+`PAGE_FILES` (plus `PAGE_CONTENT` for any data file its copy comes from)
+in `scripts/prerender.mjs`, which date it in the sitemap, and link it
+from `src/data/nav.ts`.
 
 Old URLs that moved are redirected in `public/_redirects` (e.g. an old
 blog post's address, or the profile page of someone who has left). Add a
-line there whenever a published page moves.
+line there whenever a published page moves. The old brand domains, and
+the old sites' usual addresses (`/about-us/`, `/property-management/`...),
+are redirected by `functions/_middleware.ts`; see `docs/legacy-domains.md`.
 
 ## Campaign funnels
 
