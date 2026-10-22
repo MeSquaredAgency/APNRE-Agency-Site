@@ -12,6 +12,7 @@
 // Response: newline-delimited JSON, one event per line:
 //   {"type":"text","text":"..."}   part of the reply
 //   {"type":"lead","kind":"..."}   the visitor's details reached the sheet
+//   {"type":"suggestions","items":["...", ...]}  follow-ups to offer as buttons
 //   {"type":"error","error":"..."} something went wrong; shown as-is
 //   {"type":"done"}
 
@@ -85,6 +86,53 @@ const SUBMIT_ENQUIRY: Anthropic.Beta.BetaTool = {
     additionalProperties: false,
   },
 };
+
+/** The assistant ends a reply with "[[suggest: a | b | c]]" (see
+ *  chat-prompt.ts). This passes the reply through as it streams but holds
+ *  that line back, so it's sent as buttons instead of shown as text. */
+const SUGGEST_MARKER = '[[suggest:';
+class SuggestionFilter {
+  private held = '';
+  private captured: string | undefined;
+
+  /** The part of `delta` that's safe to show now. */
+  push(delta: string): string {
+    if (this.captured !== undefined) {
+      this.captured += delta;
+      return '';
+    }
+    this.held += delta;
+    const at = this.held.indexOf(SUGGEST_MARKER);
+    if (at !== -1) {
+      const out = this.held.slice(0, at);
+      this.captured = this.held.slice(at + SUGGEST_MARKER.length);
+      this.held = '';
+      return out;
+    }
+    // Hold back a tail that could be the start of the marker.
+    let keep = Math.min(SUGGEST_MARKER.length - 1, this.held.length);
+    while (keep > 0 && !SUGGEST_MARKER.startsWith(this.held.slice(-keep))) keep--;
+    const out = this.held.slice(0, this.held.length - keep);
+    this.held = this.held.slice(this.held.length - keep);
+    return out;
+  }
+
+  /** Whatever text was still held back, and the suggestions, if any. */
+  end(): { text: string; suggestions: string[] } {
+    if (this.captured === undefined) {
+      const text = this.held;
+      this.held = '';
+      return { text, suggestions: [] };
+    }
+    const suggestions = this.captured
+      .split(']]')[0]
+      .split('|')
+      .map((s) => s.trim().slice(0, 60))
+      .filter(Boolean)
+      .slice(0, 3);
+    return { text: '', suggestions };
+  }
+}
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -244,6 +292,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   const run = async () => {
     let wroteText = false;
     let jsonRetries = 0;
+    let suggestions: string[] = [];
     try {
       for (let turn = 0; turn < MAX_TURNS; turn++) {
         const stream = client.beta.messages.stream({
@@ -260,20 +309,27 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
           messages,
         });
         let separated = !wroteText;
-        stream.on('text', (delta) => {
+        const filter = new SuggestionFilter();
+        const emit = (text: string) => {
+          if (!text) return;
           // A blank line between what was said before and after a tool call.
           if (!separated) {
             separated = true;
             send({ type: 'text', text: '\n\n' });
           }
           wroteText = true;
-          send({ type: 'text', text: delta });
-        });
+          send({ type: 'text', text });
+        };
+        stream.on('text', (delta) => emit(filter.push(delta)));
 
         let message: Anthropic.Beta.BetaMessage;
         try {
           message = await stream.finalMessage();
           jsonRetries = 0;
+          const rest = filter.end();
+          emit(rest.text);
+          // Only the last reply's suggestions count.
+          suggestions = rest.suggestions;
         } catch (err) {
           // Only a tool input that couldn't be parsed is retried.
           if (err instanceof Anthropic.APIError || jsonRetries++ >= 2) throw err;
@@ -306,6 +362,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         }
         messages.push({ role: 'user', content: results });
       }
+      if (suggestions.length) await send({ type: 'suggestions', items: suggestions });
       await send({ type: 'done' });
     } catch (err) {
       if (err instanceof Anthropic.RateLimitError) console.warn('Chat assistant rate limited:', err.message);

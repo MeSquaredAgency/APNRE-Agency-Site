@@ -146,11 +146,13 @@ export function trackWhatsAppClick(placement: string) {
   }
 }
 
-/** The chat assistant (src/components/ChatWidget.tsx) was opened. */
-export function trackChatOpen() {
+/** The chat assistant (src/components/ChatWidget.tsx) was opened.
+ *  `source` is how: 'launcher' (the button) or 'teaser' (the greeting
+ *  that pops up beside it). */
+export function trackChatOpen(source: 'launcher' | 'teaser') {
   try {
     window.dataLayer = window.dataLayer || [];
-    window.dataLayer.push({ event: 'chat_open' });
+    window.dataLayer.push({ event: 'chat_open', source });
   } catch (err) {
     console.warn('dataLayer push failed:', err);
   }

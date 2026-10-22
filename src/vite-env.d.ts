@@ -6,6 +6,12 @@ declare module '*?photo' {
   export default photo;
 }
 
+/** An image resized by vite-imagetools, e.g. `logo.png?w=96&format=webp`. */
+declare module '*format=webp' {
+  const src: string;
+  export default src;
+}
+
 interface ImportMetaEnv {
   /** Cloudflare Turnstile site key. Blank = no spam-check widget. */
   readonly VITE_TURNSTILE_SITE_KEY?: string;
