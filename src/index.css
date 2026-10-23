@@ -4227,13 +4227,20 @@ input, select, textarea {
   position: fixed;
   z-index: 95;
   right: 24px;
-  bottom: 24px;
+  /* At least --chat-clear up, so it rises above the footer's last row
+     (with the Me² credit) instead of covering it (ChatWidget.tsx). */
+  bottom: max(24px, var(--chat-clear, 0px));
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 12px;
   /* The button lifts above the phone call bar while that's showing. */
   transition: bottom 0.25s ease;
+}
+/* Rising with the footer, it follows the scroll exactly rather than
+   easing after it. */
+.chat.is-lifted {
+  transition: none;
 }
 @keyframes chat-pop {
   from {
@@ -4791,11 +4798,11 @@ input, select, textarea {
 @media (max-width: 760px) {
   .chat {
     right: 16px;
-    bottom: calc(16px + env(safe-area-inset-bottom));
+    bottom: max(calc(16px + env(safe-area-inset-bottom)), var(--chat-clear, 0px));
   }
   /* Above the call bar while it's showing (StickyActions.tsx). */
   .has-sticky-actions .chat {
-    bottom: calc(56px + 12px + env(safe-area-inset-bottom));
+    bottom: max(calc(56px + 12px + env(safe-area-inset-bottom)), var(--chat-clear, 0px));
   }
   /* Just the picture on phones, so it covers less of the page. */
   .chat__launcher {
