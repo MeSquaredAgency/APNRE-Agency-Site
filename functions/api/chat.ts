@@ -35,7 +35,9 @@ interface Env {
   ASSETS: Fetcher;
 }
 
-const MODEL = 'claude-opus-5-5';
+/** Claude Sonnet 5.5. The APNRE workspace in the Anthropic console
+ *  allows it; Opus there is limited to 0 requests a minute. */
+const MODEL = 'claude-sonnet-5-5';
 
 /** Caps on what a visitor can send, so one conversation can't run up a
  *  large bill. The widget trims older messages to stay under them. */
