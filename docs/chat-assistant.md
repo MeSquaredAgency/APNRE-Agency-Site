@@ -75,10 +75,13 @@ To take the assistant off the site, set `CHAT_ASSISTANT_ENABLED` to
 Each message costs a little (see below), and `/api/chat` is a public
 endpoint, so:
 
-- **Rate limit it (recommended).** Cloudflare dashboard → the
-  `apnre.com.au` zone → **Security → WAF → Rate limiting rules**: match
-  URI path equals `/api/chat`, e.g. 20 requests per minute per IP, action
-  Block. The free plan includes one rule.
+- **Rate limiting rule (in place since 24 October 2026).** Cloudflare
+  dashboard → the `apnre.com.au` zone → **Security → WAF → Rate limiting
+  rules** → "Chat assistant: 3 messages per 10 seconds per visitor": URI
+  path equals `/api/chat`, 3 requests per 10 seconds per IP, then Block
+  for 10 seconds. That's the free plan's one rule, and its only window
+  and block length. A blocked visitor sees the chat's "something went
+  wrong, please try again" message.
 - **Spend limit.** Set one in the Anthropic console (step 1 above).
 - Built in: the endpoint only takes requests from the site itself,
   limits message length and conversation length (30 messages), and
