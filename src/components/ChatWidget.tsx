@@ -233,6 +233,7 @@ export default function ChatWidget() {
   const launcher = useRef<HTMLButtonElement>(null);
   const field = useRef<HTMLTextAreaElement>(null);
   const log = useRef<HTMLDivElement>(null);
+  const root = useRef<HTMLDivElement>(null);
   const panelId = useId();
   const titleId = useId();
 
@@ -287,6 +288,37 @@ export default function ChatWidget() {
     if (!open || messages.length === 0) return;
     log.current?.scrollTo({ top: log.current.scrollHeight, behavior: 'smooth' });
   }, [open, messages]);
+
+  // Rises above the footer's last row (the licensee line, privacy link
+  // and Me² credit) as it scrolls into view, so the button never covers
+  // it. --chat-clear is how far that row's top is above the bottom of
+  // the screen; the CSS keeps the button at least that high. Not while
+  // open, so the panel never rises under the header.
+  useEffect(() => {
+    const el = root.current;
+    const legal = document.querySelector('.site-footer__legal');
+    if (!el || !legal || open) return;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const clear = window.innerHeight - legal.getBoundingClientRect().top;
+      el.style.setProperty('--chat-clear', clear > 0 ? `${Math.ceil(clear) + 12}px` : '0px');
+      el.classList.toggle('is-lifted', clear > 0);
+    };
+    const schedule = () => {
+      frame ||= requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+      el.style.removeProperty('--chat-clear');
+      el.classList.remove('is-lifted');
+    };
+  }, [open]);
 
   // Ready to type on opening, except on touch screens, where it would
   // bring up the keyboard over the start screen.
@@ -404,7 +436,7 @@ export default function ChatWidget() {
   const last = messages[messages.length - 1];
 
   return (
-    <div className={`chat${open ? ' is-open' : ''}`}>
+    <div ref={root} className={`chat${open ? ' is-open' : ''}`}>
       {teaser && !open && (
         <div className="chat__teaser" role="status">
           <button type="button" className="chat__teaser-close" onClick={dismissTeaser} aria-label="Close message">
