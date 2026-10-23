@@ -83,20 +83,31 @@ endpoint, so:
 - Built in: the endpoint only takes requests from the site itself,
   limits message length and conversation length (30 messages), and
   makes at most four model calls per message.
-- Optional: point `ANTHROPIC_BASE_URL` at a
-  [Cloudflare AI Gateway](https://developers.cloudflare.com/ai-gateway/)
-  (`https://gateway.ai.cloudflare.com/v1/<account>/<gateway>/anthropic`)
-  for request logs, extra rate limiting and spend analytics.
+- **AI Gateway (required).** Anthropic refuses requests sent straight
+  from Cloudflare's servers (403 "Request not allowed"), so the chat goes
+  through the `apnre-chat`
+  [Cloudflare AI Gateway](https://developers.cloudflare.com/ai-gateway/):
+  `ANTHROPIC_BASE_URL` in the Pages project's Production variables is
+  `https://gateway.ai.cloudflare.com/v1/<account>/apnre-chat/anthropic`.
+  The gateway passes the site's own Anthropic key through (no stored keys,
+  no Cloudflare-billed credit), keeps no logs, and caps all traffic at 120
+  requests a minute. Without that variable the chat answers with the
+  phone number.
 
 ## Cost
 
-It uses Claude Opus 5.5 (`MODEL` in `functions/api/chat.ts`) at low
+It uses Claude Sonnet 5.5 (`MODEL` in `functions/api/chat.ts`) at low
 effort, which keeps replies quick. Each message sends the instructions
 and llms.txt (about 3,000 tokens) plus the conversation so far, so a
-typical message costs roughly 1–3 cents (US). A thousand chat messages a
-month would be in the order of US$20. For a cheaper assistant, change
+typical message costs about 1 cent (US). A thousand chat messages a
+month would be in the order of US$10. For a cheaper assistant, change
 `MODEL` to `claude-haiku-5-5` and remove the `betas` and `fallbacks`
 lines, which only apply to the larger models.
+
+The model must be allowed in the **APNRE** workspace's limits in the
+Anthropic console (Settings → Workspaces → APNRE → Limits). A model whose
+requests-per-minute limit is 0 there (Opus, as of October 2026) fails
+with a 429, and the chat answers with the phone number.
 
 ## What lands in the sheet
 
