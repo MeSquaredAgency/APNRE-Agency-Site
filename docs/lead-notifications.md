@@ -43,6 +43,14 @@ the original one-function script; the `doPost` in `Notification.gs`
 overrides it.) Keep this page and that file the same, so pasting this
 script never undoes a change made there.
 
+The rows go in the **Pipeline** tab (the sheet's first tab, once called
+`Sheet1`; it also has a Dashboard and an Appraisal Tracker). The script
+finds it by name, so **renaming that tab stops every website form and
+the chat from saving** until `SHEET_NAME` is changed to match and the
+script redeployed. That happened between 21 and 24 October 2026. Columns
+A–G (Timestamp to Source) must stay first and in this order; the team's
+own columns (Status, Category and so on) after them are fine.
+
 ## 2. Replace the script
 
 In the sheet: **Extensions → Apps Script**, replace everything with the
@@ -77,7 +85,7 @@ const ROUTES = [
   { match: 'Podcast room hire', to: 'sales@apnre.com.au' },
 ];
 const DEFAULT_TO = 'sales@apnre.com.au';
-const SHEET_NAME = 'Sheet1';
+const SHEET_NAME = 'Pipeline'; // the tab the rows go in (was Sheet1)
 // The podcast room's calendar (/office-space/). Made the first time it's
 // needed. If you rename it in Google Calendar, rename it here too.
 const PODCAST_CALENDAR = 'APN Podcast Room';
