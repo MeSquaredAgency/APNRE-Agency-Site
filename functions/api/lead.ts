@@ -19,8 +19,9 @@
 //   3. Deploy. The form already posts to /api/lead (see AppraisalForm.tsx).
 
 import { isEmail, isPhone, json, NOT_CONFIGURED, postToSheet, sheetSafe, turnstileOk } from '../_lib/forms';
+import { forwardToMeSquared, type MeSquaredEnv } from '../_lib/mesquared';
 
-interface Env {
+interface Env extends MeSquaredEnv {
   SHEETS_WEBHOOK_URL: string;
   /** Cloudflare Turnstile secret key, shared with functions/api/enquiry.ts.
    *  When set, every submission needs a valid token from the form's
@@ -135,6 +136,20 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     console.error('Failed to forward lead to sheet webhook:', err);
     return json({ ok: false, error: 'Could not record submission. Please try again.' }, 502);
   }
+
+  // MeSquared OS answers the enquiry and alerts the team; it runs after the
+  // visitor has their confirmation and cannot change it.
+  context.waitUntil(
+    forwardToMeSquared(env, {
+      name: payload.name,
+      email: payload.email,
+      phone: payload.phone,
+      address: payload.address || undefined,
+      message: payload.message,
+      kind: 'Rental appraisal',
+      origin: source,
+    }),
+  );
 
   return json({ ok: true });
 };
