@@ -31,9 +31,10 @@ import {
   latestLeaseStart,
 } from '../../src/lib/bookings';
 import { isEmail, isPhone, json, NOT_CONFIGURED, postToSheet, sheetSafe, turnstileOk } from '../_lib/forms';
+import { forwardToMeSquared, type MeSquaredEnv } from '../_lib/mesquared';
 import { bookedSessions } from '../_lib/podcast-calendar';
 
-interface Env {
+interface Env extends MeSquaredEnv {
   SHEETS_WEBHOOK_URL: string;
   /** Cloudflare Turnstile secret key. When set, every submission needs a
    *  valid token, so only set it together with VITE_TURNSTILE_SITE_KEY
@@ -228,7 +229,7 @@ const MULTI = new Set(['help']);
 const MAX_FIELD = 500;
 const MAX_MESSAGE = 3000;
 
-export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
+export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUntil }) => {
   let form: FormData;
   try {
     form = await request.formData();
@@ -329,6 +330,21 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     console.error('Failed to forward enquiry to sheet webhook:', err);
     return json({ ok: false, error: 'Could not record submission. Please try again.' }, 502);
   }
+
+  // MeSquared OS answers the enquiry and alerts the team; it runs after the
+  // visitor has their confirmation and cannot change it.
+  waitUntil(
+    forwardToMeSquared(env, {
+      name: payload.name,
+      email: payload.email,
+      phone: payload.phone,
+      address: payload.address || undefined,
+      message: payload.message,
+      kind: type.label,
+      origin: `apnre.com.au / ${typeKey}`,
+      fields: Object.fromEntries(extras.map((line, i) => [`detail_${i + 1}`, line])),
+    }),
+  );
 
   return json({ ok: true });
 };
