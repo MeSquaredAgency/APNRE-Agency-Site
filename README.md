@@ -155,6 +155,9 @@ repo is now archived) at the start of October 2026. As checked on
   the environment variables below set for Production
   (`docs/switch-over.md`).
 - [x] **Spam check.** Turnstile keys set (`docs/forms.md`).
+- [ ] **MeSquared OS.** `MESQUARED_INTAKE_KEY` set for Production so every
+  enquiry is answered and tracked by the platform (`docs/forms.md`,
+  "Forwarding to MeSquared OS").
 - [x] **Address suggestions.** `VITE_GOOGLE_MAPS_API_KEY` set
   (`docs/google-maps.md`).
 - [x] **Lead emails.** The script in `docs/lead-notifications.md` was

@@ -137,5 +137,19 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     return json({ ok: false, error: 'Could not record submission. Please try again.' }, 502);
   }
 
+  // MeSquared OS answers the enquiry and alerts the team; it runs after the
+  // visitor has their confirmation and cannot change it.
+  context.waitUntil(
+    forwardToMeSquared(env, {
+      name: payload.name,
+      email: payload.email,
+      phone: payload.phone,
+      address: payload.address || undefined,
+      message: payload.message,
+      kind: 'Rental appraisal',
+      origin: source,
+    }),
+  );
+
   return json({ ok: true });
 };

@@ -95,3 +95,21 @@ Turnstile stops automated posts but not a determined human, so also add
 a rate-limiting rule: Cloudflare dashboard → the apnre.com.au zone →
 **Security → WAF → Rate limiting rules**, matching URI path starting
 with `/api/`, e.g. 5 requests per minute per IP, action Block.
+
+## Forwarding to MeSquared OS
+
+Every enquiry is also sent, server-side, to MeSquared OS (Me²'s operations
+platform), which acknowledges the visitor within minutes, alerts the right
+person at APN and tracks the follow-up. The Google Sheet stays the record;
+the forward runs after the sheet post and never changes what the visitor
+sees.
+
+Setup: in the Cloudflare Pages project → Settings → Environment variables,
+add `MESQUARED_INTAKE_KEY` (Production) with the intake key issued for APN
+in MeSquared OS (console → APN Real Estate → Settings → API keys, "intake"
+scope). Without it the forward is simply skipped. `MESQUARED_INTAKE_URL`
+overrides the platform address for a staging deployment.
+
+What is sent: name, email, phone, the message (prefixed with the form type
+and the property address when there is one), and the form's extra answers
+as `fields`. Nothing from the honeypot or Turnstile.
