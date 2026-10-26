@@ -17,7 +17,7 @@ for everyone), crop it the same way, and save it under the same name.
 `bio` is optional on `TeamMember`, but everyone on the page now has one.
 
 Everyone shown has a real supplied bio. Patrick supplied new ones for
-Luke, Marissa, Brett and himself on 9 Oct 2026 (Jenny's is her own). Each `bio` is a list of paragraphs. Luke also sent an expertise list that his profile page shows (`expertise` in
+Luke, Brett and himself on 9 Oct 2026 (Jenny's is her own). Each `bio` is a list of paragraphs. Luke also sent an expertise list that his profile page shows (`expertise` in
 `src/data/team.ts`). For anyone new, the fastest path is a short async
 brief — something like:
 
@@ -41,4 +41,4 @@ entry in `src/data/routes.json` and their line in `public/llms.txt`, and
 redirect their old page to `/our-people/` in `public/_redirects`. Leave
 their image in `public/email/staff/` so emails they've already sent still
 show it. Breeanna Arney (Mount Gambier) was removed this way in October
-2026.
+2026, and Marissa Bowell (Adelaide) on 26 Oct 2026.

@@ -3,7 +3,6 @@ import patrickPhoto from '../assets/team/patrick-nhim.jpg?photo';
 import brettPhoto from '../assets/team/brett-david.jpg?photo';
 import jennyPhoto from '../assets/team/jenny-saffin.jpg?photo';
 import lukePhoto from '../assets/team/luke-whittaker.jpg?photo';
-import marissaPhoto from '../assets/team/marissa-bowell.jpg?photo';
 import type { OfficeId } from './offices';
 
 /** The team filters on /our-people/. Someone can be in more than one,
@@ -64,8 +63,7 @@ export const TEAM: TeamMember[] = [
     // in Management alongside Brett.
     groups: ['property-management', 'sales', 'leadership'],
     office: 'mount-gambier',
-    // Supplied by Patrick, 9 Oct 2026, as were Marissa's, Patrick's and
-    // Brett's below.
+    // Supplied by Patrick, 9 Oct 2026, as were Patrick's and Brett's below.
     bio: [
       'As Region Manager for Mount Gambier, Luke brings a calm, highly methodical approach to every aspect of property management and real estate. Backed by an extensive background in the hospitality sector, he excels in client relationship management, clear communication and high-level problem-solving.',
       'Since bringing these skills to APN Real Estate — where he has spent his entire property management career — Luke has built a strong reputation for navigating complex tenancies and resolving challenging insurance claims with precision and ease. His expertise spans residential property management, commercial sales and leasing, and residential sales support, making him a versatile and reliable partner for property owners, buyers and tenants alike.',
@@ -77,23 +75,6 @@ export const TEAM: TeamMember[] = [
       'Commercial sales and leasing',
       'Residential sales',
       'Mount Gambier market knowledge',
-    ],
-  },
-  {
-    name: 'Marissa Bowell',
-    role: 'Property Manager (Greater Northern)',
-    registration: 'Licensed Land Agent RLA 358014',
-    initials: 'MB',
-    photo: marissaPhoto,
-    photoAlt: 'Marissa Bowell, Property Manager (Greater Northern), Blair Athol',
-    groups: ['property-management', 'sales'],
-    office: 'adelaide',
-    // Patrick's bio said "now a fully licensed Sales Consultant"; "also"
-    // keeps it true alongside her Property Manager title from the matrix.
-    bio: [
-      'With more than four years in real estate, Marissa has built a dynamic career at APN Real Estate. Starting in the APN Real Estate cadet program managing the command centre, she progressed into property management and is now also a fully licensed sales consultant.',
-      'Her broad background spans tenant screening, lease administration, property maintenance and sales. Known for her proactive approach, Marissa delivers tailored, high-quality service to landlords, buyers and vendors alike.',
-      'Outside of work, Marissa stays active and deeply involved in her community. She’s team manager for her son’s local footy team alongside her husband, who coaches, and enjoys spending her spare time with family and friends.',
     ],
   },
   {
@@ -145,7 +126,7 @@ export const TEAM: TeamMember[] = [
 ];
 
 /** "Who you’ll work with." on /selling/, in this order. */
-export const SALES_PAGE_TEAM = ['Patrick Nhim', 'Brett David', 'Luke Whittaker', 'Marissa Bowell'];
+export const SALES_PAGE_TEAM = ['Patrick Nhim', 'Brett David', 'Luke Whittaker'];
 
 /** "Who runs APN." on /our-story/, in two groups. The grid keeps cards
  *  the same size however many are in a group, so adding a name here is
