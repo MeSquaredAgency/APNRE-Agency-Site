@@ -68,9 +68,8 @@ const CONFIG: Record<OfficeId, OfficePageConfig> = {
             tenants across Adelaide’s northern suburbs.
           </p>
           <p>
-            <a href="/our-people/marissa-bowell/">Marissa Bowell</a> is our Property Manager for the Greater Northern
-            area, and <a href="/our-people/brett-david/">Brett David</a>, our Region Manager for Adelaide, looks after
-            leasing and accounts. You’ll know who is responsible for your property and how to reach them directly.
+            <a href="/our-people/brett-david/">Brett David</a>, our Region Manager for Adelaide, looks after leasing and
+            accounts. You’ll know who is responsible for your property and how to reach them directly.
           </p>
           <p>
             See <a href="/leasing/">how we manage properties</a>, get a{' '}
