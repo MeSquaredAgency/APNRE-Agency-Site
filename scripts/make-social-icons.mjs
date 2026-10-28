@@ -1,16 +1,21 @@
-// Social icons for email signatures: Facebook, Instagram and YouTube as
-// 96x96 PNGs (shown at 48px, so they stay crisp on retina screens) in
-// public/email/. Same look as the "Follow us" buttons on the site: the
-// outline icon from src/components/Icon.tsx in ink, inside a white circle
-// with a thin grey ring, transparent corners. PNG rather than SVG or WebP
-// because Outlook for Windows won't show those. Files in public/ are
-// copied into the build as-is, so each is served at a fixed address the
-// signatures link to, e.g. https://apnre.com.au/email/facebook.png.
+// Icons for email signatures, as PNGs in public/email/ (PNG rather than
+// SVG or WebP because Outlook for Windows won't show those). Files in
+// public/ are copied into the build as-is, so each is served at a fixed
+// address the signatures link to, e.g. https://apnre.com.au/email/facebook.png.
 // Don't rename the output files.
+//
+// - facebook, instagram, youtube: 96x96 (shown at 48px, so they stay
+//   crisp on retina screens). Same look as the "Follow us" buttons on the
+//   site: the outline icon from src/components/Icon.tsx in ink, inside a
+//   white circle with a thin grey ring, transparent corners.
+// - me2: the Me² mark for the "Powered by Me² Agency" credit at the right
+//   of each signature, from src/assets/me2-logo.svg (navy "me", coral "2":
+//   the version for a white background; public/me2-mark.webp is the light
+//   one for the site's dark footer). 80px wide, shown at 40px.
 //
 //   node scripts/make-social-icons.mjs
 
-import { mkdir } from 'node:fs/promises';
+import { mkdir, readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
@@ -53,3 +58,8 @@ for (const [name, path] of Object.entries(ICONS)) {
   await sharp(Buffer.from(svg(path)), { density: 288 }).resize(SIZE, SIZE).png().toFile(out);
   console.log(`wrote public/email/${name}.png`);
 }
+
+const MARK_WIDTH = 80;
+const mark = await readFile(resolve(root, 'src/assets/me2-logo.svg'));
+await sharp(mark, { density: 600 }).resize({ width: MARK_WIDTH }).png().toFile(resolve(outDir, 'me2.png'));
+console.log('wrote public/email/me2.png');
