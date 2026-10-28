@@ -8,8 +8,8 @@
 // Re-run after replacing a photo in src/assets/team/:
 //   node scripts/make-email-images.mjs
 //
-// The facebook, instagram and youtube icons in public/email/ are added
-// by hand, not made here.
+// The facebook, instagram and youtube icons in public/email/ come from
+// scripts/make-social-icons.mjs.
 
 import { mkdir } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
