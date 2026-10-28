@@ -5,6 +5,10 @@
 // to the same Google Sheet as every other form, so the lead email goes
 // out exactly as it does for them (docs/lead-notifications.md).
 //
+// Off-topic messages and attempts to change the assistant's role get a
+// fixed reply (DECLINE_TEXT) rather than anything the model wrote, so
+// the assistant can't be talked into answering as something else.
+//
 // The browser keeps the conversation (in sessionStorage), not the
 // server, so there's nothing to store or clean up here. See
 // docs/chat-assistant.md for setup and costs.
@@ -88,6 +92,49 @@ const SUBMIT_ENQUIRY: Anthropic.Beta.BetaTool = {
     additionalProperties: false,
   },
 };
+
+/** An off-topic message or an attempt to change the assistant's role gets
+ *  this marker from the model instead of an answer (chat-prompt.ts). The
+ *  visitor never sees anything the model wrote for that turn: this fixed
+ *  text goes out in its place, so a reply that strays can't reach them. */
+const DECLINE_MARKER = '[[decline]]';
+const DECLINE_TEXT = `Sorry, I can only help with APN Real Estate and property in South Australia. Is there something about selling, renting or property management I can help with? Otherwise you're welcome to call us on ${PHONE_DISPLAY}.`;
+const DECLINE_SUGGESTIONS = ['Book a free appraisal', 'Where are your offices?', 'Can someone call me?'];
+
+/** Holds back the start of a reply until it's clear whether it's the
+ *  decline marker. If it is, the whole turn's text is swallowed and
+ *  `declined` is set; otherwise the held text is released unchanged. */
+class DeclineGate {
+  declined = false;
+  private decided = false;
+  private held = '';
+
+  /** The part of `delta` that's safe to pass on now. */
+  push(delta: string): string {
+    if (this.declined) return '';
+    if (this.decided) return delta;
+    this.held += delta;
+    const head = this.held.trimStart();
+    if (head.length < DECLINE_MARKER.length) {
+      if (DECLINE_MARKER.startsWith(head)) return ''; // could still turn out to be the marker
+    } else if (head.startsWith(DECLINE_MARKER)) {
+      this.declined = true;
+      this.held = '';
+      return '';
+    }
+    this.decided = true;
+    const out = this.held;
+    this.held = '';
+    return out;
+  }
+
+  /** Whatever was still held back at the end of the turn. */
+  end(): string {
+    const out = this.declined ? '' : this.held;
+    this.held = '';
+    return out;
+  }
+}
 
 /** The assistant ends a reply with "[[suggest: a | b | c]]" (see
  *  chat-prompt.ts). This passes the reply through as it streams but holds
@@ -311,6 +358,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
           messages,
         });
         let separated = !wroteText;
+        const gate = new DeclineGate();
         const filter = new SuggestionFilter();
         const emit = (text: string) => {
           if (!text) return;
@@ -322,12 +370,21 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
           wroteText = true;
           send({ type: 'text', text });
         };
-        stream.on('text', (delta) => emit(filter.push(delta)));
+        stream.on('text', (delta) => emit(filter.push(gate.push(delta))));
 
         let message: Anthropic.Beta.BetaMessage;
         try {
           message = await stream.finalMessage();
           jsonRetries = 0;
+          if (gate.declined) {
+            // Off topic, or an attempt to steer the assistant: the model's
+            // own words for this turn are dropped and the fixed text sent.
+            console.log('Chat assistant declined an off-topic message.');
+            emit(DECLINE_TEXT);
+            suggestions = DECLINE_SUGGESTIONS;
+            break;
+          }
+          emit(filter.push(gate.end()));
           const rest = filter.end();
           emit(rest.text);
           // Only the last reply's suggestions count.
