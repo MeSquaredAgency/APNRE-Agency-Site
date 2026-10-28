@@ -61,9 +61,13 @@ questions" section of `functions/_lib/chat-prompt.ts` to match.
    → **API keys**, in an organisation with billing set up. Under
    **Limits**, set a monthly spend limit you're comfortable with.
 2. In the Cloudflare Pages project → **Settings → Environment
-   variables**, add `ANTHROPIC_API_KEY` (as a secret, Production and
-   Preview). `SHEETS_WEBHOOK_URL` is already set for the forms; the
-   assistant uses the same one.
+   variables**, add `ANTHROPIC_API_KEY` (as a secret) and
+   `ANTHROPIC_BASE_URL` (see AI Gateway below) to **both** Production
+   and Preview. Each environment has its own variables: with either
+   missing from Preview, branch previews answer `/api/chat` with a 503
+   and the phone number while the live site works. (Preview was missing
+   both until 28 October 2026.) `SHEETS_WEBHOOK_URL` is already set for
+   the forms; the assistant uses the same one.
 3. Redeploy. Until the key is set, the chat answers with the phone
    number and contact page instead.
 
@@ -90,7 +94,8 @@ endpoint, so:
   from Cloudflare's servers (403 "Request not allowed"), so the chat goes
   through the `apnre-chat`
   [Cloudflare AI Gateway](https://developers.cloudflare.com/ai-gateway/):
-  `ANTHROPIC_BASE_URL` in the Pages project's Production variables is
+  `ANTHROPIC_BASE_URL` in the Pages project's Production and Preview
+  variables is
   `https://gateway.ai.cloudflare.com/v1/<account>/apnre-chat/anthropic`.
   The gateway passes the site's own Anthropic key through (no stored keys,
   no Cloudflare-billed credit), keeps no logs, and caps all traffic at 120
