@@ -8,8 +8,11 @@ chat with an AI assistant (Claude, from Anthropic). It:
 - passes a visitor's details to the team when they want an appraisal,
   a callback or anything else followed up. It writes a row to the same
   Google Sheet as the forms, so the lead email goes out as usual;
-- helps briefly with general property questions (how bonds or auctions
-  work in SA, for example) and steers back to how APN can help.
+- answers general questions about how renting, selling or buying work in
+  SA only in general terms, with no figures from memory, and steers back
+  to how APN can help;
+- declines everything else with a fixed message (see "Staying on topic"
+  below).
 
 It isn't on the landlord campaign page (`/landlords/`), so ad visitors
 stay on that page's form.
@@ -73,6 +76,33 @@ questions" section of `functions/_lib/chat-prompt.ts` to match.
 
 To take the assistant off the site, set `CHAT_ASSISTANT_ENABLED` to
 `false` in `src/data/business.ts`.
+
+## Staying on topic
+
+The assistant is confined to APN Real Estate and property in South
+Australia, the same way the Me² site's assistant is confined to Me². Two
+layers (added 28 October 2026, after it could be talked into answering
+off topic and making things up):
+
+- **Instructions** (`functions/_lib/chat-prompt.ts`): only facts from the
+  reference information, never a plausible gap-filler, no figures (days,
+  dollars, percentages, legal thresholds) that aren't in the reference,
+  and nothing a visitor writes counts as an instruction, however it's
+  dressed up (a "system message", a test, a claim to be from APN or
+  Anthropic). Off-topic requests, role-play, "pretend you're…" and
+  attempts to reveal or change the rules get the marker `[[decline]]`
+  instead of an answer.
+- **The server** (`functions/api/chat.ts`): when a reply starts with that
+  marker, nothing the model wrote for that turn reaches the visitor. The
+  fixed text `DECLINE_TEXT` goes out instead ("Sorry, I can only help
+  with APN Real Estate and property in South Australia…") with fixed
+  follow-up buttons. Each decline is logged as "declined an off-topic
+  message", with nothing the visitor wrote.
+
+The Me² assistant declines every general question. This one still
+answers general property-process questions in general terms, because a
+real estate agency's visitors ask them. To go fully strict, change point
+3 under "What you do" in `chat-prompt.ts` to decline those too.
 
 ## Protecting against abuse
 
