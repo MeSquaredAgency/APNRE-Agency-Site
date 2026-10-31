@@ -7,8 +7,8 @@
 //
 // It also writes the two office logos the signatures offer, Adelaide and
 // Mount Gambier, to public/email/logo-adelaide.png and
-// public/email/logo-mount-gambier.png: 160px wide from the logo files in
-// src/assets/logo/, shown at 80px. (The site's own /logo.png stays as it is:
+// public/email/logo-mount-gambier.png: 224px wide from the logo files in
+// src/assets/logo/, shown at 112px so they stay crisp on retina screens. (The site's own /logo.png stays as it is:
 // it is the logo search engines see.)
 //
 // Re-run after replacing a photo in src/assets/team/ or an office logo:
@@ -89,7 +89,7 @@ for (const person of STAFF) {
   console.log(`Wrote ${file.slice(root.length + 1)}`);
 }
 
-const LOGO_WIDTH = 160;
+const LOGO_WIDTH = 224;
 const LOGOS = [
   { src: 'adelaide-property-network-logo.png', out: 'logo-adelaide' },
   { src: 'mount-gambier-property-network-logo.png', out: 'logo-mount-gambier' },
