@@ -8,8 +8,9 @@
 // Re-run after replacing a photo in src/assets/team/:
 //   node scripts/make-email-images.mjs
 //
-// The facebook, instagram and youtube icons in public/email/ come from
-// scripts/make-social-icons.mjs.
+// The facebook, instagram and youtube icons in public/email/ are added by
+// hand (44x44 solid black, shown at 22px). The Me² mark there comes from
+// scripts/make-me2-mark.mjs.
 
 import { mkdir } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
