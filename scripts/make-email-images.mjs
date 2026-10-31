@@ -5,7 +5,13 @@
 // never changes, e.g. https://apnre.com.au/email/staff/luke.png, which
 // is what the signatures link to. Don't rename the output files.
 //
-// Re-run after replacing a photo in src/assets/team/:
+// It also writes the two office logos the signatures offer, Adelaide and
+// Mount Gambier, to public/email/logo-adelaide.png and
+// public/email/logo-mount-gambier.png: 160px wide from the logo files in
+// src/assets/logo/, shown at 80px. (The site's own /logo.png stays as it is:
+// it is the logo search engines see.)
+//
+// Re-run after replacing a photo in src/assets/team/ or an office logo:
 //   node scripts/make-email-images.mjs
 //
 // The facebook, instagram and youtube icons in public/email/ are added by
@@ -80,5 +86,19 @@ async function makeCircle({ src, out, eyes }) {
 await mkdir(outDir, { recursive: true });
 for (const person of STAFF) {
   const file = await makeCircle(person);
+  console.log(`Wrote ${file.slice(root.length + 1)}`);
+}
+
+const LOGO_WIDTH = 160;
+const LOGOS = [
+  { src: 'adelaide-property-network-logo.png', out: 'logo-adelaide' },
+  { src: 'mount-gambier-property-network-logo.png', out: 'logo-mount-gambier' },
+];
+for (const { src, out } of LOGOS) {
+  const file = resolve(root, 'public/email', `${out}.png`);
+  await sharp(resolve(root, 'src/assets/logo', src))
+    .resize({ width: LOGO_WIDTH })
+    .png({ compressionLevel: 9, adaptiveFiltering: true })
+    .toFile(file);
   console.log(`Wrote ${file.slice(root.length + 1)}`);
 }
