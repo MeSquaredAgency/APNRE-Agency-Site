@@ -73,6 +73,35 @@ export function service(s: { name: string; serviceType: string; path: string; de
   };
 }
 
+/** A guide that isn't a blog post, e.g. /leasing/switching-property-
+ *  managers/. Written by APN rather than one person, so the organisation
+ *  is both author and publisher. Update `dateModified` when the guide's
+ *  steps or answers change. */
+export function article(a: {
+  path: string;
+  headline: string;
+  description: string;
+  image: string;
+  datePublished: string;
+  dateModified?: string;
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: a.headline,
+    description: a.description,
+    image: a.image.startsWith('http') ? a.image : `${SITE}${a.image}`,
+    datePublished: a.datePublished,
+    dateModified: a.dateModified ?? a.datePublished,
+    author: ORGANIZATION_REF,
+    publisher: ORGANIZATION_REF,
+    mainEntityOfPage: `${SITE}${a.path}`,
+    url: `${SITE}${a.path}`,
+    inLanguage: 'en-AU',
+    isPartOf: { '@id': WEBSITE_ID },
+  };
+}
+
 /** A page about the organisation or one of its lists, e.g. AboutPage on
  *  /our-story/. Points at the organisation rather than repeating it. */
 export function webPage(p: { type?: string; path: string; name: string; description?: string }) {

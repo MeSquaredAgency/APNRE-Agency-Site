@@ -69,6 +69,9 @@ register it in `PAGE_LOADERS` in `src/pages/index.ts` and in
 in `scripts/prerender.mjs`, which date it in the sitemap, and link it
 from `src/data/nav.ts`.
 
+Crawler warnings that are expected (noindex pages, the http/www
+redirects) are explained in `docs/site-audit.md`.
+
 Old URLs that moved are redirected in `public/_redirects` (e.g. an old
 blog post's address, or the profile page of someone who has left). Add a
 line there whenever a published page moves. The old brand domains, and
