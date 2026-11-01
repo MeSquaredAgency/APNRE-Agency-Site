@@ -17,7 +17,7 @@ import Laws, { LAWS } from '../components/Laws';
 import { CtaBand, Faq, FormSection, PageHero, Process, ProseSection, Team } from '../components/sections';
 import { PHONE_DISPLAY, PHONE_TEL } from '../data/business';
 import { trackCallClick } from '../lib/analytics';
-import { breadcrumbList } from '../structured-data';
+import { article, breadcrumbList } from '../structured-data';
 import interiorPhoto from '../assets/photos/interior-corner-windows.jpg?photo';
 
 const PATH = '/leasing/switching-property-managers/';
@@ -67,6 +67,20 @@ const FAQS = [
 export default function Switching() {
   return (
     <Layout>
+      {/* A how-to guide, so search engines read it as an article (the
+          October 2026 site audit flagged it for having no Article
+          schema). Its link-preview image is /og/switching.jpg
+          (scripts/og-images.mjs). */}
+      <JsonLd
+        data={article({
+          path: PATH,
+          headline: 'How to Switch Property Managers in South Australia',
+          description:
+            "Thinking of changing property managers in South Australia? What's involved, step by step, what happens to your tenants and bond, and how to start.",
+          image: '/og/switching.jpg',
+          datePublished: '2026-10-21',
+        })}
+      />
       <JsonLd
         data={breadcrumbList([
           { name: 'Home', path: '/' },
