@@ -5,6 +5,8 @@ chat with an AI assistant (Claude, from Anthropic). It:
 
 - answers questions about APN Real Estate: services, offices, hours,
   the team, appraisals, switching property managers, and so on;
+- suggests current listings for sale or rent that match what a visitor
+  is after, with a link to each listing's page (see "Listings" below);
 - passes a visitor's details to the team when they want an appraisal,
   a callback or anything else followed up. It writes a row to the same
   Google Sheet as the forms, so the lead email goes out as usual;
@@ -36,6 +38,12 @@ stay on that page's form.
   `chat-prompt.ts`), which `functions/api/chat.ts` takes out of the text
   and sends as buttons.
 - **A "Details sent to the team" card** when a lead reaches the sheet.
+- **Links in replies** show words, never paths: the assistant is told to
+  write `[the buyer list](/buy/#register)`, and a reply that still uses
+  a bare path as the link text gets a plain label (`linkLabel` in
+  `ChatWidget.tsx`). Following a link to one of the site's pages closes
+  the chat, so the page shows (on phones the chat fills the screen); the
+  conversation is still there when they open it again.
 
 ## How it fits together
 
@@ -45,6 +53,7 @@ stay on that page's form.
 | The server side, which calls Claude and writes leads to the sheet | `functions/api/chat.ts` |
 | The assistant's instructions: tone, what it may and mustn't say, how it takes details | `functions/_lib/chat-prompt.ts` |
 | The facts it answers from | `public/llms.txt`, read at request time, plus the instructions above |
+| The listings it answers from | `public/chat-listings.txt`, written at build time by `scripts/fetch-listings.mjs` (gitignored) |
 | On/off switch | `CHAT_ASSISTANT_ENABLED` in `src/data/business.ts` |
 
 The conversation is kept in the visitor's browser (sessionStorage), so it
@@ -76,6 +85,19 @@ questions" section of `functions/_lib/chat-prompt.ts` to match.
 
 To take the assistant off the site, set `CHAT_ASSISTANT_ENABLED` to
 `false` in `src/data/business.ts`.
+
+## Listings
+
+Each build writes the current listings (for sale, for rent, commercial,
+recent sales) to `public/chat-listings.txt`: address, price, bedrooms,
+bathrooms, cars, areas, availability, bond, inspection times, agent, the
+first 500 characters of the description and the listing's page. The
+assistant reads it like `llms.txt` and suggests matching listings with a
+link. Since the feed rebuilds the site about 10 minutes after a listing
+changes in PropertyMe, the assistant is as current as the listing pages.
+Without the feed, the file just says listings aren't available and the
+assistant links to `/buy/` and `/rent/`. The file is public (like the
+listing pages) but sent with `noindex` (`public/_headers`).
 
 ## Staying on topic
 
@@ -135,12 +157,16 @@ endpoint, so:
 ## Cost
 
 It uses Claude Sonnet 5.5 (`MODEL` in `functions/api/chat.ts`) at low
-effort, which keeps replies quick. Each message sends the instructions
-and llms.txt (about 3,000 tokens) plus the conversation so far, so a
+effort with extended thinking off (`thinking: {type: 'between_tools'}`),
+so the reply starts streaming within a second or two. With thinking on
+(until 1 November 2026) visitors waited up to 20 seconds for the first
+word. Each message sends the instructions,
+llms.txt and the listings (about 3,000 tokens plus roughly 200 a
+listing, mostly read from the prompt cache) plus the conversation so far, so a
 typical message costs about 1 cent (US). A thousand chat messages a
 month would be in the order of US$10. For a cheaper assistant, change
-`MODEL` to `claude-haiku-5-5` and remove the `betas` and `fallbacks`
-lines, which only apply to the larger models.
+`MODEL` to `claude-haiku-5-5` and remove the `thinking`, `betas` and
+`fallbacks` lines, which only apply to the larger models.
 
 The model must be allowed in the **APNRE** workspace's limits in the
 Anthropic console (Settings → Workspaces → APNRE → Limits). A model whose

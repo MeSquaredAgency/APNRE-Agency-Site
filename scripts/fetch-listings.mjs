@@ -165,6 +165,62 @@ async function resolveShortLinks(listings) {
   return resolved;
 }
 
+/** The chat assistant's copy of the listings (functions/api/chat.ts reads
+ *  it like llms.txt): plain text, one block per listing, with what a
+ *  visitor is likely to ask about and the listing's own page. Rebuilt with
+ *  every deploy, so it's as current as the listing pages. */
+const CHAT_OUT = join(ROOT, 'public/chat-listings.txt');
+const SECTION_NAMES = {
+  buy: 'For sale',
+  rent: 'For rent (homes)',
+  commercial: 'Commercial for lease',
+  sold: 'Recently sold',
+};
+function chatListings(listings) {
+  const today = new Date().toISOString().slice(0, 10);
+  const parts = [`Listings on apnre.com.au as of the last site build (${today}).`];
+  for (const [section, name] of Object.entries(SECTION_NAMES)) {
+    const group = listings.filter((l) => l.section === section);
+    parts.push(`\n## ${name} (${group.length})`);
+    if (!group.length) parts.push('None at the moment.');
+    for (const l of group) {
+      const address = [l.street, l.suburb, l.postcode].filter(Boolean).join(', ');
+      const rooms = [
+        l.bedrooms != null && `${l.bedrooms} bed`,
+        l.bathrooms != null && `${l.bathrooms} bath`,
+        l.carSpaces != null && `${l.carSpaces} car`,
+      ].filter(Boolean);
+      // The Blair Athol office rooms have no listing page; /office-space/
+      // has their details and prices.
+      const blairAthol = l.apnBuilding === 'blair-athol';
+      const lines = [
+        `- ${address} (${l.category ?? l.propertyType})`,
+        `  Page: ${blairAthol ? '/office-space/ (APN’s own building: see that page for rooms and prices)' : l.path}`,
+      ];
+      if (l.apnBuilding === 'mount-gambier') lines.push('  In APN’s own Mount Gambier building');
+      if (l.headline) lines.push(`  Headline: ${l.headline}`);
+      if (!blairAthol) {
+        lines.push(`  ${section === 'sold' ? 'Result' : 'Price'}: ${l.price ?? 'Contact agent'}${l.underOffer ? ' (under offer)' : ''}`);
+      }
+      if (rooms.length) lines.push(`  ${rooms.join(', ')}`);
+      if (l.landArea) lines.push(`  Land: ${l.landArea}`);
+      if (l.buildingArea) lines.push(`  Building: ${l.buildingArea}`);
+      if (l.availableNow) lines.push('  Available now');
+      else if (l.availableFrom) lines.push(`  Available from ${l.availableFrom}`);
+      if (l.bond) lines.push(`  Bond: ${l.bond}`);
+      if (l.inspections?.length) lines.push(`  Inspections: ${l.inspections.join('; ')}`);
+      if (l.soldDate) lines.push(`  Sold: ${l.soldDate}`);
+      if (l.agents?.length) lines.push(`  Agent: ${l.agents.map((a) => a.name).join(', ')}`);
+      if (section !== 'sold' && l.description) {
+        const about = l.description.replace(/\s+/g, ' ').trim();
+        lines.push(`  About: ${about.length > 500 ? `${about.slice(0, 500)}…` : about}`);
+      }
+      parts.push(lines.join('\n'));
+    }
+  }
+  return `${parts.join('\n')}\n`;
+}
+
 const { source, files, photos, agentId } = await feedFiles();
 const { listings, skipped } = parseFeed(files, { agentId });
 const shortLinks = await resolveShortLinks(listings);
@@ -176,6 +232,12 @@ const copied = photos ? await useCopies(listings, photos) : 0;
 
 mkdirSync(dirname(OUT), { recursive: true });
 writeFileSync(OUT, `${JSON.stringify(listings, null, 2)}\n`);
+writeFileSync(
+  CHAT_OUT,
+  files.length
+    ? chatListings(listings)
+    : 'The listings feed is not connected on this build, so no listings are available here. Point visitors to /buy/ and /rent/.\n',
+);
 
 const count = (section) => listings.filter((l) => l.section === section).length;
 console.log(

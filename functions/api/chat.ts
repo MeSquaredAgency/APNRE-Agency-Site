@@ -213,21 +213,29 @@ function readConversation(body: unknown): ChatMessage[] | string {
   return out;
 }
 
-/** public/llms.txt: the offices, hours, team and pages. Kept for the life
- *  of the worker, so it's read once rather than on every message. */
-let reference: Promise<string> | undefined;
-function loadReference(env: Env, requestUrl: string): Promise<string> {
-  reference ??= env.ASSETS.fetch(new URL('/llms.txt', requestUrl))
-    .then((res) => {
-      if (!res.ok) throw new Error(`llms.txt responded ${res.status}`);
-      return res.text();
-    })
-    .catch((err) => {
-      console.error('Could not load llms.txt for the chat assistant:', err);
-      reference = undefined; // try again next time
-      return '';
-    });
-  return reference;
+/** Reads one of the site's own text files: public/llms.txt (the offices,
+ *  hours, team and pages) and public/chat-listings.txt (the current
+ *  listings, written at build time by scripts/fetch-listings.mjs). Kept
+ *  for the life of the worker, which is replaced on every deploy, so each
+ *  is read once rather than on every message and is never older than the
+ *  deploy. */
+const references = new Map<string, Promise<string>>();
+function loadReference(env: Env, requestUrl: string, path: string): Promise<string> {
+  let ref = references.get(path);
+  if (!ref) {
+    ref = env.ASSETS.fetch(new URL(path, requestUrl))
+      .then((res) => {
+        if (!res.ok) throw new Error(`${path} responded ${res.status}`);
+        return res.text();
+      })
+      .catch((err) => {
+        console.error(`Could not load ${path} for the chat assistant:`, err);
+        references.delete(path); // try again next time
+        return '';
+      });
+    references.set(path, ref);
+  }
+  return ref;
 }
 
 /** Checks the tool's input and writes the row. Returns what to tell the
@@ -318,11 +326,20 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   }
 
   const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY, baseURL: env.ANTHROPIC_BASE_URL || undefined });
-  const llms = await loadReference(env, request.url);
+  const [llms, listings] = await Promise.all([
+    loadReference(env, request.url, '/llms.txt'),
+    loadReference(env, request.url, '/chat-listings.txt'),
+  ]);
   const system: Anthropic.Beta.BetaTextBlockParam[] = [
     {
       type: 'text',
-      text: llms ? `${CHAT_INSTRUCTIONS}\n\n## Reference information (public/llms.txt)\n\n${llms}` : CHAT_INSTRUCTIONS,
+      text: [
+        CHAT_INSTRUCTIONS,
+        llms && `## Reference information (public/llms.txt)\n\n${llms}`,
+        listings && `## Current listings\n\n${listings}`,
+      ]
+        .filter(Boolean)
+        .join('\n\n'),
       cache_control: { type: 'ephemeral' },
     },
     // After the cached block, so the date doesn't stop it being reused.
@@ -346,8 +363,13 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       for (let turn = 0; turn < MAX_TURNS; turn++) {
         const stream = client.beta.messages.stream({
           model: MODEL,
-          max_tokens: 16000,
-          // A chat reply rarely needs deep reasoning; low keeps it quick.
+          max_tokens: 4000,
+          // No extended thinking before replying: with it, visitors
+          // waited 15-20 seconds for the first word. A chat reply from
+          // the reference text doesn't need it. (between_tools is
+          // Claude Sonnet 5.5's "thinking off"; a fallback to another
+          // model runs there with thinking disabled.)
+          thinking: { type: 'between_tools' },
           output_config: { effort: 'low' },
           // If Claude's safety checks decline a message, the API retries
           // it on Anthropic's recommended fallback model instead.

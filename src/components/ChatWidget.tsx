@@ -138,9 +138,21 @@ function safeHref(href: string): string | undefined {
   return undefined;
 }
 
+/** Link text for a link the assistant wrote as a bare path, such as
+ *  [/buy/#register](/buy/#register), which reads like code. */
+function linkLabel(label: string): string {
+  if (!/^\/(?!\/)\S*$/.test(label)) return label;
+  if (label.startsWith('/buy/')) return label.includes('#register') ? 'the buyer list' : 'properties for sale';
+  if (label.startsWith('/rent/')) return label.includes('#register') ? 'the renter list' : 'properties for rent';
+  if (label.startsWith('/sold/')) return 'recent sales';
+  return 'this page';
+}
+
 /** Inline Markdown the assistant may use: [links](/path), bare URLs and
- *  **bold**. Everything else is plain text (React escapes it). */
-function inline(text: string): ReactNode[] {
+ *  **bold**. Everything else is plain text (React escapes it).
+ *  `onNavigate` runs when a link to one of the site's own pages is
+ *  followed. */
+function inline(text: string, onNavigate?: () => void): ReactNode[] {
   const out: ReactNode[] = [];
   const pattern = /\[([^\]]+)\]\(([^)\s]+)\)|\*\*([^*]+)\*\*|(https?:\/\/[^\s)]+[^\s).,!?])/g;
   let last = 0;
@@ -149,17 +161,18 @@ function inline(text: string): ReactNode[] {
     if (m[3]) {
       out.push(<strong key={m.index}>{m[3]}</strong>);
     } else {
-      const label = m[1] ?? m[4];
+      const label = linkLabel(m[1] ?? m[4]);
       const href = safeHref(m[2] ?? m[4]);
       if (!href) out.push(label);
       else {
         const external = /^https?:/i.test(href) && !/^https?:\/\/(www\.)?apnre\.com\.au/i.test(href);
+        const sitePage = !external && !/^(tel|mailto):/i.test(href);
         out.push(
           <a
             key={m.index}
             href={href}
             {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-            onClick={href.startsWith('tel:') ? () => trackCallClick('chat') : undefined}
+            onClick={href.startsWith('tel:') ? () => trackCallClick('chat') : sitePage ? onNavigate : undefined}
           >
             {label}
           </a>,
@@ -173,7 +186,7 @@ function inline(text: string): ReactNode[] {
 }
 
 /** Paragraphs, and lines starting "- " as a list. */
-function RichText({ text }: { text: string }) {
+function RichText({ text, onNavigate }: { text: string; onNavigate?: () => void }) {
   return (
     <>
       {text
@@ -185,7 +198,7 @@ function RichText({ text }: { text: string }) {
             return (
               <ul key={i}>
                 {lines.map((l, j) => (
-                  <li key={j}>{inline(l.replace(/^\s*[-•*]\s+/, ''))}</li>
+                  <li key={j}>{inline(l.replace(/^\s*[-•*]\s+/, ''), onNavigate)}</li>
                 ))}
               </ul>
             );
@@ -195,7 +208,7 @@ function RichText({ text }: { text: string }) {
               {lines.map((l, j) => (
                 <Fragment key={j}>
                   {j > 0 && <br />}
-                  {inline(l)}
+                  {inline(l, onNavigate)}
                 </Fragment>
               ))}
             </p>
@@ -335,6 +348,20 @@ export default function ChatWidget() {
   function closeChat() {
     setOpen(false);
     launcher.current?.focus();
+  }
+
+  /** A link in a reply to one of the site's pages: the chat closes, so
+   *  the page shows instead of the chat covering it (on phones it fills
+   *  the screen). Saved straight away, since the page is about to unload
+   *  before the effect that saves it would run. The conversation stays,
+   *  for when they open the chat again. */
+  function leaveForPage() {
+    setOpen(false);
+    try {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ messages, open: false }));
+    } catch {
+      // Not saved: the chat may open again on the next page.
+    }
   }
 
   async function send(text: string) {
@@ -574,7 +601,7 @@ export default function ChatWidget() {
                     <div className="chat__body">
                       <div className="chat__bubble">
                         {m.content ? (
-                          <RichText text={m.content} />
+                          <RichText text={m.content} onNavigate={leaveForPage} />
                         ) : (
                           <span className="chat__typing" aria-label="Writing a reply">
                             <span />

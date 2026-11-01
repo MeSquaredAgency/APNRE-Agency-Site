@@ -697,13 +697,47 @@ input, select, textarea {
   background: rgba(0, 0, 0, 0.3);
   color: var(--white);
 }
+/* Phones: the button drops under the address on its own row. The bar gets
+   even padding all round so the button doesn't sit hard against its
+   edges, and the heading, tabs and links get more room between them. */
 @media (max-width: 600px) {
+  .video-hero__content {
+    padding-top: calc(var(--header-h) + 24px);
+    padding-bottom: 56px;
+  }
+  .video-hero .h-display {
+    font-size: clamp(2.3rem, 10.5vw, 2.9rem);
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+  .video-hero__sub {
+    font-size: 1.05rem;
+    line-height: 1.55;
+    margin-bottom: 40px;
+  }
+  .hero-search__modes {
+    gap: 28px;
+    margin-bottom: 16px;
+  }
   .hero-search__bar {
     flex-wrap: wrap;
-    padding: 6px 6px 6px 14px;
+    gap: 4px 12px;
+    padding: 10px;
+  }
+  .hero-search__bar > svg {
+    margin-left: 8px;
+  }
+  .hero-search__bar input {
+    padding: 14px 0;
   }
   .hero-search__bar .btn {
     width: 100%;
+  }
+  .video-hero__links {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+    margin-top: 36px;
   }
 }
 
