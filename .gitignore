@@ -22,3 +22,5 @@ public/og/
 src/data/listings.json
 public/listing-photos/
 dist-ssr/
+# Written by scripts/fetch-listings.mjs for the chat assistant
+public/chat-listings.txt
