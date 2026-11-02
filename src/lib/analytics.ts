@@ -147,9 +147,10 @@ export function trackWhatsAppClick(placement: string) {
 }
 
 /** The chat assistant (src/components/ChatWidget.tsx) was opened.
- *  `source` is how: 'launcher' (the button) or 'teaser' (the greeting
- *  that pops up beside it). */
-export function trackChatOpen(source: 'launcher' | 'teaser') {
+ *  `source` is how: 'launcher' (the button), 'teaser' (the greeting
+ *  that pops up beside it) or 'callbar' (the Chat button in the phone
+ *  call bar, StickyActions.tsx). */
+export function trackChatOpen(source: 'launcher' | 'teaser' | 'callbar') {
   try {
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({ event: 'chat_open', source });

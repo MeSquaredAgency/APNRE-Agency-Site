@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { PHONE_TEL } from '../data/business';
+import { CHAT_ASSISTANT_ENABLED, PHONE_TEL } from '../data/business';
 import { trackCallClick } from '../lib/analytics';
 import Icon from './Icon';
 
@@ -9,7 +9,15 @@ import Icon from './Icon';
  *
  *  It slides in once the page's hero has scrolled up past it: while the
  *  hero is on screen it has its own buttons, and a bar pinned over the
- *  bottom of it would cover them. */
+ *  bottom of it would cover them.
+ *
+ *  With the chat assistant on, it also has a Chat button, since phones
+ *  don't get the chat's own floating button (it covered the page). The
+ *  button is always in the HTML but only shows while the chat is on the
+ *  page (ChatWidget.tsx marks <html> with .has-chat; see index.css), so
+ *  pages without the chat, like the landlord funnel, never show it. It
+ *  asks the chat to open with a window event rather than importing the
+ *  chat, which would put the whole chat in the funnel's bundle. */
 const BAR_HEIGHT = 72;
 const SCROLLED = 40;
 export default function StickyActions({ current, cta: ownCta }: { current: string; cta?: { href: string; label: string } }) {
@@ -64,6 +72,17 @@ export default function StickyActions({ current, cta: ownCta }: { current: strin
       >
         <Icon name="phone" /> Call
       </a>
+      {CHAT_ASSISTANT_ENABLED && (
+        <button
+          type="button"
+          className="sticky-actions__chat"
+          aria-haspopup="dialog"
+          onClick={() => window.dispatchEvent(new CustomEvent('apn-chat-open'))}
+          tabIndex={visible ? undefined : -1}
+        >
+          <Icon name="chat" /> Chat
+        </button>
+      )}
       <a href={cta.href} className="sticky-actions__cta" tabIndex={visible ? undefined : -1}>
         {cta.label} <Icon name="arrow" />
       </a>

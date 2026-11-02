@@ -9,8 +9,21 @@ import starMark from '../assets/logo/apn-star-mark.png?w=96&format=webp';
 // pops up beside it) that opens a chat panel. Replies come from
 // functions/api/chat.ts (Claude), streamed in as they're written, with
 // follow-up suggestions as buttons. See docs/chat-assistant.md.
+//
+// On phones the button and greeting are left off (they covered the page);
+// the call bar's Chat button (StickyActions.tsx) opens the chat instead,
+// by sending OPEN_EVENT. The chat marks the page with HAS_CHAT_CLASS while
+// it's on it, which is what shows that button, so pages without the chat
+// (the landlord funnel) never get one.
 
 const ENDPOINT = '/api/chat';
+/** Sent on window by StickyActions.tsx to open the chat. */
+export const OPEN_EVENT = 'apn-chat-open';
+/** On <html> while the chat is on the page (see index.css). */
+const HAS_CHAT_CLASS = 'has-chat';
+/** Where StickyActions.tsx's call bar shows, and the button and greeting
+ *  don't (matches index.css). */
+const PHONE_QUERY = '(max-width: 760px)';
 
 /** The conversation lives in sessionStorage, so it carries on from page
  *  to page (the site is separate pages) and is gone when the tab closes. */
@@ -111,14 +124,25 @@ interface Message {
   suggestions?: string[];
   /** This reply sent the visitor's details to the team. */
   lead?: boolean;
+  /** The server's signature for this reply, sent back with it so the
+   *  server knows it really wrote it (functions/_lib/chat-sign.ts). It
+   *  covers `content` exactly as received, so the text must never be
+   *  changed after the reply ends. */
+  sig?: string;
 }
 
 /** A message from the server written for the visitor, shown as-is. */
 class ServerMessage extends Error {}
 
 /** The conversation to send: complete question-and-answer pairs (no
- *  failed ones), trimmed from the front to fit the server's caps. */
-function history(messages: Message[], question: string): { role: string; content: string }[] {
+ *  failed ones), trimmed from the front to fit the server's caps. Each
+ *  reply goes back with its signature and lead flag; the server leaves out
+ *  any reply (and its question) that doesn't match its signature, such as
+ *  one saved before replies were signed. */
+function history(
+  messages: Message[],
+  question: string,
+): { role: string; content: string; sig?: string; lead?: boolean }[] {
   const pairs: Message[][] = [];
   for (let i = 0; i + 1 < messages.length; i += 2) {
     const [q, a] = [messages[i], messages[i + 1]];
@@ -127,7 +151,9 @@ function history(messages: Message[], question: string): { role: string; content
   const out = [...pairs.flat(), { role: 'user' as const, content: question }];
   const size = () => out.reduce((n, m) => n + m.content.length, 0);
   while (out.length > 1 && (out.length > SEND_MESSAGES || size() > SEND_CHARS)) out.splice(0, 2);
-  return out.map(({ role, content }) => ({ role, content }));
+  return out.map(({ role, content, sig, lead }) =>
+    role === 'assistant' ? { role, content, sig, ...(lead ? { lead: true } : {}) } : { role, content },
+  );
 }
 
 /** Only links the assistant should be giving out: the site's own pages,
@@ -247,6 +273,9 @@ export default function ChatWidget() {
   const field = useRef<HTMLTextAreaElement>(null);
   const log = useRef<HTMLDivElement>(null);
   const root = useRef<HTMLDivElement>(null);
+  /** What had focus when the chat opened (the button, or the call bar's
+   *  Chat button), to go back to when it closes. */
+  const opener = useRef<HTMLElement | null>(null);
   const panelId = useId();
   const titleId = useId();
 
@@ -272,10 +301,26 @@ export default function ChatWidget() {
     }
   }, [messages, open, sending]);
 
+  // Lets the call bar show its Chat button while the chat is on the page,
+  // and open it from there.
+  useEffect(() => {
+    const html = document.documentElement;
+    html.classList.add(HAS_CHAT_CLASS);
+    const onOpen = () => openChat('callbar');
+    window.addEventListener(OPEN_EVENT, onOpen);
+    return () => {
+      html.classList.remove(HAS_CHAT_CLASS);
+      window.removeEventListener(OPEN_EVENT, onOpen);
+    };
+    // openChat only uses state setters and refs, so the first one will do.
+  }, []);
+
   // The greeting pops up once per visit, a few seconds in, for visitors
-  // who haven't chatted yet.
+  // who haven't chatted yet. Not on phones: there it covered the page
+  // (and the footer's links), and the call bar has a Chat button instead.
   useEffect(() => {
     if (NO_TEASER.some((p) => path.startsWith(p))) return;
+    if (window.matchMedia(PHONE_QUERY).matches) return;
     let seen = false;
     try {
       const saved = JSON.parse(sessionStorage.getItem(STORAGE_KEY) ?? 'null');
@@ -339,15 +384,26 @@ export default function ChatWidget() {
     if (open && window.matchMedia('(pointer: fine)').matches) field.current?.focus();
   }, [open]);
 
-  function openChat(source: 'launcher' | 'teaser') {
+  function openChat(source: 'launcher' | 'teaser' | 'callbar') {
+    opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setOpen(true);
     setTeaser(false);
     trackChatOpen(source);
   }
 
+  /** Focus goes back to whatever opened the chat if it's still on screen
+   *  (on phones the floating button is hidden, and the call bar may have
+   *  slid away), otherwise to the floating button if that's showing. */
   function closeChat() {
     setOpen(false);
-    launcher.current?.focus();
+    const visible = (el: HTMLElement | null | undefined): el is HTMLElement =>
+      !!el && el !== document.body && el.isConnected && el.getClientRects().length > 0 && !el.closest('[aria-hidden="true"]');
+    // After the panel has gone, so the launcher's display is up to date.
+    requestAnimationFrame(() => {
+      const back = [opener.current, launcher.current].find(visible);
+      back?.focus();
+      opener.current = null;
+    });
   }
 
   /** A link in a reply to one of the site's pages: the chat closes, so
@@ -406,6 +462,7 @@ export default function ChatWidget() {
             kind?: string;
             items?: unknown;
             error?: string;
+            sig?: string;
           };
           if (event.type === 'text' && event.text) {
             wrote = true;
@@ -413,6 +470,9 @@ export default function ChatWidget() {
           } else if (event.type === 'suggestions' && Array.isArray(event.items)) {
             const items = event.items.filter((s): s is string => typeof s === 'string');
             reply((m) => ({ ...m, suggestions: items }));
+          } else if (event.type === 'sig' && typeof event.sig === 'string') {
+            const sig = event.sig;
+            reply((m) => ({ ...m, sig }));
           } else if (event.type === 'lead' && event.kind) {
             trackChatLead(event.kind);
             reply((m) => ({ ...m, lead: true }));

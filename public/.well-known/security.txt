@@ -1,0 +1,7 @@
+# How to report a security problem with apnre.com.au (RFC 9116).
+# The site has no published security email, so reports go through the
+# contact page. Update Expires before it passes (at least once a year).
+Contact: https://apnre.com.au/contact/
+Expires: 2027-11-02T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://apnre.com.au/.well-known/security.txt
