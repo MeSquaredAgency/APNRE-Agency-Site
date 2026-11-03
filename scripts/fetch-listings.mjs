@@ -18,10 +18,16 @@
 // /listing-photo/<file>, which fetches it from PropertyMe
 // (functions/listing-photo/[file].ts).
 //
+// It also writes the listing pages' link-preview photos (ogImages
+// below), and the redirects for listing pages that have moved or gone
+// (parseFeed in scripts/reaxml.mjs) to REDIRECTS_OUT, which
+// scripts/prerender.mjs adds to dist/_redirects at the end of the build.
+//
 // If the feed is set up but can't be read, the build fails rather than
 // publishing a site with no listings: Cloudflare keeps the last good
 // deploy live until the next build works.
 
+import { createHash } from 'node:crypto';
 import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -36,6 +42,19 @@ const PHOTO_DIR = join(ROOT, 'public/listing-photos');
  *  so each 800px copy also gets one this wide (made here with sharp),
  *  rather than every thumbnail loading at twice the size it's shown. */
 const TILE_WIDTH = 400;
+/** The main photo is the listing page's largest image (its LCP). A phone
+ *  shows it about 360px wide, so at 3x it wants about 1100px: with only
+ *  800px and 1600px copies it got the 1600px one (about 260 KB). So the
+ *  main photo also gets a copy this wide, made from the 1600px one. */
+const MAIN_WIDTH = 1200;
+/** Link previews: Facebook, LinkedIn and some messaging apps don't show
+ *  WebP, and crop to about 1.91:1, so each listing's main photo also gets
+ *  a JPEG this size (ogImages). */
+const OG_SIZE = { width: 1200, height: 630 };
+/** Where the redirects for listing pages that have moved or gone are
+ *  kept between this step and scripts/prerender.mjs: a build cache, not
+ *  part of the site, and never committed (node_modules is gitignored). */
+const REDIRECTS_OUT = join(ROOT, 'node_modules/.cache/apn-listing-redirects.json');
 
 const { LISTINGS_FEED_URL, LISTINGS_FEED_TOKEN, LISTINGS_AGENT_ID, CF_PAGES } = process.env;
 
@@ -122,7 +141,60 @@ async function useCopies(listings, photos) {
       return sharp(file).resize({ width: TILE_WIDTH, withoutEnlargement: true }).toFile(join(ROOT, 'public', tileOf(src)));
     }),
   );
+
+  // The main photo's 1200px copy (MAIN_WIDTH), from the 1600px one, when
+  // that's wider than 1200px.
+  const mainOf = (src) => src.replace(/(\.\w+)$/, `-${MAIN_WIDTH}w$1`);
+  await Promise.all(
+    listings.map(async (l) => {
+      const src = l.photos?.[0];
+      if (!src?.startsWith('/listing-photos/') || src === l.thumbs?.[0]) return;
+      const file = join(ROOT, 'public', src);
+      if (((await sharp(file).metadata()).width ?? 0) <= MAIN_WIDTH) return;
+      await sharp(file).resize({ width: MAIN_WIDTH }).toFile(join(ROOT, 'public', mainOf(src)));
+      l.mainPhoto1200 = mainOf(src);
+    }),
+  );
   return wanted.size;
+}
+
+/** Each listing page's link-preview photo: its main photo as a 1200 x 630
+ *  JPEG in public/listing-photos/ (`ogImage`), named after the photo it's
+ *  made from so a new main photo gets a new file (they're cached for a
+ *  year). From the feed server's copy where there is one; otherwise the
+ *  photo is downloaded (PropertyMe's over http, which is fine here at
+ *  build time). A photo that can't be read keeps the page on its WebP
+ *  main photo, as before. */
+async function ogImages(listings) {
+  let made = 0;
+  await Promise.all(
+    listings.map(async (l) => {
+      const src = l.photos?.[0];
+      if (!src || l.apnBuilding === 'blair-athol') return;
+      const name = `og-${createHash('sha1').update(src).digest('hex').slice(0, 16)}.jpg`;
+      try {
+        let input;
+        if (src.startsWith('/listing-photos/')) input = join(ROOT, 'public', src);
+        else {
+          const pm = src.match(/^\/listing-photo\/(.+)$/);
+          const url = pm ? `http://docs.propertyme.com/listing/${pm[1]}` : src;
+          if (!/^https?:\/\//.test(url)) return;
+          const res = await fetch(url, { signal: AbortSignal.timeout(20_000) });
+          if (!res.ok) throw new Error(`returned ${res.status}`);
+          input = Buffer.from(await res.arrayBuffer());
+        }
+        await sharp(input)
+          .resize({ ...OG_SIZE, fit: 'cover' })
+          .jpeg({ quality: 78, mozjpeg: true })
+          .toFile(join(PHOTO_DIR, name));
+        l.ogImage = `/listing-photos/${name}`;
+        made++;
+      } catch (err) {
+        console.log(`  no link-preview JPEG for ${l.path} (${err.message}); using its main photo`);
+      }
+    }),
+  );
+  return made;
 }
 
 /** Short links agents paste into descriptions (goo.gl/..., youtu.be/...)
@@ -222,13 +294,19 @@ function chatListings(listings) {
 }
 
 const { source, files, photos, agentId } = await feedFiles();
-const { listings, skipped } = parseFeed(files, { agentId });
+const { listings, skipped, redirects } = parseFeed(files, { agentId });
 const shortLinks = await resolveShortLinks(listings);
 
 // Start empty each time, so photos of listings that have gone don't ship.
 rmSync(PHOTO_DIR, { recursive: true, force: true });
 mkdirSync(PHOTO_DIR, { recursive: true });
 const copied = photos ? await useCopies(listings, photos) : 0;
+const ogMade = await ogImages(listings);
+
+// Always written, empty without a feed, so a build never picks up an
+// earlier run's redirects.
+mkdirSync(dirname(REDIRECTS_OUT), { recursive: true });
+writeFileSync(REDIRECTS_OUT, `${JSON.stringify(redirects, null, 2)}\n`);
 
 mkdirSync(dirname(OUT), { recursive: true });
 writeFileSync(OUT, `${JSON.stringify(listings, null, 2)}\n`);
@@ -247,4 +325,6 @@ console.log(
 // rest are worth a look in the build log.
 for (const reason of skipped) console.log(`  skipped ${reason}`);
 if (photos) console.log(`  ${copied} photo(s) and floor plan(s) from the feed server's copies`);
+if (ogMade) console.log(`  ${ogMade} link-preview JPEG(s) of listings' main photos`);
+if (redirects.length) console.log(`  ${redirects.length} redirect(s) for listing pages that have moved or gone`);
 if (shortLinks) console.log(`  ${shortLinks} short link(s) in descriptions now link straight to where they go`);

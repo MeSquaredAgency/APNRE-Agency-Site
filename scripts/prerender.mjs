@@ -8,11 +8,13 @@
 //   4. add <link rel="modulepreload"> tags for each page's own code, so
 //      the browser fetches it with the entry script instead of only
 //      finding it once the entry has run;
+//   5. add the redirects for listing pages that have moved or gone
+//      (written by scripts/fetch-listings.mjs) to dist/_redirects;
 // then removes dist-ssr/ and Vite's manifest. (The blog template, dist/blog/index.html, is
 // overwritten by the rendered /blog/ page.)
 
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { allRoutes } from './routes.mjs';
@@ -198,6 +200,46 @@ writeFileSync(
       .join('') +
     '</urlset>\n',
 );
+
+// Listing pages that have moved or gone (parseFeed in scripts/reaxml.mjs):
+// a sale that sold moves from /buy/ to /sold/, and a leased or withdrawn
+// listing's page goes. Cloudflare Pages reads dist/_redirects, which Vite
+// copied from public/_redirects (the hand-written ones, committed); these
+// are added to the copy, so the committed file never changes. A redirect
+// would hide a page at the same address, so any that match a page this
+// build has are left out. Pages allows 2,000 static redirects in all;
+// past that the oldest listings' are dropped, with a warning.
+const REDIRECTS_FILE = join(dist, '_redirects');
+const MAX_REDIRECTS = 2000;
+const listingRedirectsFile = join(root, 'node_modules/.cache/apn-listing-redirects.json');
+{
+  const livePaths = new Set(
+    [...routes.map((r) => r.path), ...blogPages.map((p) => p.path)].flatMap((p) => [p, p.replace(/\/$/, '')]),
+  );
+  const generated = existsSync(listingRedirectsFile) ? JSON.parse(readFileSync(listingRedirectsFile, 'utf8')) : [];
+  const handWritten = existsSync(REDIRECTS_FILE) ? readFileSync(REDIRECTS_FILE, 'utf8') : '';
+  const taken = new Set(
+    handWritten
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line && !line.startsWith('#'))
+      .map((line) => line.split(/\s+/)[0]),
+  );
+  const room = MAX_REDIRECTS - taken.size;
+  const wanted = generated.filter((r) => !livePaths.has(r.from) && !taken.has(r.from));
+  const kept = wanted.slice(0, Math.max(room, 0));
+  if (kept.length) {
+    appendFileSync(
+      REDIRECTS_FILE,
+      `${handWritten.endsWith('\n') || !handWritten ? '' : '\n'}\n# Listing pages that have moved or gone, added by scripts/prerender.mjs\n` +
+        kept.map((r) => `${r.from} ${r.to} 301\n`).join(''),
+    );
+  }
+  console.log(`Redirects: ${taken.size} from public/_redirects, ${kept.length} for listing pages that have moved or gone.`);
+  if (kept.length < wanted.length) {
+    console.warn(`Redirects: left out ${wanted.length - kept.length} listing redirect(s), over Cloudflare Pages' ${MAX_REDIRECTS}.`);
+  }
+}
 
 rmSync(ssrDir, { recursive: true, force: true });
 rmSync(join(dist, '.vite'), { recursive: true, force: true });

@@ -317,10 +317,16 @@ function toListing(type, node, agentId) {
     ((type === 'residential' || type === 'rental') && !RESIDENTIAL.has(categoryKey(category(type, node))));
   // Commercial leases go on /commercial/, not /rent/.
   const commercial = forRent && isCommercial;
+  /** Where it's listed while it's on the market: its section then, and
+   *  the page that gets its old address once it's gone. */
+  const listedIn = commercial ? 'commercial' : forRent ? 'rent' : 'buy';
   let section;
-  if (status === 'current') section = commercial ? 'commercial' : forRent ? 'rent' : 'buy';
+  if (status === 'current') section = listedIn;
   else if (status === 'sold' && !forRent) section = 'sold';
-  else return { skip: `status ${status}` };
+  // Leased, withdrawn or off market: not shown, but its page may be in
+  // search results and saved links, so parseFeed redirects its address
+  // (`gone`) to the section it was in.
+  else section = undefined;
 
   const address = node.address ?? {};
   const suburbHidden = attr(address.suburb, 'display') === 'no';
@@ -330,6 +336,16 @@ function toListing(type, node, agentId) {
   const state = text(address.state).toUpperCase();
   const postcode = text(address.postcode);
   if (!suburb && !street) return { skip: 'no address to show' };
+
+  // PropertyMe's IDs are 32-character GUIDs; the first 8 keep the address
+  // short and are still unique in practice (parseFeed falls back to the
+  // whole ID if two ever clash).
+  const shortId = id.length > 12 ? id.slice(0, 8) : id;
+  const slugFor = (idPart) => slugify([street, suburb, idPart].filter(Boolean).join(' '));
+  const slugs = { short: slugFor(shortId), full: slugFor(id) };
+  const modified = normaliseTime(attr(node, 'modTime'));
+  if (!section) return { skip: `status ${status}`, gone: { listedIn, slugs, modified } };
+
   const apnBuilding =
     section === 'commercial' ? apnBuildingOf(address, streetName(address, direction), suburbName) : undefined;
 
@@ -347,21 +363,15 @@ function toListing(type, node, agentId) {
     // Past inspections drop off at the next build (the feed server
     // triggers one each night).
     .filter((s) => !inspectionDay(s) || inspectionDay(s) >= today);
-  const modified = normaliseTime(attr(node, 'modTime'));
   const soldDate = section === 'sold' ? normaliseTime(text(node.soldDetails?.soldDate ?? node.soldDetails?.date)).slice(0, 10) : '';
 
-  // PropertyMe's IDs are 32-character GUIDs; the first 8 keep the address
-  // short and are still unique in practice (parseFeed falls back to the
-  // whole ID if two ever clash).
-  const shortId = id.length > 12 ? id.slice(0, 8) : id;
-  const pathFor = (idPart) => `/${section}/${slugify([street, suburb, idPart].filter(Boolean).join(' '))}/`;
   const price = section === 'sold' ? soldPrice(node) : forRent ? rentPrice(node, rentEl) : salePrice(node);
   const availableFrom = forRent ? normaliseTime(text(node.dateAvailable)).slice(0, 10) : '';
   const listing = {
     id,
     section,
-    path: pathFor(shortId),
-    fullPath: pathFor(id),
+    path: `/${section}/${slugs.short}/`,
+    fullPath: `/${section}/${slugs.full}/`,
     category: category(type, node),
     propertyType: isCommercial ? 'commercial' : 'residential',
     headline: headlineFor(text(node.headline), street, suburbName),
@@ -398,18 +408,27 @@ function toListing(type, node, agentId) {
       delete listing[key];
     }
   }
-  return { listing };
+  return { listing, slugs, listedIn };
 }
+
+/** How long a sale stays on /sold/, with its own page: a year, and at
+ *  most this many (the newest), so the page never gets unwieldy. */
+const SOLD_DAYS = 365;
+const MAX_SOLD = 60;
 
 /**
  * Parses REAXML files into listings.
  * @param {{ name: string, xml: string }[]} files
- * @param {{ agentId?: string, maxSold?: number }} options
+ * @param {{ agentId?: string, soldDays?: number, maxSold?: number, today?: string }} options
  *   agentId: when set, listings for any other agency are skipped.
- *   maxSold: how many recent sales /sold/ shows.
- * @returns {{ listings: object[], skipped: string[] }}
+ *   soldDays, maxSold: which sales /sold/ shows (sold in the last
+ *   `soldDays` days, the newest `maxSold` of those).
+ *   today: YYYY-MM-DD, for tests; defaults to the build's date.
+ * @returns {{ listings: object[], skipped: string[], redirects: { from: string, to: string }[] }}
+ *   redirects: the addresses of pages that have gone, each to where it
+ *   should now go (see listingRedirects).
  */
-export function parseFeed(files, { agentId, maxSold = 24 } = {}) {
+export function parseFeed(files, { agentId, soldDays = SOLD_DAYS, maxSold = MAX_SOLD, today } = {}) {
   /** Newest version of each listing, by uniqueID. */
   const latest = new Map();
   const skipped = [];
@@ -438,10 +457,14 @@ export function parseFeed(files, { agentId, maxSold = 24 } = {}) {
   }
 
   const listings = [];
+  /** Leased, withdrawn and off-market listings, and sales that have
+   *  dropped off /sold/: { listedIn, slugs, modified }, for redirects. */
+  const gone = [];
   const usedPaths = new Set();
   for (const { type, node, file } of latest.values()) {
     const result = toListing(type, node, agentId);
     if (!result.listing) {
+      if (result.gone) gone.push(result.gone);
       skipped.push(`${file} (${text(node.uniqueID) || 'no id'}): ${result.skip}`);
       continue;
     }
@@ -452,12 +475,70 @@ export function parseFeed(files, { agentId, maxSold = 24 } = {}) {
       continue;
     }
     usedPaths.add(listing.path);
-    listings.push(listing);
+    listings.push({ listing, slugs: result.slugs, listedIn: result.listedIn });
   }
 
   // Newest first: sold by sale date, the rest by last update.
-  const key = (l) => (l.section === 'sold' ? (l.soldDate ?? l.modified ?? '') : (l.modified ?? ''));
+  const key = ({ listing: l }) => (l.section === 'sold' ? (l.soldDate ?? l.modified ?? '') : (l.modified ?? ''));
   listings.sort((a, b) => key(b).localeCompare(key(a)));
-  const sold = listings.filter((l) => l.section === 'sold').slice(0, maxSold);
-  return { listings: [...listings.filter((l) => l.section !== 'sold'), ...sold], skipped };
+  // Sales from the last year stay on /sold/ (a sale with no date counts
+  // from its last update). Older ones, and any past the newest
+  // `maxSold`, drop off and are redirected like a withdrawn listing.
+  const day = today ?? new Date().toISOString().slice(0, 10);
+  const since = new Date(Date.parse(`${day}T00:00:00Z`) - soldDays * 86_400_000).toISOString().slice(0, 10);
+  const allSold = listings.filter((x) => x.listing.section === 'sold');
+  const sold = allSold.filter((x) => key(x).slice(0, 10) >= since).slice(0, maxSold);
+  for (const x of allSold) {
+    if (!sold.includes(x)) gone.push({ listedIn: 'sold', slugs: x.slugs, modified: key(x), wasForSale: true });
+  }
+  const shown = [...listings.filter((x) => x.listing.section !== 'sold'), ...sold];
+  return {
+    listings: shown.map((x) => x.listing),
+    skipped,
+    redirects: listingRedirects(shown, gone),
+  };
+}
+
+/** Each section's own page, where a listing's old address goes once the
+ *  listing has gone from it. */
+const SECTION_PAGE = { buy: '/buy/', rent: '/rent/', commercial: '/commercial/', sold: '/sold/' };
+
+/**
+ * Listing pages live at /<section>/<slug>/, so a page's address changes
+ * when its listing moves section (a sale that sells moves from /buy/ to
+ * /sold/), and goes when the listing leaves the site. Search results,
+ * shared links and portals still point at the old address, so each one
+ * gets a 301:
+ *   - a sale that sold: /buy/<slug>/ → /sold/<slug>/ (the same slug);
+ *   - a listing that's leased, withdrawn or off market: its old page →
+ *     the section it was in (/rent/, /commercial/ or /buy/);
+ *   - a sale that's dropped off /sold/: /sold/<slug>/ and its old
+ *     /buy/<slug>/ → /sold/.
+ * Both the short-ID and full-ID versions of each address (parseFeed uses
+ * the full ID when two short ones clash), with and without the trailing
+ * slash. Newest first, so the most useful ones survive if the list is
+ * ever cut short (scripts/prerender.mjs writes them to dist/_redirects,
+ * leaving out any that would hide a live page).
+ */
+function listingRedirects(shown, gone) {
+  const redirects = [];
+  const add = (section, slugs, to) => {
+    for (const slug of new Set([slugs.short, slugs.full])) {
+      const from = `/${section}/${slug}/`;
+      if (from !== to) redirects.push({ from, to }, { from: from.slice(0, -1), to });
+    }
+  };
+  for (const { listing, slugs } of shown) {
+    if (listing.section === 'sold') add('buy', slugs, listing.path);
+  }
+  gone.sort((a, b) => (b.modified ?? '').localeCompare(a.modified ?? ''));
+  for (const g of gone) {
+    add(g.listedIn, g.slugs, SECTION_PAGE[g.listedIn]);
+    if (g.wasForSale) add('buy', g.slugs, SECTION_PAGE.sold);
+  }
+  // Never redirect a live listing's own page (a listing relisted under
+  // the same ID, say), and only once per address.
+  const live = new Set(shown.flatMap(({ listing }) => [listing.path, listing.path.slice(0, -1)]));
+  const seen = new Set();
+  return redirects.filter((r) => !live.has(r.from) && !seen.has(r.from) && seen.add(r.from));
 }

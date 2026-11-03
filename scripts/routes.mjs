@@ -52,6 +52,25 @@ function listingDescription(l, summary) {
   return clip(text, 160);
 }
 
+/** The main photo's sizes attribute: the full width of the page's
+ *  .wrap (100vw less its gutters, clamp(16px, 4.5vw, 64px) each side, in
+ *  src/index.css), up to 1232px. Must match MAIN_PHOTO_SIZES in
+ *  src/lib/listings.ts, or the preload and the <img> fetch different
+ *  files. */
+const MAIN_PHOTO_SIZES = '(min-width: 1360px) 1232px, 92vw';
+
+/** The <img> the listing page starts with (Photos in src/pages/Listing.tsx):
+ *  the same srcset as mainPhotoSrcSet in src/lib/listings.ts. */
+function mainPhotoPreload(l) {
+  const big = l.photos[0];
+  const small = l.thumbs?.[0];
+  const set =
+    small && small !== big
+      ? [`${small} 800w`, l.mainPhoto1200 && `${l.mainPhoto1200} 1200w`, `${big} 1600w`].filter(Boolean).join(', ')
+      : undefined;
+  return { href: big, srcset: set, sizes: set ? MAIN_PHOTO_SIZES : undefined };
+}
+
 function listingRoute(l) {
   const address = listingAddress(l);
   const rooms = [
@@ -67,9 +86,20 @@ function listingRoute(l) {
     path: l.path,
     title: `${address} | ${SECTION_LABEL[l.section]} | APN Real Estate`,
     description: listingDescription(l, summary),
-    // The main photo is the link preview, hosted wherever the feed's
-    // photos are (scripts/build-pages.mjs).
-    ...(l.photos?.[0] ? { ogImage: absolute(l.photos[0]), ogAlt: `${address}: main photo` } : {}),
+    // The main photo is the link preview: the 1200 x 630 JPEG of it
+    // (scripts/fetch-listings.mjs), since some apps don't show WebP
+    // previews, or the photo itself where that couldn't be made.
+    ...(l.photos?.[0]
+      ? {
+          ogImage: absolute(l.ogImage ?? l.photos[0]),
+          ogImageSized: Boolean(l.ogImage),
+          ogAlt: `${address}: main photo`,
+        }
+      : {}),
+    // The main photo is the page's largest image, so the head preloads it
+    // (scripts/build-pages.mjs) rather than leaving it until the page's
+    // markup is read.
+    ...(l.photos?.[0] ? { preloadImage: mainPhotoPreload(l) } : {}),
     lastmod: (l.modified || l.soldDate || '').slice(0, 10) || undefined,
   };
 }
@@ -90,11 +120,13 @@ export function allRoutes() {
     (r) => r.page !== 'contractors' || contractorsPublished(),
   );
   const listings = loadListings();
+  // /rent/ shows commercial leases too (src/pages/Listings.tsx).
+  const shownOn = (page) => (page === 'rent' ? ['rent', 'commercial'] : [page]);
   // /buy/, /rent/ and /sold/ change whenever one of their listings does,
   // so their sitemap <lastmod> is the newest listing's.
-  const newest = (section) =>
+  const newest = (page) =>
     listings
-      .filter((l) => l.section === section)
+      .filter((l) => shownOn(page).includes(l.section))
       .map((l) => (l.modified || '').slice(0, 10))
       .sort()
       .pop();
@@ -103,7 +135,7 @@ export function allRoutes() {
   // reports as a soft 404. So it's noindex, and out of the sitemap, until
   // the feed brings it a listing (each feed change rebuilds the site).
   const isEmptySection = (page) =>
-    LISTING_SECTIONS.includes(page) && !listings.some((l) => l.section === page);
+    LISTING_SECTIONS.includes(page) && !listings.some((l) => shownOn(page).includes(l.section));
   const fixed = routes.map((r) => ({
     ...r,
     ...(newest(r.page) ? { lastmod: newest(r.page) } : {}),

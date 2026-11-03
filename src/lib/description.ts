@@ -129,8 +129,9 @@ export function splitLabel(item: string): { label: string; rest: string } | unde
 }
 
 /** Web and email addresses and phone numbers in the text, so they can be
- *  links. */
-export type TextPart = { text: string; href?: string };
+ *  links. `title`: a web address's full URL, for the link's tooltip, when
+ *  the text shows a label instead. */
+export type TextPart = { text: string; href?: string; title?: string };
 
 /** Australian numbers: 1300/1800, mobiles and landlines, spaced or not. */
 const PHONE = String.raw`\b(?:1[38]00\s?\d{3}\s?\d{3}|04\d{2}\s?\d{3}\s?\d{3}|0[2378]\s?\d{4}\s?\d{4})\b`;
@@ -139,15 +140,37 @@ const LINK = new RegExp(
   'gi',
 );
 
-/** A long web address shown short: "youtube.com/watch…" rather than 80
- *  characters of query string. The link itself is the full address. */
-function shortUrl(url: string): string {
-  if (url.length <= 40) return url;
-  const bare = url.replace(/^https?:\/\/(www\.)?/i, '');
-  return `${bare.slice(0, 32)}…`;
+/** Short-link services, whose own name says nothing about where they go. */
+const SHORTENER = /^(?:goo\.gl|forms\.gle|bit\.ly|tinyurl\.com|youtu\.be|ow\.ly)$/i;
+
+/** "realestate.com.au" from "https://www.realestate.com.au/property-…". */
+const domainOf = (url: string) => url.replace(/^https?:\/\//i, '').replace(/^www\./i, '').split(/[/?#]/)[0].toLowerCase();
+
+/** What a web address in a description is shown as. Agents paste bare
+ *  addresses, often 80 characters of query string or a goo.gl code that
+ *  means nothing to a reader, so each is named by what it is: a video, an
+ *  offer form, a map, or otherwise its site ("realestate.com.au").
+ *  `target` is where a short link goes (looked up at build time), and
+ *  `line` the text around it, which says what an unresolved short link is
+ *  ("…the online offer form - https://goo.gl/Df8mbU"). */
+export function linkLabel(url: string, target?: string, line = ''): string {
+  const where = `${url} ${target ?? ''}`.toLowerCase();
+  if (/(?:youtube\.com|youtu\.be|vimeo\.com)\//.test(where)) return 'Watch the video';
+  if (/(?:google\.[a-z.]+\/maps|maps\.google\.|maps\.app\.goo\.gl|goo\.gl\/maps)/.test(where)) return 'View on map';
+  if (/(?:goo\.gl\/forms|forms\.gle|docs\.google\.com\/forms)\b|offer/.test(where)) return 'Make an offer online';
+  const domain = domainOf(target ?? url);
+  if (SHORTENER.test(domain)) {
+    if (/\boffer/i.test(line)) return 'Make an offer online';
+    if (/\bvideo/i.test(line)) return 'Watch the video';
+    if (/\bmap\b/i.test(line)) return 'View on map';
+  }
+  return domain;
 }
 
-export function linkParts(text: string): TextPart[] {
+/** The text with its links picked out. `targets`: where the
+ *  description's short links go (Listing.linkTargets), so they link
+ *  straight there rather than through a redirect. */
+export function linkParts(text: string, targets?: Record<string, string>): TextPart[] {
   const parts: TextPart[] = [];
   let last = 0;
   for (const m of text.matchAll(LINK)) {
@@ -157,14 +180,77 @@ export function linkParts(text: string): TextPart[] {
     if (start > last) parts.push({ text: text.slice(last, start) });
     if (/^[\d\s]+$/.test(found)) {
       // A phone number: tap to call, and never split across two lines.
-      parts.push({ text: found.replace(/\s/g, ' '), href: `tel:${found.replace(/\s/g, '')}` });
+      parts.push({ text: found.replace(/\s/g, ' '), href: `tel:${found.replace(/\s/g, '')}` });
     } else if (found.includes('@') && !/^https?:/i.test(found)) {
       parts.push({ text: found, href: `mailto:${found}` });
     } else {
-      parts.push({ text: shortUrl(found), href: /^www\./i.test(found) ? `https://${found}` : found });
+      const url = /^www\./i.test(found) ? `https://${found}` : found;
+      const label = linkLabel(url, targets?.[found], text);
+      // "Make an offer online -" then the link: the label says it already.
+      // Otherwise a dash leading into the link reads better as a colon
+      // ("…the online offer form: Make an offer online").
+      const before = parts[parts.length - 1];
+      if (before && !before.href && last < start) {
+        const lead = before.text.replace(/\s+[-–—:]?\s*$/, '');
+        if (lead.trim().toLowerCase() === label.toLowerCase()) parts.pop();
+        else if (/\s[-–—]\s*$/.test(before.text)) before.text = `${lead}: `;
+      }
+      parts.push({ text: label, href: targets?.[found] ?? url, title: url });
     }
     last = start + found.length;
   }
   if (last < text.length) parts.push({ text: text.slice(last) });
   return parts;
+}
+
+/** Dollar amounts in a price or line, as numbers: "$2.3M" → 2300000,
+ *  "$640,000" → 640000, "$1.2k" → 1200. */
+export function dollarAmounts(text: string): number[] {
+  return [...text.matchAll(/\$\s?(\d[\d,]*(?:\.\d+)?)\s?([MmKk])?(?![a-z])/g)].map((m) => {
+    const n = Number.parseFloat(m[1].replace(/,/g, ''));
+    const unit = m[2]?.toLowerCase();
+    return unit === 'm' ? n * 1_000_000 : unit === 'k' ? n * 1000 : n;
+  });
+}
+
+/** A first paragraph that only restates the price shown beside it
+ *  ("Price guide of $2.3M."): short, and starting with "Price" or giving
+ *  the same dollar figure as the listing's price. Left in when the
+ *  listing shows no figure of its own (a hidden price, "Contact agent"),
+ *  since then the description is the only place it's said. */
+function restatesPrice(block: DescriptionBlock | undefined, price: string | undefined): boolean {
+  if (!block || block.type !== 'paragraph' || !price) return false;
+  const line = block.lines.join(' ');
+  if (line.length >= 80) return false;
+  const priceAmounts = dollarAmounts(price);
+  if (priceAmounts.length === 0) return false;
+  return /^price\b/i.test(line) || dollarAmounts(line).some((n) => priceAmounts.includes(n));
+}
+
+/** The description's blocks as the page shows them: parseDescription,
+ *  less a first paragraph that only repeats the listing's price. */
+export function descriptionBlocks(text: string, price?: string): DescriptionBlock[] {
+  const blocks = parseDescription(text);
+  return restatesPrice(blocks[0], price) ? blocks.slice(1) : blocks;
+}
+
+/** A plain summary of the description for structured data: its
+ *  sentences (not headings, lists, short lines such as video titles and
+ *  signatures, or lines with web or email addresses), cut at a word to
+ *  about `max` characters. */
+export function descriptionSummary(text: string, price?: string, max = 300): string {
+  const lines = descriptionBlocks(text, price)
+    .flatMap((b) => (b.type === 'paragraph' ? b.lines : []))
+    // A line with a web or email address in it is a call to action
+    // ("make an offer at…"), not part of the summary.
+    .filter((line) => !/\bhttps?:\/\/|\bwww\.|[\w.+-]+@[\w-]+\.[\w-]/i.test(line))
+    .map((line) => line.replace(/\s+/g, ' ').trim())
+    .filter((line) => line.length >= 60);
+  let out = '';
+  for (const line of lines) {
+    out = out ? `${out} ${line}` : line;
+    if (out.length >= max) break;
+  }
+  if (out.length <= max) return out;
+  return `${out.slice(0, max - 1).replace(/\s+\S*$/, '').replace(/[,;:–—-]$/, '')}…`;
 }

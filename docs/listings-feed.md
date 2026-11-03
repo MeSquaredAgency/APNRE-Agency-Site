@@ -39,6 +39,12 @@ PropertyMe ──FTP──▶ feed server ──HTTPS──▶ Cloudflare Pages 
    instead (`functions/listing-photo/[file].ts`), which fetches it from
    PropertyMe. A photo that failed to copy is retried each night; the
    failures are in `/var/log/apn-feed.log`.
+   The build also makes, with sharp: a 400px copy of each 800px one (the
+   gallery grid and cards); a 1200px copy of each listing's main photo,
+   so phones don't load the 1600px one (the main photo is the page's
+   largest image, and it's preloaded in the page's head); and a 1200 x
+   630 JPEG of the main photo (`og-<hash>.jpg`) for link previews, since
+   some apps don't show WebP previews.
 
 A new or changed listing shows on the site about 10 minutes after it's
 saved in PropertyMe: up to 7 minutes for the server to notice, then the
@@ -62,12 +68,43 @@ with its own page. Two addresses are APN's own buildings
 
 Commercial property *for sale* stays on `/buy/`.
 
+`/rent/` shows commercial leases as well as homes, with the same
+Residential / Commercial filter as `/buy/` when it has some of each.
+When it has no homes, it says "No homes for rent right now" with a link
+to the rental alerts form (`/rent/#register`), above the commercial
+leases.
+
 PropertyMe puts a street's direction in the suburb ("Commercial St" in
 "E Mount Gambier"); `splitSuburb` moves it back onto the street.
 
-Only current listings for sale or rent and recent sales (the latest 24)
-show up. Leased, withdrawn and off-market listings drop off at the next
-build, and their pages go with them.
+Only current listings for sale or rent and recent sales show up: sales
+from the last 12 months, up to the newest 60 (`SOLD_DAYS` and
+`MAX_SOLD` in `scripts/reaxml.mjs`). Leased, withdrawn and off-market
+listings drop off at the next build, and their pages go with them.
+
+### Old listing addresses redirect
+
+A listing's page is at `/<section>/<slug>/`, so its address changes
+when it sells (`/buy/…` → `/sold/…`) and goes when it's leased or
+withdrawn. Search results and shared links still point at the old one,
+so each build adds a 301 for it (`listingRedirects` in
+`scripts/reaxml.mjs`):
+
+- **Sold:** `/buy/<slug>/` → `/sold/<slug>/`, the same slug.
+- **Leased, withdrawn or off market:** the old page → the section it
+  was in (`/rent/`, `/commercial/` or `/buy/`).
+- **A sale that's dropped off `/sold/`:** its `/sold/` and `/buy/`
+  addresses → `/sold/`.
+
+This works because the feed server's bundle keeps the latest file of
+every listing, leased and withdrawn ones included; a listing whose file
+is no longer in the bundle gets no redirect. `scripts/fetch-listings.mjs`
+keeps the list in `node_modules/.cache/apn-listing-redirects.json`, and
+`scripts/prerender.mjs` adds it to `dist/_redirects` at the end of the
+build, after the hand-written ones from `public/_redirects` (which never
+changes). It leaves out any that match a page the build has, and stops
+at Cloudflare Pages' limit of 2,000 redirects, newest listings first.
+The build log's `Redirects:` line gives the count.
 
 ### How descriptions are laid out
 
@@ -84,7 +121,14 @@ paragraph or point. The page reads the layout back from the lines
   before the colon in bold.
 - **Paragraphs:** each line ending in a full stop is its own paragraph.
   Lines without one stay together, line by line (a signature, say).
-- Web and email addresses become links.
+- Web and email addresses become links. A web address shows as what it
+  is rather than the address itself: "Watch the video" (YouTube,
+  youtu.be, Vimeo), "Make an offer online" (Google Forms, or anything
+  with "offer" in it), "View on map" (Google Maps), or otherwise the
+  site's name ("realestate.com.au"). A goo.gl or other short link is
+  named by where it goes, which the build looks up.
+- A short first line that only repeats the price ("Price guide of
+  $2.3M.") is left out, since the price is shown right beside it.
 
 A description that doesn't follow these still shows in full, just as
 plain paragraphs.
@@ -265,6 +309,13 @@ should be on `/buy/` or `/rent/`. Before enabling the rest, check:
   one is on realestate.com.au but not the site, that's almost always why.
 - Hidden prices and hidden street addresses stay hidden. The page shows
   the agent's price wording, or "Contact agent", and the suburb only.
+  A hidden street address also means no map; otherwise the Google map
+  only loads when a visitor taps "Show map", so it doesn't slow the page.
+- Each listing page tells search engines about the listing
+  (schema.org `RealEstateListing`, in `src/pages/Listing.tsx`): the
+  price when it's a figure (a rent per week, month or year), whether
+  it's still available, the address, rooms and floor size, and the
+  description's opening sentences.
 - Enquiries from a property's page go to the same Google Sheet as every
   other form, with Source *Listing enquiry*, the address in the Address
   column and PropertyMe's listing ID in the message.

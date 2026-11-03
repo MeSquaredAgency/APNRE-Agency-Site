@@ -3,7 +3,7 @@
 <propertyList date="2026-09-10-12:00:00">
   <residential modTime="2026-09-10-12:00:00" status="sold">
     <agentID>SAMPLE</agentID>
-    <uniqueID>SAMPLE-S2</uniqueID>
+    <uniqueID>SAMPLE-SOLD1</uniqueID>
     <listingAgent id="1"><name>Sample Agent</name></listingAgent>
     <price display="yes">580000</price>
     <address display="no">

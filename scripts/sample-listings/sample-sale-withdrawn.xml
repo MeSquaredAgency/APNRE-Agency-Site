@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SAMPLE ONLY: a withdrawn sale, which the site leaves out (its old
+     /buy/ page redirects to /buy/). -->
+<propertyList date="2026-10-20-09:00:00">
+  <residential modTime="2026-10-20-09:00:00" status="withdrawn">
+    <agentID>SAMPLE</agentID>
+    <uniqueID>SAMPLE-S4</uniqueID>
+    <address display="yes"><streetNumber>5</streetNumber><street>Withdrawn Way</street><suburb>NAILSWORTH</suburb><state>SA</state><postcode>5083</postcode></address>
+    <category name="Unit"/>
+    <headline>SAMPLE: Withdrawn (should not appear)</headline>
+  </residential>
+</propertyList>

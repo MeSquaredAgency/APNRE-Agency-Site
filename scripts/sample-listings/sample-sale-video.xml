@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SAMPLE ONLY: made-up listing for local development (npm run dev:sample).
+     Its description is typed the way some agents do: the price again on
+     the first line, bare video and offer-form links, and an agent with a
+     long email address. -->
+<propertyList date="2026-10-28-10:00:00">
+  <residential modTime="2026-10-28-10:00:00" status="current">
+    <agentID>SAMPLE</agentID>
+    <uniqueID>b4620241-0000-4000-8000-000000000001</uniqueID>
+    <authority value="exclusive"/>
+    <underOffer value="no"/>
+    <listingAgent id="1"><name>Sample Agent</name><telephone type="mobile">0400 000 000</telephone><email>sample.agent@adelaidepropertynetwork.com.au</email></listingAgent>
+    <price display="no">2300000</price>
+    <priceView>Price guide $2.3M</priceView>
+    <address display="yes">
+      <streetNumber>6C</streetNumber>
+      <street>Sample Way</street>
+      <suburb display="yes">DARLINGTON</suburb>
+      <state>SA</state>
+      <postcode>5047</postcode>
+    </address>
+    <category name="House"/>
+    <headline>SAMPLE: Hilltop home with city-to-coast views</headline>
+    <description>Price guide of $2.3M.
+Property Video - The Final Home
+https://youtu.be/6tiSNalHnbc
+Feature Video - Shared Journey
+https://www.youtube.com/watch?v=OxGfFO5WCVs&amp;list=PLabcdefghijklmnop&amp;index=2
+This is a made-up listing used to preview the site's listing pages. Perched on its own hillside, the home frames uninterrupted views from every level, with soaring ceilings, a north-facing terrace and a self-contained lower level.
+The listing's floor plan and building report are on https://www.realestate.com.au/property-house-sa-darlington-000000000 and the location is at https://maps.app.goo.gl/AbCdEf123.
+Features:
+- Gated enclave of six homes
+- Double garage with internal entry
+Call Sample Agent at 0400 000 000 or email sample.agent@adelaidepropertynetwork.com.au
+Please find a link to the online offer form - https://goo.gl/Df8mbU</description>
+    <features><bedrooms>5</bedrooms><bathrooms>3</bathrooms><garages>2</garages></features>
+    <landDetails><area unit="squareMeter">812</area></landDetails>
+    <buildingDetails><area unit="squareMeter">340</area></buildingDetails>
+    <objects>
+      <img id="m" modTime="2026-10-28-10:00:00" url="https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1200" format="jpg"/>
+      <img id="a" modTime="2026-10-28-10:00:00" url="https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=1200" format="jpg"/>
+    </objects>
+  </residential>
+</propertyList>

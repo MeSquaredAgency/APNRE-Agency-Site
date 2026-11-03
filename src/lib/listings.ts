@@ -26,7 +26,7 @@ export interface Listing {
   /** "House", "Unit", "Land", ... */
   category: string;
   /** From the listing type and category (scripts/reaxml.mjs): drives the
-   *  Residential / Commercial filter on /buy/. */
+   *  Residential / Commercial filter on /buy/ and /rent/. */
   propertyType?: 'residential' | 'commercial';
   headline?: string;
   /** Plain text: blank lines between paragraphs. */
@@ -61,6 +61,12 @@ export interface Listing {
   /** The same photos at up to 400px, for the gallery grid and cards (the
    *  `thumbs` file where there's no smaller copy). */
   tiles?: string[];
+  /** The main photo at 1200px, for phones (scripts/fetch-listings.mjs),
+   *  when its full-size copy is wider than that. */
+  mainPhoto1200?: string;
+  /** The main photo as a 1200 x 630 JPEG, the page's link preview (only
+   *  used at build time, by scripts/routes.mjs). */
+  ogImage?: string;
   floorplans?: string[];
   /** As the feed words them, e.g. "11-Oct-2026 10:00am to 10:15am".
    *  Past ones are dropped at build time. */
@@ -103,6 +109,22 @@ export function photoSrcSet(l: Listing, i: number): string | undefined {
   const big = l.photos?.[i];
   const small = l.thumbs?.[i];
   return big && small && small !== big ? `${small} 800w, ${big} 1600w` : undefined;
+}
+
+/** The listing page's main photo is the full width of the page's .wrap
+ *  (100vw less its gutters, clamp(16px, 4.5vw, 64px) each side, in
+ *  index.css), up to 1232px. MAIN_PHOTO_SIZES in scripts/routes.mjs must
+ *  match, so the preload in the page's head fetches the same file. */
+export const MAIN_PHOTO_SIZES = '(min-width: 1360px) 1232px, 92vw';
+
+/** srcset for the main photo on the listing page: photoSrcSet plus the
+ *  1200px copy, which a phone at 3x picks over the 1600px one. Matches
+ *  mainPhotoPreload in scripts/routes.mjs. */
+export function mainPhotoSrcSet(l: Listing): string | undefined {
+  const big = l.photos?.[0];
+  const small = l.thumbs?.[0];
+  if (!big || !small || small === big) return undefined;
+  return [`${small} 800w`, l.mainPhoto1200 && `${l.mainPhoto1200} 1200w`, `${big} 1600w`].filter(Boolean).join(', ');
 }
 
 /** "2/14 Smith Street, Blair Athol", or just the suburb when the street
