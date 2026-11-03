@@ -6,7 +6,7 @@
 
 # Shown as the page heading and in Google results. Aim for under 60
 # characters, with the phrase a landlord would search for near the start.
-title: "What Does a Property Manager Do? A Guide for Adelaide Landlords"
+title: "What does a property manager do? A guide for Adelaide landlords"
 
 # Optional. A shorter title for Google results and social shares, when
 # the page heading is too long for them. " | APN Real Estate" is added.

@@ -25,7 +25,13 @@
   immediately, since that's where ad conversions happen.
 
   Cloudflare's Google tag gateway must not inject its own copy of GTM
-  (its automatic tag injection is off), or the container loads twice.
+  (its automatic tag injection should be off in the Cloudflare
+  dashboard), or the container loads twice. In case it's switched back
+  on, the loader below checks first: if the gateway's snippet has already
+  queued this container (window.google_tags_first_party lists its ID) or
+  a gtm.js script is already on the page, it doesn't load GTM again.
+  __apnLoadGtm still exists either way, as a harmless no-op, so
+  trackFormSubmit() can always call it.
 -->
 <!--
   Analytics and the Meta Pixel only run on the live site, so dev-server
@@ -43,9 +49,21 @@
       w[l] = w[l] || [];
       w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
       var loaded = false;
+      // Whether something else (Cloudflare's tag gateway) has already
+      // loaded or queued this container. Checked when the load would
+      // happen, not now, since the gateway's snippet can run either side
+      // of this one.
+      var already = function () {
+        var first = w.google_tags_first_party;
+        if (first && typeof first.indexOf === 'function' && first.indexOf(i) > -1) return true;
+        // Any script whose address names the container: Google's own
+        // gtm.js, or the gateway's first-party path (e.g. /q2pj/...).
+        return !!d.querySelector('script[src*="' + i + '"]');
+      };
       var load = (w.__apnLoadGtm = function () {
         if (loaded) return;
         loaded = true;
+        if (already()) return;
         var f = d.getElementsByTagName(s)[0],
           j = d.createElement(s),
           dl = l != 'dataLayer' ? '&l=' + l : '';

@@ -13,7 +13,7 @@ import { OFFICES } from '../data/offices';
 import { TEAM, teamMemberId } from '../data/team';
 import { trackCallClick } from '../lib/analytics';
 import { usePath } from '../lib/route';
-import { breadcrumbList, OFFICE_SCHEMA_IDS, ORGANIZATION_ID, SITE } from '../structured-data';
+import { absoluteUrl, breadcrumbList, OFFICE_SCHEMA_IDS, ORGANIZATION_ID, SITE } from '../structured-data';
 
 export default function Person() {
   const path = usePath();
@@ -35,6 +35,8 @@ export default function Person() {
           url: `${SITE}${path}`,
           name: member.name,
           jobTitle: member.role,
+          // Their headshot (the JPEG copy, which every crawler reads).
+          image: absoluteUrl(member.photo.img.src),
           worksFor: { '@id': OFFICE_SCHEMA_IDS[member.office] },
           memberOf: { '@id': ORGANIZATION_ID },
           ...(member.bio ? { description: member.bio.join(' ') } : {}),

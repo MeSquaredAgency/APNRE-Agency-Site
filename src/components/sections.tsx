@@ -466,7 +466,7 @@ export function Offices({ title = 'Two offices, one team.' }: { title?: ReactNod
                     <Icon name="phone" /> {office.phone}
                   </a>
                   <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(office.mapsQuery)}`}
+                    href={office.mapsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                   >

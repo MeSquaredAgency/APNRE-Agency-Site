@@ -14,6 +14,12 @@ export const OFFICE_SCHEMA_IDS = {
   'mount-gambier': `${SITE}/#office-mount-gambier`,
 } as const;
 
+/** A path on this site as a full URL, for structured data (Google wants
+ *  absolute image URLs). Leaves full URLs alone. */
+export function absoluteUrl(path: string): string {
+  return /^https?:\/\//.test(path) ? path : `${SITE}${path.startsWith('/') ? '' : '/'}${path}`;
+}
+
 /** JSON inside a <script> tag: escape "<" so the data can't close it. */
 export function scriptJson(value: unknown): string {
   return JSON.stringify(value).replace(/</g, '\\u003c');

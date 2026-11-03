@@ -33,6 +33,14 @@ line.
 
 ## Structured data
 
+- Home, contact and office pages: the organisation and a
+  `RealEstateAgent` per office (`scripts/build-pages.mjs`). Each office's
+  `hasMap` and `sameAs` are its Google Business Profile
+  (`src/data/google-places.json`); Adelaide has its office photo as
+  `image`, Mount Gambier will once its photo is supplied. No map
+  coordinates until someone confirms them.
+- Team pages and `/our-people/`: a `Person` each, with their headshot as
+  `image`.
 - Blog posts: `BlogPosting` (`src/blog-server.tsx`).
 - Guides outside the blog, like `/leasing/switching-property-managers/`:
   `Article`, from `article()` in `src/structured-data.ts`. Use it for any
@@ -44,3 +52,7 @@ Google sometimes shows its own title instead of the page's `<title>`.
 Ahrefs' report names the page and the title Google shows. Compare the
 two: if Google's is clearer, update the title in `src/data/routes.json`
 (or the post's `seoTitle`), keeping it under about 60 characters.
+Where the full " | APN Real Estate" doesn't fit, end with " | APN"
+instead (as `/leasing/`, `/buy/` and the appraisal pages do) rather than
+dropping the phrase people search for. Listing pages' titles are made in
+`scripts/routes.mjs`.

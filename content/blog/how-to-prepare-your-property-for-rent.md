@@ -1,7 +1,7 @@
 ---
 # Full guide to these settings: docs/blog.md
 
-title: "How to Get Your Property Ready to Rent: A Landlord's Checklist"
+title: "How to get your property ready to rent: a landlord's checklist"
 seoTitle: "How to Get Your Property Ready to Rent"
 description: "Safety checks, repairs, cleaning and presentation: what to do before your rental is photographed and advertised, so it leases well to good tenants."
 date: 2026-10-21

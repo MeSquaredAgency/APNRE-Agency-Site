@@ -1,7 +1,7 @@
 ---
 # Full guide to these settings: docs/blog.md
 
-title: "Minimum Housing Standards for SA Rentals: Landlord Checklist"
+title: "Minimum housing standards for SA rentals: landlord checklist"
 seoTitle: "Minimum Housing Standards for SA Rentals"
 description: "What South Australia's minimum housing standards require of a rental, what changed in July 2024, and a checklist to work through before you let."
 date: 2026-10-21

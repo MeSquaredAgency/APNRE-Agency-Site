@@ -26,19 +26,26 @@ the Pexels clip (credited in `src/data/media.ts`):
 
 | File | Size | Used on |
 | --- | --- | --- |
-| `adelaide-aerial-1080.mp4` | ~2.4 MB | wider than 900px |
-| `adelaide-aerial-720.mp4` | ~1.1 MB | 900px and narrower |
-| `adelaide-aerial-poster-800.webp` | ~60 KB | the poster on phones |
+| `adelaide-aerial-1080.mp4` | ~2.4 MB | screens wider than 1600px |
+| `adelaide-aerial-720.mp4` | ~1.1 MB | 761px to 1600px wide (most laptops and desktops) |
+| `adelaide-aerial-poster-800.webp` | ~60 KB | the poster on phones (760px and narrower, whatever their pixel density) |
 | `adelaide-aerial-poster-1600.webp` | ~180 KB | the poster on bigger screens |
 | `adelaide-aerial-poster.jpg` | ~0.2 MB | the poster in browsers without WebP |
 
 The poster is shown first, and instead of the video for reduced motion
 or data saving. It's an image under the video rather than the video's
-`poster` attribute, so phones can get the smaller copy.
+`poster` attribute, so phones can get the smaller copy. Phones always
+get the 800px copy: a `media="(max-width: 760px)"` source in
+`src/components/VideoHero.tsx`, and a matching phone-only preload in
+`scripts/build-pages.mjs`. Left to `srcset` alone, a phone with a 2x or
+3x screen would pick the 1600px copy, three times the size, for a
+background that's mostly behind the headline and search.
 
 The pre-rendered page contains only the poster. The video is added once
-the page is running, and not at all for visitors who prefer reduced
-motion or have a data saver on.
+the page is running, and not at all on phones (760px and narrower) or for
+visitors who prefer reduced motion or have a data saver on. The 720p file
+is plenty for a full-width background up to 1600px wide, so only bigger
+screens download the 1080p one.
 
 To replace it, encode the new clip the same way (no audio, 30fps, H.264,
 `+faststart` so it starts playing before it's fully downloaded):

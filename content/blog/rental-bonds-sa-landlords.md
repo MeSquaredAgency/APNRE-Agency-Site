@@ -1,7 +1,7 @@
 ---
 # Full guide to these settings: docs/blog.md
 
-title: "Rental Bonds in SA: A Landlord's Guide"
+title: "Rental bonds in SA: a landlord's guide"
 seoTitle: "Rental Bond Rules for SA Landlords"
 description: "How much bond SA landlords can charge, who holds it, the CBS lodgement deadlines, and how bonds are refunded or disputed when a tenancy ends."
 date: 2026-10-21

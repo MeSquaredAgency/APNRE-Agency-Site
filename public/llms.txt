@@ -23,14 +23,17 @@ Christmas closure: both offices are closed from Friday 18 December 2026 to Sunda
 - [Home](https://apnre.com.au/)
 - [Selling](https://apnre.com.au/selling/): how APN Real Estate runs a sale, the sales team, sales appraisals
 - [Leasing & property management](https://apnre.com.au/leasing/): for landlords, including changing property managers
-- [Free sales appraisal](https://apnre.com.au/appraisal/sales/) and [free rental appraisal](https://apnre.com.au/appraisal/rental/)
-- [For sale](https://apnre.com.au/buy/) and [For rent](https://apnre.com.au/rent/): current residential listings, each with its own page (photos, price guide, inspection times, agents), updated from APN Real Estate's listing system
+- [Switching property managers](https://apnre.com.au/leasing/switching-property-managers/): step-by-step guide to changing property managers in SA, including while the property is tenanted
+- [Property management in Mount Gambier](https://apnre.com.au/mount-gambier/property-management/): the Mount Gambier team, how leasing works there, and a rental appraisal form
+- [Free sales appraisal](https://apnre.com.au/appraisal/sales/) and [free rental appraisal](https://apnre.com.au/appraisal/rental/); Mount Gambier has its own [rental appraisal page](https://apnre.com.au/mount-gambier/rental-appraisal/)
+- [For sale](https://apnre.com.au/buy/) and [For rent](https://apnre.com.au/rent/): residential listings appear here when available, each with its own page (photos, price guide, inspection times, agents), updated from APN Real Estate's listing system. There may be none at a given time; the realestate.com.au agency profile also lists them
 - [Commercial property for lease](https://apnre.com.au/commercial/): offices, shops and other commercial property in Adelaide and Mount Gambier
 - [Office space for lease](https://apnre.com.au/office-space/): private offices at 420B Main North Road, Blair Athol, plus a podcast room for daily hire
-- [Sold](https://apnre.com.au/sold/): recent sales; past results are also on the realestate.com.au agency profile
+- [Sold](https://apnre.com.au/sold/): recent sales appear here when available; past results are also on the realestate.com.au agency profile
 - [Our people](https://apnre.com.au/our-people/)
 - [Our story](https://apnre.com.au/our-story/)
-- [Client hub](https://apnre.com.au/client-hub/): for current landlords and tenants, including how to report repairs
+- [Client hub](https://apnre.com.au/client-hub/): for current landlords and tenants
+- [Tenant hub](https://apnre.com.au/client-hub/tenants/): for tenants: how to report repairs (urgent ones by phone), finding a rental, rental alerts and contacting their property manager
 - [Contact](https://apnre.com.au/contact/)
 - [Blog](https://apnre.com.au/blog/): guides on renting and managing property, including [What does a property manager do?](https://apnre.com.au/blog/what-does-a-property-manager-do/)
 - [Privacy Policy](https://apnre.com.au/privacy/)

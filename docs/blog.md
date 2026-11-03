@@ -54,6 +54,11 @@ the article. Leave it out to credit "APN Real Estate".
 - Put that phrase in the title and the first paragraph, and answer it
   early. If the title is too long for Google (over about 60
   characters), set a shorter `seoTitle:` for search and shares.
+- Write the `title:` in sentence case, like every other heading on the
+  site ("How to prepare your home for sale: a checklist for SA
+  sellers"), keeping capitals for names: SA, Adelaide, APN, CBS.
+  `seoTitle:` can stay in title case, like the site's other page titles
+  in Google.
 - Don't aim a post at the same phrase as a service page ("property
   management Adelaide" is `/leasing/`): the two compete in Google. Aim
   posts at questions, and link to the service page instead.

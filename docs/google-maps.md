@@ -96,7 +96,11 @@ realestate.com.au profile, so it never looks broken.
   Google Place ID and listing link (Adelaide `ChIJNz8CKfnIsGoRzHWww3xul3A`,
   Mount Gambier `ChIJvxIIZhEnnqoRwqvaZwpi9yc`, found 9 Oct 2026). If a
   Business Profile is ever replaced, look the new one up with Google's
-  Place ID Finder and update the file.
+  Place ID Finder and update the file. The listing links are also where
+  each office's "Get directions" goes (`mapsUrl` in
+  `src/data/offices.ts`), and the office's `hasMap` and `sameAs` in the
+  structured data (`scripts/build-pages.mjs`); all of them read this
+  file.
 - **Which reviews:** Google returns up to five per place, its "most
   relevant", so up to ten in all, newest first. They're shown as written,
   whatever the star rating: no editing and no picking (Google's terms and

@@ -32,6 +32,9 @@ export const HERO_VIDEO = {
   /** Smaller WebP copies of the poster. scripts/build-pages.mjs preloads
    *  the same set, so keep the two in step. */
   posterSrcSet: '/video/adelaide-aerial-poster-800.webp 800w, /video/adelaide-aerial-poster-1600.webp 1600w',
+  /** The copy phones always get, whatever their pixel density (also
+   *  preloaded for phones in scripts/build-pages.mjs). */
+  posterPhone: '/video/adelaide-aerial-poster-800.webp',
   credit: 'David / Pexels',
   page: 'https://www.pexels.com/video/aerial-view-of-adelaide-skyline-and-torrens-river-36761129/',
 };

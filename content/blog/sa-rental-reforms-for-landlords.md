@@ -1,7 +1,7 @@
 ---
 # Full guide to these settings: docs/blog.md
 
-title: "SA Rental Reforms for Landlords: What's Changed to 2026"
+title: "SA rental reforms for landlords: what's changed to 2026"
 seoTitle: "SA Rental Reforms for Landlords (2026)"
 description: "SA's rental laws changed six times from April 2023 to January 2026. What each change is, when it started and what landlords now have to do differently."
 date: 2026-10-21
