@@ -3,7 +3,7 @@ import JsonLd from '../components/JsonLd';
 import { CtaBand, PageHero, Team } from '../components/sections';
 import { BLAIR_ATHOL_PHOTOS } from '../data/offices';
 import { TEAM, teamMemberId } from '../data/team';
-import { OFFICE_SCHEMA_IDS, ORGANIZATION_ID, SITE } from '../structured-data';
+import { absoluteUrl, OFFICE_SCHEMA_IDS, ORGANIZATION_ID, SITE } from '../structured-data';
 
 /** Everyone on the page as a Person, with the same @id a blog post uses
  *  for its author (src/blog-server.tsx). */
@@ -15,6 +15,7 @@ const PEOPLE_JSON_LD = {
     url: `${SITE}/our-people/${teamMemberId(m.name)}/`,
     name: m.name,
     jobTitle: m.role,
+    image: absoluteUrl(m.photo.img.src),
     worksFor: { '@id': OFFICE_SCHEMA_IDS[m.office] },
     memberOf: { '@id': ORGANIZATION_ID },
   })),

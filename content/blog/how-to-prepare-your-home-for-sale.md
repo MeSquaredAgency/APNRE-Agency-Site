@@ -1,7 +1,7 @@
 ---
 # Full guide to these settings: docs/blog.md
 
-title: "How to Prepare Your Home for Sale: A Checklist for SA Sellers"
+title: "How to prepare your home for sale: a checklist for SA sellers"
 seoTitle: "How to Prepare Your Home for Sale"
 description: "What to fix, clean and clear before you list, how to present each room for photos and inspections, and what can wait. A practical checklist for SA sellers."
 date: 2026-10-21

@@ -11,8 +11,20 @@ import Icon from '../components/Icon';
 import JsonLd from '../components/JsonLd';
 import { CtaBand, FormSection, PageHero, SectionHead } from '../components/sections';
 import { TEAM, teamMemberId } from '../data/team';
-import { linkParts, parseDescription, splitLabel } from '../lib/description';
-import { formatDay, formatInspection, LISTINGS, listingAddress, listingsIn, photoSrcSet, thumb, tileSrcSet, type Listing as ListingData } from '../lib/listings';
+import { descriptionBlocks, descriptionSummary, dollarAmounts, linkParts, splitLabel } from '../lib/description';
+import {
+  formatDay,
+  formatInspection,
+  LISTINGS,
+  listingAddress,
+  listingsIn,
+  MAIN_PHOTO_SIZES,
+  mainPhotoSrcSet,
+  photoSrcSet,
+  thumb,
+  tileSrcSet,
+  type Listing as ListingData,
+} from '../lib/listings';
 import { usePath } from '../lib/route';
 import { breadcrumbList, SITE } from '../structured-data';
 import { ListingCard, ListingFeatures } from './Listings';
@@ -253,14 +265,16 @@ function Photos({ listing, address }: { listing: ListingData; address: string })
   return (
     <div className="listing-photos">
       <a href={photos[0]} onClick={show(0)} className="listing-photos__open">
-        {/* The page's largest image (its LCP), so it's fetched first. React
-            18 doesn't know fetchPriority yet; the lowercase attribute passes
-            straight through (as in Picture). */}
+        {/* The page's largest image (its LCP), so it's fetched first, and
+            preloaded in the page's head with the same srcset and sizes
+            (scripts/routes.mjs). React 18 doesn't know fetchPriority yet;
+            the lowercase attribute passes straight through (as in
+            Picture). */}
         <img
           className="listing-photos__main"
           src={photos[0]}
-          srcSet={photoSrcSet(listing, 0)}
-          sizes="(max-width: 1360px) 100vw, 1232px"
+          srcSet={mainPhotoSrcSet(listing)}
+          sizes={MAIN_PHOTO_SIZES}
           width={1500}
           height={1000}
           alt={alt(0)}
@@ -288,37 +302,43 @@ function Photos({ listing, address }: { listing: ListingData; address: string })
 }
 
 /** An email address that can wrap after the "@" and before its ending
- *  (".com.au"), never mid-word, in the narrow agent box. */
+ *  (".com.au"), never mid-word, in the narrow agent box. One <span>, so
+ *  inside the agent box's flex links it's a single item that wraps as
+ *  text: loose, each part and <wbr> became an item of its own, squeezed
+ *  side by side and broken mid-word on phones. */
 function EmailText({ email }: { email: string }) {
   const at = email.indexOf('@');
   const dot = email.indexOf('.', at);
-  if (at < 0 || dot < 0) return <>{email}</>;
+  if (at < 0 || dot < 0) return <span className="listing__email">{email}</span>;
   return (
-    <>
+    <span className="listing__email">
       {email.slice(0, at + 1)}
       <wbr />
       {email.slice(at + 1, dot)}
       <wbr />
       {email.slice(dot)}
-    </>
+    </span>
   );
 }
 
 type LinkTargets = Record<string, string> | undefined;
 
-/** Text with its web and email addresses as links; a short link goes
- *  straight to its target when the build has looked it up. */
+/** Text with its web and email addresses as links. A web address shows
+ *  as what it is ("Watch the video", "realestate.com.au"; linkLabel in
+ *  src/lib/description.ts), and a short link goes straight to its target
+ *  when the build has looked it up. */
 function Linked({ text, targets }: { text: string; targets: LinkTargets }) {
   return (
     <>
-      {linkParts(text).map((part, i) =>
+      {linkParts(text, targets).map((part, i) =>
         part.href ? (
           <a
             key={i}
-            href={targets?.[part.href] ?? part.href}
+            href={part.href}
+            title={part.title}
             {...(/^(mailto|tel):/.test(part.href) ? {} : { target: '_blank', rel: 'noopener noreferrer' })}
           >
-            {part.text}
+            {part.href.startsWith('mailto:') ? <EmailText email={part.text} /> : part.text}
           </a>
         ) : (
           part.text
@@ -331,21 +351,39 @@ function Linked({ text, targets }: { text: string; targets: LinkTargets }) {
 /** A Google map of the listing, and a link to open it in Google Maps.
  *  Only when the street address is shown: an agent who hides it in
  *  PropertyMe doesn't want the property pinpointed. Google's plain embed
- *  needs no API key. It loads lazily, so Google is only contacted when
- *  the map scrolls into view (the privacy policy covers these and the
- *  office pages' maps). */
+ *  needs no API key.
+ *
+ *  The map only loads when asked for ("Show map"). Even with
+ *  loading="lazy" the embed pulled in about 470 KB of Google's scripts
+ *  straight away on slow phones, competing with the main photo, and most
+ *  visitors never look at it. Until then it's a plain box with the
+ *  address, the same on the server and in the browser so the prerendered
+ *  page hydrates cleanly, and Google isn't contacted at all (the privacy
+ *  policy covers these and the office pages' maps). */
 function ListingMap({ listing, address }: { listing: ListingData; address: string }) {
+  const [shown, setShown] = useState(false);
   if (!listing.street) return null;
   const query = encodeURIComponent([listing.street, listing.suburb, listing.state, listing.postcode].filter(Boolean).join(' '));
   return (
     <div className="listing__map">
       <h2 className="h-3">Location</h2>
-      <iframe
-        title={`Map of ${address}`}
-        src={`https://www.google.com/maps?q=${query}&output=embed`}
-        loading="lazy"
-        referrerPolicy="strict-origin-when-cross-origin"
-      />
+      {shown ? (
+        <iframe
+          title={`Map of ${address}`}
+          src={`https://www.google.com/maps?q=${query}&output=embed`}
+          referrerPolicy="strict-origin-when-cross-origin"
+        />
+      ) : (
+        <div className="listing__map-placeholder">
+          <Icon name="pin" size={28} />
+          <p>
+            {listing.street}, {[listing.suburb, listing.state, listing.postcode].filter(Boolean).join(' ')}
+          </p>
+          <button type="button" className="btn btn-dark" onClick={() => setShown(true)}>
+            Show map
+          </button>
+        </div>
+      )}
       <p>
         <a href={`https://www.google.com/maps/search/?api=1&query=${query}`} target="_blank" rel="noopener noreferrer">
           <Icon name="pin" /> Open in Google Maps
@@ -357,10 +395,10 @@ function ListingMap({ listing, address }: { listing: ListingData; address: strin
 
 /** The feed's plain-text description, with the headings, lists and
  *  paragraphs read back out of it (src/lib/description.ts). */
-function Description({ text, targets }: { text: string; targets: LinkTargets }) {
+function Description({ text, price, targets }: { text: string; price: string; targets: LinkTargets }) {
   return (
     <div className="listing__description">
-      {parseDescription(text).map((block, i) => {
+      {descriptionBlocks(text, price).map((block, i) => {
         if (block.type === 'heading') return <h3 key={i}>{block.text}</h3>;
         if (block.type === 'list') {
           return (
@@ -397,6 +435,95 @@ function Description({ text, targets }: { text: string; targets: LinkTargets }) 
   );
 }
 
+const SCHEMA = 'https://schema.org/';
+
+/** A listing's price for structured data, from the text the page shows:
+ *  one figure as `price`, a range ("$495,500 – $549,000") as min and max,
+ *  and nothing for words alone ("Contact agent", "Auction"). Rents are per
+ *  week unless the text says otherwise. */
+function priceSpec(listing: ListingData): Record<string, unknown> | undefined {
+  const amounts = dollarAmounts(listing.price);
+  if (amounts.length === 0 || amounts.length > 2) return undefined;
+  const value =
+    amounts.length === 2 ? { minPrice: Math.min(...amounts), maxPrice: Math.max(...amounts) } : { price: amounts[0] };
+  const forRent = listing.section === 'rent' || listing.section === 'commercial';
+  if (!forRent && amounts.length === 1) return { price: amounts[0], priceCurrency: 'AUD' };
+  if (!forRent) return { priceSpecification: { '@type': 'PriceSpecification', ...value, priceCurrency: 'AUD' } };
+  // Commercial rents are often a year's; a home's is a week's.
+  const text = listing.price.toLowerCase();
+  const unit = /month|\bp\.?c\.?m\b/.test(text)
+    ? 'month'
+    : /annum|year|annual|\bp\.?a\b/.test(text)
+      ? 'year'
+      : /week|\bp\.?w\b/.test(text) || listing.section === 'rent'
+        ? 'week'
+        : undefined;
+  return {
+    priceSpecification: {
+      '@type': 'UnitPriceSpecification',
+      ...value,
+      priceCurrency: 'AUD',
+      ...(unit ? { unitText: unit } : {}),
+    },
+  };
+}
+
+/** "180 m²" → square metres, for floorSize. */
+function squareMetres(area: string | undefined): number | undefined {
+  const m = area?.match(/^([\d,.]+)\s*m²$/);
+  return m ? Number.parseFloat(m[1].replace(/,/g, '')) : undefined;
+}
+
+/** The listing as schema.org's RealEstateListing (a page about a property
+ *  on the market): the offer (price, sale or lease, and whether it's
+ *  still available), when it was last updated, and the property itself
+ *  under `about`, with its address and rooms. Only what the feed says: a
+ *  hidden street address stays out, and so does a price given in words. */
+function listingJsonLd(listing: ListingData, path: string, address: string) {
+  const forRent = listing.section === 'rent' || listing.section === 'commercial';
+  const home = listing.propertyType !== 'commercial' && !/^(land|rural|commercial)$/i.test(listing.category);
+  const floorSize = squareMetres(listing.buildingArea);
+  const summary = listing.description ? descriptionSummary(listing.description, listing.price) : '';
+  const availability =
+    listing.section === 'sold'
+      ? 'SoldOut'
+      : listing.underOffer || listing.price === 'Under contract'
+        ? 'LimitedAvailability'
+        : 'InStock';
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'RealEstateListing',
+    url: `${SITE}${path}`,
+    name: listing.headline || address,
+    ...(listing.photos?.length ? { image: listing.photos.map((src) => (src.startsWith('/') ? SITE + src : src)) } : {}),
+    ...(summary ? { description: summary } : {}),
+    ...(listing.modified ? { datePosted: listing.modified.slice(0, 10) } : {}),
+    offers: {
+      '@type': 'Offer',
+      ...(forRent ? { businessFunction: 'http://purl.org/goodrelations/v1#LeaseOut' } : {}),
+      ...priceSpec(listing),
+      availability: SCHEMA + availability,
+    },
+    about: {
+      // A home is an Accommodation, which has rooms and a floor size;
+      // land and commercial space are just a Place, with an address.
+      '@type': home ? 'Accommodation' : 'Place',
+      name: address,
+      address: {
+        '@type': 'PostalAddress',
+        ...(listing.street ? { streetAddress: listing.street } : {}),
+        ...(listing.suburb ? { addressLocality: listing.suburb } : {}),
+        addressRegion: listing.state || 'SA',
+        ...(listing.postcode ? { postalCode: listing.postcode } : {}),
+        addressCountry: 'AU',
+      },
+      ...(home && listing.bedrooms ? { numberOfBedrooms: listing.bedrooms } : {}),
+      ...(home && listing.bathrooms ? { numberOfBathroomsTotal: listing.bathrooms } : {}),
+      ...(home && floorSize ? { floorSize: { '@type': 'QuantitativeValue', value: floorSize, unitCode: 'MTK' } } : {}),
+    },
+  };
+}
+
 export default function Listing() {
   const path = usePath();
   // Blair Athol's offices have no page of their own (they're on
@@ -418,18 +545,7 @@ export default function Listing() {
 
   return (
     <Layout>
-      <JsonLd
-        data={{
-          '@context': 'https://schema.org',
-          '@type': 'RealEstateListing',
-          url: `${SITE}${path}`,
-          name: listing.headline || address,
-          ...(listing.photos?.length
-            ? { image: listing.photos.map((src) => (src.startsWith('/') ? SITE + src : src)) }
-            : {}),
-          ...(listing.description ? { description: listing.description } : {}),
-        }}
-      />
+      <JsonLd data={listingJsonLd(listing, path, address)} />
       <JsonLd
         data={breadcrumbList([
           { name: 'Home', path: '/' },
@@ -464,7 +580,7 @@ export default function Listing() {
                   This space is in APN Real Estate’s own Mount Gambier office building.
                 </p>
               )}
-              {listing.description && <Description text={listing.description} targets={listing.linkTargets} />}
+              {listing.description && <Description text={listing.description} price={listing.price} targets={listing.linkTargets} />}
               {facts.length > 0 && (
                 <dl className="listing__facts">
                   {facts.map(([term, value]) => (

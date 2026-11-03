@@ -1,7 +1,7 @@
 ---
 # Full guide to these settings: docs/blog.md
 
-title: "Rent Increases in SA: What Landlords Need to Know"
+title: "Rent increases in SA: what landlords need to know"
 description: "How often rent can be increased in SA, how much notice landlords must give, fixed-term and periodic leases, rent bidding and excessive rent claims."
 date: 2026-10-21
 

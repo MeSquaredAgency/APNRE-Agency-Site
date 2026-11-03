@@ -200,24 +200,82 @@
   }
   /* Stand-ins shown while the fonts above load (font-display: swap),
      resized to the real fonts' proportions so text doesn't jump when
-     they arrive. Values from Capsize's metrics for each pair
-     (@capsizecss/metrics): size-adjust is the ratio of average character
-     widths, the overrides the real font's ascent and descent at that
-     size. Used through --font-sans and --font-serif in src/index.css. */
-  @font-face {
-    font-family: 'Figtree Fallback';
-    src: local('Arial'), local('ArialMT');
-    size-adjust: 100.72%;
-    ascent-override: 94.32%;
-    descent-override: 24.82%;
-    line-gap-override: 0%;
-  }
+     they arrive (the home headline used to, enough for a CLS of 0.1).
+     size-adjust is the ratio of average character widths, the overrides
+     the real font's ascent and descent at that size. Used through
+     --font-sans and --font-serif in src/index.css, in this order.
+
+     Not every device has Georgia and Arial: Android has Noto Serif and
+     Roboto instead, and Linux (where Lighthouse and PageSpeed Insights
+     run) has Liberation Serif and Liberation Sans, the free copies of
+     Times New Roman and Arial. Each needs its own sizes (Times New Roman
+     is about 13% narrower than Playfair), so each gets its own family;
+     a device without a font skips that family and tries the next.
+
+     Georgia and Arial regular: Capsize's metrics (@capsizecss/metrics).
+     The rest were measured in Chromium against the real files (canvas
+     measureText over a few lines of the site's copy, at the weights
+     headings and body text use). Arial and Roboto get a bold face too,
+     since buttons and labels are 600-700 and bold Arial is much wider
+     than Figtree's bold. */
   @font-face {
     font-family: 'Playfair Display Fallback';
     src: local('Georgia');
     size-adjust: 101.39%;
     ascent-override: 106.72%;
     descent-override: 24.76%;
+    line-gap-override: 0%;
+  }
+  @font-face {
+    font-family: 'Playfair Display Fallback Times';
+    src: local('Times New Roman'), local('TimesNewRomanPSMT'), local('Liberation Serif'), local('LiberationSerif'), local('Tinos');
+    size-adjust: 112.7%;
+    ascent-override: 96.01%;
+    descent-override: 22.27%;
+    line-gap-override: 0%;
+  }
+  @font-face {
+    font-family: 'Playfair Display Fallback Noto';
+    src: local('Noto Serif'), local('NotoSerif'), local('NotoSerif-Regular'), local('Droid Serif');
+    size-adjust: 93.2%;
+    ascent-override: 116.09%;
+    descent-override: 26.93%;
+    line-gap-override: 0%;
+  }
+  @font-face {
+    font-family: 'Figtree Fallback';
+    font-weight: 300 500;
+    src: local('Arial'), local('ArialMT'), local('Liberation Sans'), local('LiberationSans'), local('Arimo');
+    size-adjust: 100.72%;
+    ascent-override: 94.32%;
+    descent-override: 24.82%;
+    line-gap-override: 0%;
+  }
+  @font-face {
+    font-family: 'Figtree Fallback';
+    font-weight: 600 800;
+    src: local('Arial Bold'), local('Arial-BoldMT'), local('Liberation Sans Bold'), local('LiberationSans-Bold'), local('Arimo Bold');
+    size-adjust: 95.2%;
+    ascent-override: 99.79%;
+    descent-override: 26.26%;
+    line-gap-override: 0%;
+  }
+  @font-face {
+    font-family: 'Figtree Fallback Roboto';
+    font-weight: 300 500;
+    src: local('Roboto'), local('Roboto-Regular'), local('Roboto Regular');
+    size-adjust: 100.15%;
+    ascent-override: 94.86%;
+    descent-override: 24.96%;
+    line-gap-override: 0%;
+  }
+  @font-face {
+    font-family: 'Figtree Fallback Roboto';
+    font-weight: 600 800;
+    src: local('Roboto Bold'), local('Roboto-Bold');
+    size-adjust: 101.2%;
+    ascent-override: 93.87%;
+    descent-override: 24.7%;
     line-gap-override: 0%;
   }
 </style>

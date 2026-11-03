@@ -127,7 +127,8 @@ const CONFIG: Record<OfficeId, OfficePageConfig> = {
 function OfficePage({ id }: { id: OfficeId }) {
   const office = OFFICES[id];
   const c = CONFIG[id];
-  const directions = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(office.mapsQuery)}`;
+  // The office's Google Business Profile, which has the directions button.
+  const directions = office.mapsUrl;
   const team = TEAM.filter((m) => m.office === id).map((m) => m.name);
 
   return (

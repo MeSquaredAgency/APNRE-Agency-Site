@@ -1,7 +1,7 @@
 ---
 # Full guide to these settings: docs/blog.md
 
-title: "Can a Landlord Refuse Pets in SA? A Landlord's Guide"
+title: "Can a landlord refuse pets in SA? A landlord's guide"
 seoTitle: "Can a Landlord Refuse Pets in SA?"
 description: "SA landlords can only refuse a pet on set grounds, in writing, within 14 days. Valid reasons to refuse, the conditions you can set, and what's banned."
 date: 2026-10-21

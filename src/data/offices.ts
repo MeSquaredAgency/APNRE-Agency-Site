@@ -11,6 +11,7 @@ import blairAtholLounge from '../assets/photos/office/blair-athol-lounge.jpg?pho
 import blairAtholHallway from '../assets/photos/office/blair-athol-hallway.jpg?photo';
 import adelaideLogo from '../assets/logo/adelaide-property-network-logo.png';
 import mountGambierLogo from '../assets/logo/mount-gambier-property-network-logo.png';
+import places from './google-places.json';
 
 /** The main brand logo, used in the header on every page. */
 export const MAIN_LOGO = adelaideLogo;
@@ -26,8 +27,14 @@ export interface Office {
   /** The logo file's size, so the page keeps its space while it loads. */
   logoSize: { w: number; h: number };
   addressLines: [string, string];
-  /** For a "Get directions" link. */
+  /** The address as Google Maps understands it, for the embedded map. */
   mapsQuery: string;
+  /** The office's Google Business Profile (by its Maps CID, from
+   *  google-places.json): where "Get directions" goes, since it opens the
+   *  office itself, with its directions button, hours and reviews, rather
+   *  than a search that might land on a neighbour. Also the office's map
+   *  and sameAs in the structured data (scripts/build-pages.mjs). */
+  mapsUrl: string;
   phone: string;
   /** A real photo of the office itself. Without one, the office card
    *  shows the office's logo instead. */
@@ -46,6 +53,7 @@ export const OFFICES: Record<OfficeId, Office> = {
     logoSize: { w: 362, h: 240 },
     addressLines: ['Level 1 / 420B, Cnr Main North Road', 'and Barton Street, Blair Athol SA 5084'],
     mapsQuery: '420B Main North Road, Blair Athol SA 5084',
+    mapsUrl: places.adelaide.url,
     phone: '1300 123 276',
     photo: blairAtholFrontage,
     photoAlt: 'The Adelaide Property Network office at 420B Main North Road, Blair Athol, with its signage out the front',
@@ -60,6 +68,7 @@ export const OFFICES: Record<OfficeId, Office> = {
     logoSize: { w: 369, h: 240 },
     addressLines: ['178 Commercial Street East,', 'Mount Gambier SA 5290'],
     mapsQuery: '178 Commercial Street East, Mount Gambier SA 5290',
+    mapsUrl: places['mount-gambier'].url,
     phone: '1300 123 276',
     // The hillside street photo shown here before was a property, not the
     // office (flagged in the director's review). Until the office photo is

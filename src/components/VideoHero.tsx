@@ -27,8 +27,9 @@ const PHONE = '(max-width: 760px)';
 /** Full-bleed looping video with the headline and search over it.
  *
  *  The pre-rendered HTML carries only the poster image, so it shows
- *  straight away. The video file is chosen after the page loads (720p on
- *  tablets, 1080p on larger screens) and skipped entirely on phones and
+ *  straight away. The video file is chosen after the page loads (720p up
+ *  to 1600px wide, which covers most laptops and desktops and is half the
+ *  size; 1080p only on bigger screens) and skipped entirely on phones and
  *  for anyone who prefers reduced motion or has asked to save data, who
  *  keep the poster. The video is muted and has a pause button, since it
  *  runs longer than 5 seconds. */
@@ -43,7 +44,7 @@ export default function VideoHero() {
   useEffect(() => {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
     if (!reduce.matches && !saveData() && !window.matchMedia(PHONE).matches) {
-      setSrc(window.matchMedia('(max-width: 900px)').matches ? HERO_VIDEO.srcSmall : HERO_VIDEO.src);
+      setSrc(window.matchMedia('(max-width: 1600px)').matches ? HERO_VIDEO.srcSmall : HERO_VIDEO.src);
     }
     // Turning reduced motion on mid-visit pauses it.
     const onChange = () => {
@@ -98,8 +99,12 @@ export default function VideoHero() {
     <section className="video-hero">
       {/* The poster is a real image under the video rather than the
           video's poster attribute, so phones get a smaller copy. It's the
-          page's largest image, preloaded in scripts/build-pages.mjs. */}
+          page's largest image, preloaded in scripts/build-pages.mjs.
+          Phones always get the 800px copy: by srcset alone a 2x or 3x
+          phone would pick the 1600px one, three times the size, for a
+          background mostly covered by the headline and search. */}
       <picture className="video-hero__poster">
+        <source type="image/webp" media={PHONE} srcSet={HERO_VIDEO.posterPhone} />
         <source type="image/webp" srcSet={HERO_VIDEO.posterSrcSet} sizes="100vw" />
         <img
           src={HERO_VIDEO.poster}
@@ -180,42 +185,40 @@ export default function VideoHero() {
               </button>
             ))}
           </div>
-          <form
-            id="hero-search-panel"
-            role="tabpanel"
-            aria-labelledby={`hero-tab-${mode}`}
-            className="hero-search__bar"
-            onSubmit={submit}
-          >
-            <Icon name="search" />
-            <label htmlFor="hero-search-input" className="visually-hidden">
-              {current.placeholder}
-            </label>
-            {mode === 'agent' ? (
-              <input
-                id="hero-search-input"
-                type="search"
-                autoComplete="off"
-                placeholder={current.placeholder}
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-              />
-            ) : (
-              // Google address suggestions when a Maps key is set. Keyed
-              // by tab so switching between Sell and Lease starts empty.
-              <AddressInput
-                key={mode}
-                id="hero-search-input"
-                autoComplete="street-address"
-                placeholder={current.placeholder}
-                onChange={setValue}
-                tone="dark"
-              />
-            )}
-            <button type="submit" className="btn btn-light">
-              {current.submit}
-            </button>
-          </form>
+          {/* The tab panel is a plain wrapper: a <form> can't take the
+              tabpanel role (axe's aria-allowed-role). */}
+          <div id="hero-search-panel" role="tabpanel" aria-labelledby={`hero-tab-${mode}`}>
+            <form className="hero-search__bar" onSubmit={submit}>
+              <Icon name="search" />
+              <label htmlFor="hero-search-input" className="visually-hidden">
+                {current.placeholder}
+              </label>
+              {mode === 'agent' ? (
+                <input
+                  id="hero-search-input"
+                  type="search"
+                  autoComplete="off"
+                  placeholder={current.placeholder}
+                  value={value}
+                  onChange={(e) => setValue(e.target.value)}
+                />
+              ) : (
+                // Google address suggestions when a Maps key is set. Keyed
+                // by tab so switching between Sell and Lease starts empty.
+                <AddressInput
+                  key={mode}
+                  id="hero-search-input"
+                  autoComplete="street-address"
+                  placeholder={current.placeholder}
+                  onChange={setValue}
+                  tone="dark"
+                />
+              )}
+              <button type="submit" className="btn btn-light">
+                {current.submit}
+              </button>
+            </form>
+          </div>
         </div>
 
         <div className="video-hero__links">

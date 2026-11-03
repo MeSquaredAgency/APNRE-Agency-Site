@@ -112,12 +112,54 @@ export default function EnquiryForm({
 
   // Turnstile spam check, when a site key is configured. The widget adds
   // a hidden cf-turnstile-response field to this form, which
-  // functions/api/enquiry.ts verifies. Usually invisible; it only asks
-  // for a click when Cloudflare isn't sure the visitor is human.
+  // functions/api/enquiry.ts verifies. Usually invisible
+  // ('interaction-only'); it only shows, and asks for a click, when
+  // Cloudflare isn't sure the visitor is human.
+  //
+  // Cloudflare's script (and the work it does checking the browser) waits
+  // until the form is likely to be used: the visitor focuses or types in
+  // it, or it scrolls within about 300px of the screen, whichever comes
+  // first. Most visitors never reach a form, so most pages never load it.
+  const formRef = useRef<HTMLFormElement>(null);
   const turnstileBox = useRef<HTMLDivElement>(null);
   const turnstileId = useRef<string>();
+  const [turnstileWanted, setTurnstileWanted] = useState(false);
+  // Whether Turnstile is showing its checkbox, so the slot only takes up
+  // room (and its share of the form's spacing) while there's something
+  // in it.
+  const [challenge, setChallenge] = useState(false);
+  const wantTurnstile = () => setTurnstileWanted(true);
+  // Settles with this form's current token, or fails if Turnstile can't
+  // load or errors. Replaced whenever a token is used up or expires, so
+  // a send always waits for a fresh one.
+  const token = useRef<{ promise: Promise<void>; resolve: () => void; reject: (err: unknown) => void }>();
+  const freshToken = () => {
+    let resolve!: () => void;
+    let reject!: (err: unknown) => void;
+    const promise = new Promise<void>((res, rej) => {
+      resolve = res;
+      reject = rej;
+    });
+    promise.catch(() => undefined); // handled when the form is sent
+    token.current = { promise, resolve, reject };
+  };
+  if (!token.current) freshToken();
+
   useEffect(() => {
-    if (!TURNSTILE_SITE_KEY || !turnstileBox.current) return;
+    if (!TURNSTILE_SITE_KEY || turnstileWanted || !formRef.current) return;
+    if (!('IntersectionObserver' in window)) return setTurnstileWanted(true);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setTurnstileWanted(true);
+      },
+      { rootMargin: '300px 0px' },
+    );
+    observer.observe(formRef.current);
+    return () => observer.disconnect();
+  }, [turnstileWanted]);
+
+  useEffect(() => {
+    if (!TURNSTILE_SITE_KEY || !turnstileWanted || !turnstileBox.current) return;
     let cancelled = false;
     loadTurnstile()
       .then((ts) => {
@@ -126,15 +168,24 @@ export default function EnquiryForm({
           sitekey: TURNSTILE_SITE_KEY,
           action: kind,
           appearance: 'interaction-only',
+          callback: () => token.current?.resolve(),
+          'expired-callback': freshToken,
+          'error-callback': () => token.current?.reject(new Error('Turnstile error')),
+          'before-interactive-callback': () => setChallenge(true),
+          'after-interactive-callback': () => setChallenge(false),
         });
       })
-      .catch((err) => console.warn(err));
+      .catch((err) => {
+        console.warn(err);
+        token.current?.reject(err);
+      });
     return () => {
       cancelled = true;
       if (turnstileId.current) window.turnstile?.remove(turnstileId.current);
       turnstileId.current = undefined;
+      freshToken();
     };
-  }, [kind]);
+  }, [kind, turnstileWanted]);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -145,6 +196,15 @@ export default function EnquiryForm({
     setStatus('submitting');
     setConflict('');
     try {
+      if (TURNSTILE_SITE_KEY) {
+        // Wait for the spam check's token (it's normally ready long
+        // before anyone presses send). If Turnstile can't load, send
+        // anyway: the server turns it down and the visitor sees the
+        // error with the phone number, rather than a button stuck on
+        // "Sending…".
+        setTurnstileWanted(true);
+        await token.current?.promise.catch((err) => console.warn('Sending without a Turnstile token:', err));
+      }
       const res = await fetch(ENDPOINT, { method: 'POST', body: new FormData(form) });
       const body = await res.json().catch(() => null);
       if (res.status === 409 && typeof body?.error === 'string') setConflict(body.error);
@@ -156,8 +216,12 @@ export default function EnquiryForm({
       });
     } catch (err) {
       console.error('Enquiry form submission failed:', err);
-      // Turnstile tokens are single-use, so get a fresh one for the retry.
-      if (turnstileId.current) window.turnstile?.reset(turnstileId.current);
+      // Turnstile tokens are single-use, so get a fresh one for the retry
+      // (and make the next send wait for it).
+      if (turnstileId.current) {
+        freshToken();
+        window.turnstile?.reset(turnstileId.current);
+      }
       setStatus('error');
     }
   }
@@ -166,10 +230,13 @@ export default function EnquiryForm({
 
   return (
     <form
+      ref={formRef}
       className="form"
       id={`enquiry-${kind}`}
       onSubmit={handleSubmit}
       onChange={tried ? (e) => showErrors(e.currentTarget) : undefined}
+      onFocus={TURNSTILE_SITE_KEY && !turnstileWanted ? wantTurnstile : undefined}
+      onInput={TURNSTILE_SITE_KEY && !turnstileWanted ? wantTurnstile : undefined}
       noValidate
     >
       {before}
@@ -403,7 +470,9 @@ export default function EnquiryForm({
         <textarea name="message" rows={4} required={kind === 'maintenance'} data-label="A description of the repair" />
       </label>
 
-      {TURNSTILE_SITE_KEY && <div ref={turnstileBox} className="form__turnstile" />}
+      {TURNSTILE_SITE_KEY && (
+        <div ref={turnstileBox} className={`form__turnstile${challenge ? '' : ' form__turnstile--hidden'}`} />
+      )}
 
       {status === 'error' && conflict && (
         <p className="form__error" role="alert">

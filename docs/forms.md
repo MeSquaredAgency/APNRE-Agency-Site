@@ -74,8 +74,8 @@ which is invisible to most visitors and only asks for a click when it
 isn't sure. It's off until both keys are set:
 
 1. Cloudflare dashboard → **Turnstile** → **Add widget**. Add the
-   hostnames `apnre.com.au`, `www.apnre.com.au` and your
-   `<project>.pages.dev` preview domain. Widget mode: **Managed**.
+   hostnames `apnre.com.au`, `www.apnre.com.au` and the
+   `apnre-agency-site.pages.dev` preview domain. Widget mode: **Managed**.
 2. In the Pages project → **Settings → Environment variables**, add both
    (Production, and Preview if you want previews checked too):
    - `VITE_TURNSTILE_SITE_KEY` = the site key (public; used at build time)
@@ -87,9 +87,31 @@ Set **both or neither**. With only the secret set, the forms can't
 produce a token and every enquiry is rejected. With only the site key
 set, the widget shows but nothing checks it.
 
+How it behaves on the main site's forms (`src/components/EnquiryForm.tsx`):
+
+- Cloudflare's script only loads once a form is likely to be used: the
+  visitor clicks into or types in it, or it scrolls within about 300px
+  of the screen, whichever comes first. Pages whose form is never
+  reached never load it.
+- The widget is `interaction-only`: it takes no space and shows nothing
+  unless Cloudflare wants the visitor to click a checkbox, in which case
+  it appears just above the send button.
+- Pressing send waits for the token (normally ready long before then).
+  If Turnstile can't load at all, the form is sent anyway and the server
+  turns it down, so the visitor sees the error message with the phone
+  number rather than a stuck button.
+
+The landlord funnel's form still loads Turnstile as soon as the page
+loads (it's the page's whole point).
+
 The landlord funnel's form (`functions/api/lead.ts`) uses the same keys
 and is checked the same way. The server also confirms each token was
-issued on an APN hostname (or a `pages.dev` preview) and for that form.
+issued on an APN hostname, or on this project's own previews
+(`apnre-agency-site.pages.dev` and `*.apnre-agency-site.pages.dev`), and
+for that form. Until November 2026 any `*.pages.dev` host passed, which
+would have accepted a token solved on someone else's Pages site. If the
+Pages project is ever renamed, update `PREVIEW_HOST` in
+`functions/_lib/forms.ts`, or tokens from previews will be refused.
 
 Turnstile stops automated posts but not a determined human, so also add
 a rate-limiting rule: Cloudflare dashboard → the apnre.com.au zone →

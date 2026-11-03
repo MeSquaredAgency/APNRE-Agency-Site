@@ -56,8 +56,8 @@ const SPECIAL_HOURS =
 const ORG_ID = `${SITE}/#organization`;
 // Must match OFFICE_SCHEMA_IDS in src/structured-data.ts.
 const OFFICE_IDS = { adelaide: `${SITE}/#office-adelaide`, 'mount-gambier': `${SITE}/#office-mount-gambier` };
-// REA_PROFILE_URL and the social links in src/data/business.ts. Add the
-// Google Business Profiles here once confirmed.
+// REA_PROFILE_URL and the social links in src/data/business.ts. Each
+// office's Google Business Profile is on the office itself (below).
 const SAME_AS = [
   'https://www.realestate.com.au/agency/adelaide-property-network-blair-athol-JIASZF',
   'https://www.facebook.com/adelaidepropertynetwork',
@@ -65,13 +65,23 @@ const SAME_AS = [
   'https://www.youtube.com/@AdelaidepropertynetworkAu',
 ];
 
-const office = ({ id, name, alternateName, street, locality, postcode, city, mapsQuery }) => ({
+// Each office's Google Business Profile, by its Maps CID (the same links
+// the reviews use; src/data/google-places.json). Used as the office's map
+// and in its sameAs, which ties the profile and this site together.
+const PLACES = JSON.parse(readFileSync(join(ROOT, 'src/data/google-places.json'), 'utf8'));
+
+// image: a real photo of the office, where there is one. The Adelaide
+// one is its link-preview image (the Blair Athol frontage, from
+// scripts/og-images.mjs), at a stable address. Mount Gambier has none
+// yet (src/data/offices.ts); add `image` for it once the photo is in.
+const office = ({ id, name, alternateName, street, locality, postcode, city, image }) => ({
   '@type': 'RealEstateAgent',
   '@id': OFFICE_IDS[id],
   name,
   alternateName,
   // Each office's own page (src/pages/Office.tsx).
   url: `${SITE}/${id}/`,
+  ...(image ? { image } : {}),
   telephone: '+61-1300-123-276',
   parentOrganization: { '@id': ORG_ID },
   address: {
@@ -82,7 +92,8 @@ const office = ({ id, name, alternateName, street, locality, postcode, city, map
     postalCode: postcode,
     addressCountry: 'AU',
   },
-  hasMap: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapsQuery)}`,
+  hasMap: PLACES[id].url,
+  sameAs: [PLACES[id].url],
   areaServed: { '@type': 'City', name: city, containedInPlace: { '@type': 'State', name: 'South Australia' } },
   openingHoursSpecification: HOURS,
   ...(SPECIAL_HOURS ? { specialOpeningHoursSpecification: SPECIAL_HOURS } : {}),
@@ -117,7 +128,7 @@ const JSON_LD = {
       locality: 'Blair Athol',
       postcode: '5084',
       city: 'Adelaide',
-      mapsQuery: '420B Main North Road, Blair Athol SA 5084',
+      image: `${SITE}/og/office-adelaide.jpg`,
     }),
     office({
       id: 'mount-gambier',
@@ -127,7 +138,6 @@ const JSON_LD = {
       locality: 'Mount Gambier',
       postcode: '5290',
       city: 'Mount Gambier',
-      mapsQuery: '178 Commercial Street East, Mount Gambier SA 5290',
     }),
     {
       '@type': 'WebSite',
@@ -162,6 +172,17 @@ ${headTags}    <script type="module" src="${entry}"></script>
 `;
 }
 
+/** A listing page's main photo (route.preloadImage, scripts/routes.mjs),
+ *  fetched straight away: it's the page's largest image, and without this
+ *  the browser only finds it once it reaches the photo in the markup. The
+ *  same srcset and sizes as the <img>, so it's the same file. */
+function listingPhotoPreload(route) {
+  const p = route.preloadImage;
+  if (!p) return '';
+  const set = p.srcset ? ` imagesrcset="${esc(p.srcset)}" imagesizes="${esc(p.sizes)}"` : '';
+  return `    <link rel="preload" as="image" href="${esc(p.href)}"${set} fetchpriority="high" />\n`;
+}
+
 function html(route) {
   const funnel = route.funnel ? FUNNELS[route.funnel] : undefined;
   if (route.funnel && !funnel) throw new Error(`${route.path}: no funnel "${route.funnel}" in src/data/funnels.json`);
@@ -169,12 +190,13 @@ function html(route) {
   const title = esc(route.title);
   const description = esc(route.description);
   // Each funnel has its own share image, made for ads; a listing uses its
-  // main photo, whose size we don't know; other main-site pages get
+  // main photo as a 1200 x 630 JPEG (or, where that couldn't be made, the
+  // photo itself, whose size we don't know); other main-site pages get
   // theirs from scripts/og-images.mjs.
   const og = funnel
     ? { image: FUNNEL_ORIGIN + funnel.og.image, alt: funnel.og.alt, sized: true }
     : route.ogImage
-      ? { image: route.ogImage, alt: route.ogAlt ?? '', sized: false }
+      ? { image: route.ogImage, alt: route.ogAlt ?? '', sized: Boolean(route.ogImageSized) }
       : { image: `${SITE}/og/${ogKey(route)}.jpg`, alt: (OG_PHOTOS[ogKey(route)] ?? OG_DEFAULT).alt, sized: true };
   const ogSize = og.sized
     ? `    <meta property="og:image:width" content="1200" />
@@ -186,10 +208,15 @@ function html(route) {
       ? `    <script type="application/ld+json">${JSON.stringify(JSON_LD)}</script>\n`
       : '';
   // The home hero's poster is its largest image, so fetch it straight
-  // away: the same WebP set as HERO_VIDEO.posterSrcSet in src/data/media.ts.
+  // away, matching the <picture> in src/components/VideoHero.tsx: phones
+  // (760px and narrower) always get the 800px copy (HERO_VIDEO.posterPhone
+  // in src/data/media.ts), even with a 2x or 3x screen; bigger screens
+  // pick from HERO_VIDEO.posterSrcSet. The media queries keep each device
+  // to one download.
   const preload =
     route.page === 'home'
-      ? `    <link rel="preload" as="image" type="image/webp" imagesrcset="/video/adelaide-aerial-poster-800.webp 800w, /video/adelaide-aerial-poster-1600.webp 1600w" imagesizes="100vw" fetchpriority="high" />\n`
+      ? `    <link rel="preload" as="image" type="image/webp" href="/video/adelaide-aerial-poster-800.webp" media="(max-width: 760px)" fetchpriority="high" />
+    <link rel="preload" as="image" type="image/webp" imagesrcset="/video/adelaide-aerial-poster-800.webp 800w, /video/adelaide-aerial-poster-1600.webp 1600w" imagesizes="100vw" media="(min-width: 761px)" fetchpriority="high" />\n`
       : '';
   const headTags = `    <title>${title}</title>
     <meta name="description" content="${description}" />
@@ -206,7 +233,7 @@ ${ogSize}    <meta property="og:image:alt" content="${esc(og.alt)}" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="${esc(og.image)}" />
     <meta name="twitter:image:alt" content="${esc(og.alt)}" />
-${preload}${jsonLd}`;
+${preload}${listingPhotoPreload(route)}${jsonLd}`;
   return shell({
     entry: funnel ? funnel.entry : ENTRIES.main,
     headTags,

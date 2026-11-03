@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SAMPLE ONLY: a sale from over a year ago, which drops off /sold/ (its
+     old /buy/ and /sold/ pages redirect to /sold/). -->
+<propertyList date="2025-07-02-10:00:00">
+  <residential modTime="2025-07-02-10:00:00" status="sold">
+    <agentID>SAMPLE</agentID>
+    <uniqueID>SAMPLE-S3</uniqueID>
+    <address display="yes"><streetNumber>12</streetNumber><street>Old Sale Street</street><suburb>KILBURN</suburb><state>SA</state><postcode>5084</postcode></address>
+    <category name="House"/>
+    <headline>SAMPLE: Sold over a year ago (should not appear)</headline>
+    <soldDetails><soldPrice display="yes">520000</soldPrice><soldDate>2025-07-01</soldDate></soldDetails>
+  </residential>
+</propertyList>

@@ -2,9 +2,18 @@
 // lead.ts). This file exports no request handlers, so Pages doesn't serve
 // it as a route.
 
-/** Hosts a Turnstile token may come from. Preview deployments
- *  (*.pages.dev) are allowed too, so forms can be tested there. */
+/** Hosts a Turnstile token may come from. This project's own preview
+ *  deployments are allowed too, so forms can be tested there. */
 const TURNSTILE_HOSTS = new Set(['apnre.com.au', 'www.apnre.com.au']);
+/** The Cloudflare Pages project's own address. Previews live at
+ *  <branch-or-hash>.apnre-agency-site.pages.dev. Only this project's: any
+ *  pages.dev host used to pass, which would accept a token solved on
+ *  someone else's Pages site that happened to use the same site key. */
+const PREVIEW_HOST = 'apnre-agency-site.pages.dev';
+
+function turnstileHostOk(host: string): boolean {
+  return TURNSTILE_HOSTS.has(host) || host === PREVIEW_HOST || host.endsWith(`.${PREVIEW_HOST}`);
+}
 
 /** How long to wait for Google before giving up, so a slow Apps Script
  *  can't hold the visitor's request open. */
@@ -32,7 +41,7 @@ export async function turnstileOk(
     const result = (await res.json()) as { success?: boolean; hostname?: string; action?: string };
     if (result.success !== true) return false;
     const host = result.hostname ?? '';
-    if (!TURNSTILE_HOSTS.has(host) && !host.endsWith('.pages.dev')) return false;
+    if (!turnstileHostOk(host)) return false;
     if (action && result.action !== action) return false;
     return true;
   } catch (err) {

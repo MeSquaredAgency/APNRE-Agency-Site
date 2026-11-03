@@ -1,6 +1,9 @@
 // /buy/, /rent/, /sold/ and /commercial/. Each shows its listings from
 // PropertyMe's feed (src/lib/listings.ts), linking to a page per property.
-// /rent/ lists commercial leases too, with a Residential / Commercial filter.
+// /rent/ lists commercial leases too, with the same Residential /
+// Commercial filter as /buy/; when it has no homes it says so, with a
+// link to the rental alerts form, rather than looking like a page of
+// homes that's all offices.
 // Until the feed is set up (docs/listings-feed.md), or when a section has
 // nothing in it, /buy/, /rent/ and /sold/ point to APN's
 // realestate.com.au profile instead, which is always current.
@@ -141,6 +144,9 @@ interface ListingsGridProps {
   fallback: { title: string; copy: string };
   /** Residential / Commercial chips, shown when there's some of each. */
   filterable?: boolean;
+  /** Shown above the commercial listings when there are listings but no
+   *  homes among them (/rent/ with only commercial leases). */
+  noHomes?: { title: string; copy: string; href: string; label: string };
 }
 
 const TYPE_FILTERS = [
@@ -151,11 +157,38 @@ const TYPE_FILTERS = [
 type TypeFilter = (typeof TYPE_FILTERS)[number]['key'];
 
 /** The section's listings, or the realestate.com.au panel when there are none. */
-function ListingsGrid({ sections, link, eyebrow, title, fallback, filterable = false }: ListingsGridProps) {
+function ListingsGrid({ sections, link, eyebrow, title, fallback, filterable = false, noHomes }: ListingsGridProps) {
   const [type, setType] = useState<TypeFilter>('all');
   const listings = sections.flatMap(listingsIn);
   if (listings.length === 0) return <ListingsPanel link={link} {...fallback} />;
   const commercialCount = listings.filter((l) => l.propertyType === 'commercial').length;
+  if (noHomes && commercialCount === listings.length) {
+    return (
+      <section className="section section-white">
+        <div className="wrap">
+          <div className="listings-empty">
+            <div>
+              <h2 className="h-2">{noHomes.title}</h2>
+              <p>{noHomes.copy}</p>
+            </div>
+            <a href={noHomes.href} className="btn btn-primary">
+              {noHomes.label} <Icon name="arrow" />
+            </a>
+          </div>
+          <SectionHead
+            eyebrow="Commercial"
+            title={`${plural(listings.length, 'commercial property', 'commercial properties')} for lease.`}
+          />
+          <ul className="listing-grid">
+            {listings.map((l) => (
+              <ListingCard key={l.id} listing={l} allCommercial />
+            ))}
+          </ul>
+          <PortalLinks />
+        </div>
+      </section>
+    );
+  }
   const showFilter = filterable && commercialCount > 0 && commercialCount < listings.length;
   const shown = listings.filter(
     (l) => type === 'all' || (l.propertyType ?? 'residential') === type,
@@ -263,13 +296,18 @@ export function Buy() {
 const RENT_HERO = suppliedPhoto('rent-hero');
 
 export function Rent() {
+  const hasHomes = listingsIn('rent').length > 0;
   return (
     <Layout>
       <ListingsJsonLd path="/rent/" name="Properties for rent" sections={['rent', 'commercial']} />
       <PageHero
         eyebrow="Rent"
         title="Properties for rent."
-        lede="Rental homes and commercial space available now across Adelaide and Mount Gambier."
+        lede={
+          hasHomes
+            ? 'Rental homes and commercial space available now across Adelaide and Mount Gambier.'
+            : 'Rental homes and commercial space across Adelaide and Mount Gambier.'
+        }
         photo={RENT_HERO?.photo ?? interior}
         photoAlt={RENT_HERO ? RENT_HERO.alt : 'Floor-to-ceiling corner windows in a rental property managed by APN Real Estate'}
       />
@@ -279,6 +317,12 @@ export function Rent() {
         eyebrow="Available now"
         title={(n) => `${plural(n, 'property', 'properties')} for rent.`}
         filterable
+        noHomes={{
+          title: 'No homes for rent right now.',
+          copy: 'New rentals tend to go quickly. Get rental alerts and our property management team will let you know as soon as a home that suits you is listed.',
+          href: '#register',
+          label: 'Get Rental Alerts',
+        }}
         fallback={{
           title: 'See what’s available to rent.',
           copy: 'Our current rentals, with photos and inspection times, are on our realestate.com.au agency page. Apply through the listing.',
