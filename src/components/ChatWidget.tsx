@@ -150,7 +150,22 @@ function history(
   }
   const out = [...pairs.flat(), { role: 'user' as const, content: question }];
   const size = () => out.reduce((n, m) => n + m.content.length, 0);
-  while (out.length > 1 && (out.length > SEND_MESSAGES || size() > SEND_CHARS)) out.splice(0, 2);
+  // The latest reply that sent the visitor's details stays when older
+  // exchanges are trimmed: its signed lead flag is how the server knows
+  // not to send them again (functions/api/chat.ts).
+  let kept = -1;
+  for (let i = out.length - 2; i > 0; i -= 2) {
+    if ((out[i] as Message).lead) {
+      kept = i - 1;
+      break;
+    }
+  }
+  while (out.length > 1 && (out.length > SEND_MESSAGES || size() > SEND_CHARS)) {
+    const at = kept === 0 && out.length > 3 ? 2 : 0;
+    out.splice(at, 2);
+    if (at === 0 && kept > 0) kept -= 2;
+    else if (at === 0 && kept === 0) kept = -1;
+  }
   return out.map(({ role, content, sig, lead }) =>
     role === 'assistant' ? { role, content, sig, ...(lead ? { lead: true } : {}) } : { role, content },
   );
