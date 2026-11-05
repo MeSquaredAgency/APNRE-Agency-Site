@@ -11,12 +11,19 @@ GTM and the Pixel only load on `apnre.com.au` and `www.apnre.com.au`
 (`src/partials/head-shared.html`), so the dev server and preview
 deployments don't send anything.
 
-The page loads the container itself. Cloudflare's Google tag gateway
-(in the Cloudflare dashboard) should have its automatic tag injection
-off. If it's ever on, the page notices the gateway's copy and doesn't
-load the container a second time, but the gateway's copy then loads
-straight away instead of waiting for the page to finish, which slows
-phones down.
+Cloudflare's Google tag gateway is on (Cloudflare dashboard → Web tag
+management → apnre.com.au, tag `GTM-P5H7NTCF`, path `/q2pj`). It serves
+GTM from APN's own domain, which ad blockers and browser privacy
+features block less often, so more visits and conversions are measured.
+While the gateway is on, Cloudflare always adds its own copy of the GTM
+snippet to the top of each page; there's no setting to stop that
+separately ("Set up tag" is off and doesn't affect it). The site's own
+loader notices that copy and doesn't load the container a second time,
+so GTM loads once. The trade-off is that it loads straight away rather
+than after the page has finished, which makes phones a little slower to
+respond. Turning the gateway off would bring the delayed loading back
+but lose the first-party measurement; that was weighed and the gateway
+kept in November 2026.
 
 Both parts of the site send the same `generate_lead` event, so one
 trigger and one GA4 tag cover every form. `event_category` tells them

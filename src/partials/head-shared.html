@@ -24,12 +24,18 @@
   missed. Campaign funnel pages (data-funnel on <html>) load it
   immediately, since that's where ad conversions happen.
 
-  Cloudflare's Google tag gateway must not inject its own copy of GTM
-  (its automatic tag injection should be off in the Cloudflare
-  dashboard), or the container loads twice. In case it's switched back
-  on, the loader below checks first: if the gateway's snippet has already
-  queued this container (window.google_tags_first_party lists its ID) or
-  a gtm.js script is already on the page, it doesn't load GTM again.
+  On the live site, Cloudflare's Google tag gateway (Web tag management
+  in the Cloudflare dashboard) is on, so GTM loads through APN's own
+  domain at /q2pj/, which ad blockers and browser privacy features block
+  less often. While the gateway is on, Cloudflare always puts its own
+  copy of the GTM snippet at the top of <head> on the live site, and
+  that can't be turned off separately (checked November 2026). So the
+  loader below checks first: if the gateway's snippet has already queued
+  this container (window.google_tags_first_party lists its ID) or a
+  gtm.js script is already on the page, it doesn't load GTM again, and
+  the container loads once, straight away. With the gateway off, this
+  loader is the only copy and waits for the page to finish as described
+  above.
   __apnLoadGtm still exists either way, as a harmless no-op, so
   trackFormSubmit() can always call it.
 -->
