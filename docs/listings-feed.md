@@ -142,7 +142,7 @@ Admin login for PropertyMe.
 ### 1. Google Cloud project and billing
 
 1. At <https://console.cloud.google.com/>, create a project called
-   `apn-listings-feed`.
+   `apnre-listings-feed` (the live one has that ID).
 2. Billing → link a billing account. Pick the business's existing
    Google payments profile, the one Google Ads or Workspace use, so it's
    all on the same card.
@@ -182,7 +182,11 @@ Targets: *Specified target tags*, `apn-feed`.
 | `apn-feed-web` | `0.0.0.0/0` | `80, 443` |
 
 PropertyMe's uploads aren't encrypted, so limiting FTP to their IP
-addresses is what keeps everyone else out. If PropertyMe hasn't sent
+addresses is what keeps everyone else out. (As of November 2026 the live
+rule is still `0.0.0.0/0` until PropertyMe sends its IPs. Once it has:
+`gcloud compute firewall-rules update apn-feed-ftp --project
+apnre-listings-feed --source-ranges=<IP1>/32,<IP2>/32`, then save a
+listing in PropertyMe and check it reaches the site.) If PropertyMe hasn't sent
 their IPs yet, use `0.0.0.0/0` to get going. Then tighten it as soon as
 you have them, and the FTP password still protects it in the meantime.
 
